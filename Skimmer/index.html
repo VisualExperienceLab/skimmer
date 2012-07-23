@@ -1263,12 +1263,15 @@
 		selectColor.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 	
 			
+		/*
 		entryNumber = document.getElementById("entryNumber");
 		//academicSearching.width = table.width * 1.0 / 9;
 		entryNumber.style.width = tableSel.width+"px";	
 		entryNumber.style.height = Math.round(tableSel.height * heightRatioText)+"px";
 		entryNumber.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
-			
+		*/
+
+		
 		chooseSource = document.getElementById("chooseSource");
 		//academicSearching.width = table.width * 1.0 / 9;
 		chooseSource.style.width = tableSel.width+"px";	
@@ -1296,6 +1299,15 @@
 		addData.style.width = tableSel.width+"px";
 		addData.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
 		addData.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
+		
+		
+		
+		autoMode = document.getElementById("autoMode");
+		//addData.width = table.width * 1.0 / 9;
+		autoMode.style.width = tableSel.width+"px";
+		autoMode.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
+		autoMode.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
+		
 		
 		
 		// *scaleNow / scaleOld
@@ -1363,12 +1375,13 @@
 	function skimmerSearching() {
 
 	
+	/*
 		var numberObj = document.getElementById("entryNumber");
 		var numberIndex = numberObj.selectedIndex;
 		var numberVal = numberObj.options[numberIndex].value;	
 
 		numEntries = numberVal;
-		
+		*/
 		
 		
 		var selectObj = document.getElementById("chooseSource");
@@ -1403,7 +1416,7 @@
 				isFlickr = 0;
 				var inputObj = document.getElementById("searchContent");
 				var inputVal = inputObj.value;
-				sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=" + inputVal + "&num="+ numEntries +"&um=1&ie=UTF-8&output=rss";
+				sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=" + inputVal + "&num=100&um=1&ie=UTF-8&output=rss";
 				break;
 			case "flickr_tags":
 				isFlickr = 1;
@@ -1427,7 +1440,8 @@
 		// Set the URL for the google feed API
 		var feed = new google.feeds.Feed(sourceAddress);
 		// Set the number of entries to be read from the RSS online
-		feed.setNumEntries(numEntries);
+		//feed.setNumEntries(numEntries);
+		feed.setNumEntries(100);
 
 		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
 		feed.load(function(result) {
@@ -1442,7 +1456,10 @@
 					container.appendChild(div);
 				}
 */
-				if (feedResult.feed.entries.length >= numEntries) {
+
+				numEntries = feedResult.feed.entries.length;
+				//if (feedResult.feed.entries.length >= numEntries) {
+				if (numEntries > 0) {
 
 					skimmer.UpdateSkimmer(feedResult, numEntries);
 					skimmer.addNewArticles();
@@ -1450,7 +1467,7 @@
 					skimmer.checkForAdjacencies();
 					skimmer.updateAgents();
 					skimmer.extractAgentMinMax();
-										buildAgentLinkList();
+					buildAgentLinkList();
 
 					
 					var selectObj = document.getElementById("selectColor");
@@ -1477,6 +1494,10 @@
 	
 
 		
+	//-------------------------------------------------------------------------------------------------------	
+	//-------------------------------------------------------------------------------------------------------	
+	//-------------------------------------------------------------------------------------------------------	
+	//-------------------------------------------------------------------------------------------------------	
 	//-------------------------------------------------------------------------------------------------------	
 	
 	
@@ -1509,8 +1530,6 @@
 				break;
 			case 2:
 				isFlickr = 0;
-				var inputObj = document.getElementById("searchContent");
-				var inputVal = inputObj.value;
 				sourceAddress = "http://search.twitter.com/search.rss?q=ncsu%23ncsu";
 				break;
 			case 3:
@@ -1523,14 +1542,10 @@
 				break;
 			case 4:
 				isFlickr = 0;
-				var inputObj = document.getElementById("searchContent");
-				var inputVal = inputObj.value;
-				sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=ncsu&um=1&ie=UTF-8&output=rss";
+				sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=ncsu&num=100&um=1&ie=UTF-8&output=rss";
 				break;
 			case 5:
 				isFlickr = 1;
-				var inputObj = document.getElementById("searchContent");
-				var inputVal = inputObj.value;
 				sourceAddress = "http://api.flickr.com/services/feeds/photos_public.gne?tags=ncsu&lang=en-us&format=rss_200";
 				break;
 			default:
@@ -1558,13 +1573,22 @@
 					container.appendChild(div);
 				}
 */
-				skimmer.UpdateSkimmer(feedResult, feedResult.feed.entries.length);
-				skimmer.addNewArticles();
-				skimmer.extractArticleMinMax();
-				skimmer.checkForAdjacencies();
-				skimmer.updateAgents();
-				skimmer.extractAgentMinMax();
-				buildAgentLinkList();
+
+				numEntries = feedResult.feed.entries.length;
+				
+
+				if (numEntries > 0) {
+					skimmer.UpdateSkimmer(feedResult, numEntries);
+					skimmer.addNewArticles();
+					skimmer.extractArticleMinMax();
+					skimmer.checkForAdjacencies();
+					skimmer.updateAgents();
+					skimmer.extractAgentMinMax();
+					buildAgentLinkList();
+				}
+				else {
+					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
+				}
 
 				
 				var selectObj = document.getElementById("selectColor");
@@ -1586,12 +1610,13 @@
 	// Start or end the auto mode in skimmer
 	function autoModeDriver()
 	{
-		alert("Auto");
 		if (autoFlag == 0) {
+			alert("Auto");
 			autoIntervalID = setInterval(autoMode, timeInterval);
 			autoFlag = 1;
 		}
 		else{
+			alert("Manual");
 			clearInterval(autoIntervalID);
 			autoFlag = 0;
 		}
@@ -1640,6 +1665,8 @@
 						<font color = "white" face = "Arial">Number</font>
 					</td>
 				</tr>
+
+				<!--
 				<tr>
 					<td>
 						<select id="entryNumber">
@@ -1652,6 +1679,8 @@
 						</select>
 					</td>
 				</tr>
+				-->
+				
 				<tr>
 					<td>
 						<font color = "white" face = "Arial">Source</font>
@@ -1692,7 +1721,7 @@
 				</tr>
 				<tr>
 					<td>
-						<button type = "button" name = "autoMode" id = "autoMode" onclick = "autoModeDriver();">Refresh</button>
+						<button type = "button" name = "autoMode" id = "autoMode" onclick = "autoModeDriver();">AutoMode</button>
 					</td>
 				</tr>
 				<tr>
