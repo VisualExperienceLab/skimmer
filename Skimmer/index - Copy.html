@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="ISO-8859-1">
+<title>Skimmer</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Skimmer</title>
+		<script type="text/javascript" src="js/skimmer.js"></script>
+		<script type="text/javascript" src="js/stopwords.js"></script>
+		<script type="text/javascript" src="lib/jquery/jquery-1.3.2.js"></script>
+		<script type="text/javascript" src="js/agent.js"></script>
+		<script type="text/javascript" src="js/obj_vet.js"></script>
+		<script type="text/javascript" src="js/article.js"></script>
+		<script type="text/javascript" src="js/map.js"></script>
+		<script type="text/javascript" src="js/stemmer.js"></script>
+		<script type="text/javascript" src="js/dictionary.js"></script>
+		
+		<script type="text/javascript" src="js/invertedFileSystem.js"></script>
+		
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type = "text/javascript">
+	var skimmer;
+	var canvas;
+	var ctx;
+	var intervalID;
+
+	var feedFinished = 0;		// A flag used in busy waiting, this should be replaced in the future
+	var feedResult;				// The result of using google feed API
+
+	var numEntries = 20;		// The number of entries to be obtained in the feed result
+	
+	// Default RSS source address
+	var sourceAddress = "http://www.digg.com/rss/index.xml";
+	
+	
+	// Define the inverted file system
+	//var IFS = new InvertedFileSystem();
+
+	
+	
+	// Read RSS from a website with the help of Google Javascript API Google Feed
+	google.load("feeds", "1");
+	// Define the callback function
+	function initialize() {
+		
+		// Set the URL for the google feed API
+		var feed = new google.feeds.Feed(sourceAddress);
+		// Set the number of entries to be read from the RSS online
+		feed.setNumEntries(numEntries);
+
+		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
+		feed.load(function(result) {
+			if (!result.error) {
+				feedResult = result;
+
+				/*
+				var container = document.getElementById("feed");
+				for (var i = 0; i < result.feed.entries.length; i++) {
+					var entry = result.feed.entries[i];
+					var div = document.createElement("div");
+					div.appendChild(document.createTextNode(entry.title));
+					container.appendChild(div);
+				}
+				*/
+
+				
+				canvas = document.getElementById("canvas");
+				
+				// Initialize the absolute position to zero
+				absPosX = 0;
+				absPosY = 0;
+				
+				tempElem = canvas;
+				
+				while (tempElem.offsetParent != null) {
+					absPosX += tempElem.offsetLeft;
+					absPosY += tempElem.offsetTop;
+					tempElem = tempElem.offsetParent;
+				}
+
+				// Finally get the absolute position of the canvas element
+				absPosX += tempElem.offsetLeft;
+				absPosY += tempElem.offsetTop;
+
+				
+				
+				skimmer = new Skimmer(absPosX, absPosY, canvas.width, canvas.height, feedResult, numEntries);
+				skimmer.addNewArticles();
+				skimmer.extractArticleMinMax();
+				skimmer.checkForAdjacencies();
+				skimmer.updateAgents();
+				skimmer.extractAgentMinMax();
+				
+				feedFinished = 1;
+
+				
+				
+				//IFS.addContent(feedResult.feed.entries,numEntries);
+				
+			}
+		});
+	}
+	google.setOnLoadCallback(initialize);
+
+
+	function init(){ 
+		// Code here are moved to other place in the program
+		//skimmer = new Skimmer(feedResult, numEntries);
+		//skimmer.addNewArticles();
+		//skimmer.extractArticleMinMax();
+		//skimmer.checkForAdjacencies();
+		//skimmer.updateAgents();
+		//skimmer.extractAgentMinMax();
+	}
+	
+	function keyDown(event){
+		 var keyCode = ('which' in event) ? event.which : event.keyCode;
+		 if(keyCode == 27){
+			 if(skimmer.agentArticle != null){
+				 skimmer.agentArticle.remove = true;
+				 skimmer.selectedWords.length = 0;
+				 skimmer.selectedArticles.length = 0;
+				 skimmer.selectedArticleRanking.clear();
+			 }
+			 else if(skimmer.zoomedAgents.length > 0){
+				 for(var i = 0 ; i < skimmer.zoomedAgents.length; i++){
+					 skimmer.zoomedAgents[i].remove = true;
+				 }
+				 skimmer.zoomedAgents.length = 0;
+			 }
+			 else{
+				 clearInterval(intervalID);
+			 }
+		 }else if(keyCode == 49){
+			 skimmer.colorType = 0;
+			 skimmer.updateAgentColor();
+		 }else if(keyCode == 50){
+			 skimmer.colorType = 1;
+			 skimmer.updateAgentColor();
+		 }else if(keyCode == 51){
+			 skimmer.colorType = 2;
+			 skimmer.updateAgentColor();
+		 }else if(keyCode == 52){
+			 skimmer.colorType = 3;
+			 skimmer.updateAgentColor();
+		 }else if(keyCode == 13){
+			// Set the action when the "Enter" button is pressed down
+			document.getElementById("startSearching").click();
+		 }
+	}
+	
+	function mouseClick(event){
+		
+		var cursor = new Vector2();
+		cursor.set(event.clientX - skimmer.left - (skimmer.width / 2), event.clientY - skimmer.top - (skimmer.height / 2 ));
+		
+		
+		//alert("x: " + cursor.x + " y: " + cursor.y);
+		
+		
+		
+		if(skimmer.agentArticle!=null){
+			var agentArticleBounds = skimmer.agentArticle.getBoundingBox();
+			if(agentArticleBounds.contains(cursor)){
+				var curIndex = skimmer.selectedArticles.indexOf(skimmer.selectedArticle);
+				if(curIndex >= 0){
+					if(event.button == 0){
+						if(agentArticleBounds.containsLink(cursor))
+						{
+							window.open(skimmer.agentArticle.source);
+						}
+						else
+						{
+							curIndex += 1;
+						}
+					}
+					else{
+						curIndex -= 1;
+					}
+					if(curIndex >= skimmer.selectedArticles.length){
+						curIndex = 0;
+					}
+					if(curIndex < 0){
+						curIndex = skimmer.selectedArticles.length - 1;
+					}
+					skimmer.selectedArticle = skimmer.selectedArticles[curIndex];
+					skimmer.agentArticle.title = skimmer.selectedArticle.title;
+					skimmer.agentArticle.text = skimmer.selectedArticle.summary;
+					skimmer.agentArticle.source = skimmer.selectedArticle.source;
+					skimmer.agentArticle.imageUrl = skimmer.selectedArticle.imageUrl;
+				}
+			}
+			else{
+				skimmer.agentArticle.remove = true;
+				skimmer.selectedWords.length = 0;
+				skimmer.selectedArticles.length = 0;
+				skimmer.selectedArticleRanking.clear();
+			}
+		}
+		if(event.button == 0 && event.shiftKey == true && event.ctrlKey == false && event.altKey == false){
+			
+			skimmer.selectedWords.length = 0;
+			skimmer.selectedArticles.length = 0;
+			skimmer.selectedArticleRanking.clear();
+			
+			// Build the selected words list
+			var tmpVect = new Vector2();
+			var dist;
+			for(var i = 0; i < skimmer.agents.length; i++){
+				var agent = skimmer.agents[i];
+				
+				tmpVect.setVect(agent.pos);
+				tmpVect.sub(cursor);
+				dist = tmp = tmpVect.length();
+				if(dist < 150){
+					skimmer.selectedWords.push(agent);
+				}
+			}
+			
+			// If words were selected, rank articles based on the selected articles
+			// Then sort them into a list of the top picks
+			// Finally generate the agent
+			if(skimmer.selectedWords.length > 0){
+				for(var i = 0; i < skimmer.articles.length; i++){
+					var article = skimmer.articles[i];
+					var rank = 0;
+					for(var j = 0; j < skimmer.selectedWords.length; j++){
+						var agent = skimmer.selectedWords[j];
+						if(article.words.indexOf(agent.stem) > -1){
+							rank += 1.0 + (agent.occurrences / skimmer.maxOccurrence);
+						}
+						if(article.titlewords.indexOf(agent.stem) > -1){
+							rank += 2.0;
+						}
+					}
+					skimmer.selectedArticleRanking.put(article,rank);
+		
+				}
+				
+				// Build a collection of the top ranked articles
+				for(var i = 0; i < skimmer.selectedArticleRanking.valSet().length; i++){
+					var article = skimmer.selectedArticleRanking.keySet()[i];
+					var rank = skimmer.selectedArticleRanking.valSet()[i];
+					
+					if(skimmer.selectedArticles.length == 0){
+						skimmer.selectedArticles.push(article);
+					}
+					else{
+						for(var j = 0; j < skimmer.selectedArticles.length; j++){
+							var curArticle = skimmer.selectedArticles[j];
+							var curRank = skimmer.selectedArticleRanking.get(curArticle);
+							
+							if(rank >= curRank){
+								skimmer.selectedArticles = skimmer.selectedArticles.add(article, j);
+								break;
+							}
+							
+						}
+						if(skimmer.selectedArticles.indexOf(article) < 0){
+							skimmer.selectedArticles.push(article);
+						}
+					}
+				}
+				
+				if(skimmer.selectedArticles.length != 0){
+					skimmer.selectedArticle = skimmer.selectedArticles[0];
+					
+					skimmer.agentArticle = new AgentArticle(skimmer.width / 3, skimmer.height / 3, skimmer.selectedArticle.title, skimmer.selectedArticle.summary, skimmer.selectedArticle.source,skimmer.selectedArticle.imageUrl);
+					//fix color
+					skimmer.agentArticle.pos.setVect(cursor);
+				}
+				
+			}
+			
+			
+			
+			//var showNews = document.getElementById("NewsDetail");
+			//showNews.appendChild(document.createTextNode(skimmer.selectedArticles[0].rsscontent));
+
+			
+		}
+		else if(event.button == 0 && event.shiftKey == false && event.ctrlKey == true && event.altKey == false){
+			var clickedAgent = skimmer.getAgentClickedAt(cursor);
+			if(clickedAgent != null){
+				// Build a collection of the top ranked words for entry
+				var newWords = new Array();
+				var clickedWord = clickedAgent.stem;
+				
+				for(var i = 0; i < skimmer.words.length; i++){
+					var word = skimmer.words[i];
+					var alreadyAnAgent = false;
+					for(var j = 0; j < skimmer.agents.length; j++){
+						var agent = skimmer.agents[j];
+						if(word.toLowerCase() == agent.stem.toLowerCase()){
+							alreadyAnAgent = true;
+							break;
+						}
+					}
+					if(!alreadyAnAgent){
+						var pair = skimmer.getPair(clickedWord, word);
+						var cooccurrence = skimmer.cooccurrences.get(pair);
+						var cfidf = cooccurrence / skimmer.occurrences.get(word);
+						
+						if(newWords.length == 0){
+							newWords.push(word);
+						}
+						else if(newWords.length < skimmer.MAX_WORDS_PER_ZOOM){
+							for(var j = 0; j < newWords.length; j++){
+								var curWord = newWords[j];
+								var curPair = skimmer.getPair(clickedWord, curWord);
+								var curCooccurrence = skimmer.cooccurrences.get(curPair);
+								var curCfidf = curCooccurrence / skimmer.occurrences.get(curWord);
+								
+								if(cfidf >= curCfidf){
+									newWords = newWords.add(word, j);
+									break;
+								}
+								
+							}
+							if(newWords.indexOf(word) < 0){
+								newWords.add(word);
+							}
+						}
+						else{
+							var lastWord = newWords[newWords.length - 1];
+							var lastPair = skimmer.getPair(clickedWord, lastWord);
+							var lastCooccurrence = skimmer.cooccurrences.get(lastPair);
+							var lastCfidf = lastCooccurrence / skimmer.occurrences.get(lastWord);
+							
+							if(cfidf > lastCfidf){
+								newWords.pop();
+								for(var j = 0; j < newWords.length; j++){
+									var curWord = newWords[j];
+									var curPair = skimmer.getPair(clickedWord, curWord);
+									var curCooccurrence = skimmer.cooccurrences.get(curPair);
+									var curCfidf = curCooccurrence / skimmer.occurrences.get(curWord);
+									
+									if(cfidf >= curCfidf){
+										newWords = newWords.add(word, j);
+										break;
+									}
+								}
+								if(newWords.indexOf(word) < 0){
+									newWords.push(word);
+								}
+							}
+						}
+					}
+				}
+				
+				var tmpAgent;
+				for(var i = 0; i < newWords.length; i++){
+					var word = newWords[i];
+					if(skimmer.zoomedAgents.length > skimmer.MAX_ZOOMED_AGENTS){
+						skimmer.zoomedAgents.shift().remove = true;
+					}
+					tmpAgent = new AgentWord();
+					
+					tmpAgent.stem = word;
+					tmpAgent.text = skimmer.stems.get(word);
+					tmpAgent.occurrences = skimmer.occurrences.get(word);
+					tmpAgent.pos.set(cursor.x - 3.0 + Math.random() * 6.0, cursor.y - 3.0 + Math.random() * 6.0);
+					tmpAgent.avgPos.setVect(tmpAgent.pos);
+					tmpAgent.timestamp = new Date();
+					tmpAgent.desiredAlpha = 1.0;
+					tmpAgent.textColor = skimmer.colorAgentWordText;
+					
+					//color
+					
+					skimmer.agents.push(tmpAgent);
+					skimmer.zoomedAgents.push(tmpAgent);
+				}
+				skimmer.updateAgentColor();
+				
+			}
+			
+			
+			
+		}
+		else if(event.button == 0 && event.shiftKey == true && event.ctrlKey == true && event.altKey == true){
+			
+			var clickedAgent = skimmer.getAgentClickedAt(cursor);
+			if(clickedAgent != null){
+				var curIndex = skimmer.agents.indexOf(clickedAgent);
+				skimmer.agents[curIndex].remove = true;
+			}
+		}
+		
+		
+		
+	}
+	
+	
+	// Added as the driver of the funcion
+	function drawDriver(){
+		if (feedFinished == 1) {
+			draw();
+		}
+	}
+	
+	
+	function draw(){
+		var origin = new Vector2();
+		origin.set(skimmer.width/2, skimmer.height/2);
+		ctx.fillStyle = 'rgba(0,0,0,1.0)';
+	 	ctx.fillRect(0,0,skimmer.width,skimmer.height);
+	 	//ctx.fillRect(0,0,1536,768);
+		
+		
+		
+		// To scale the drawing result according to the screen
+		var scaleNow = 0;		// The scale for the rescaled screen
+		var scaleOld = 0;		// The scale for the 1024 * 768 screen
+		
+		if (skimmer.width <= skimmer.height) {
+			scaleNow = skimmer.width;
+			scaleOld = 1024;
+		}
+		else {
+			scaleNow = skimmer.height;
+			scaleOld = 768;
+		}
+		
+		
+		
+		
+		// Just a test of displaying image on the website
+		//var imgNews = new Image();
+		//imgNews.src = "http://nt2.ggpht.com/news/tbn/zl17qfRWiHbJVM/6.jpg";
+		//ctx.drawImage(imgNews, 40, 40);
+		
+		
+		
+		
+		
+	 // Draw the circles. //
+		if( skimmer.DRAW_CIRCLES ) {
+			for(var i = 0; i < skimmer.agents.length; i++){
+				var agent = skimmer.agents[i];
+				var alpha = parseFloat( 0.75 * ( parseFloat( agent.TICKS_TILL_FADE - agent.curTicksTillFade ) / agent.TICKS_TILL_FADE ) );
+				if( alpha > 1.0 ) { alpha = 1.0; }
+				if( alpha < 0.0 ) { alpha = 0.0; }
+				skimmer.agents[i].shapeColor.alpha = alpha;
+				ctx.fillStyle = agent.shapeColor.toString();
+				if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 )){
+					var colorUnselected = agent.shapeColor.darker();
+					ctx.fillStyle = colorUnselected.toString();
+				}
+				/*
+				var radius = parseInt(Math.round( ( skimmer.minRadius + ( agent.occurrences /  skimmer.maxOccurrence )
+						* ( skimmer.minRadius ) ) * 2));
+				*/
+				var radius = parseInt(Math.round( ( skimmer.minRadius + ( agent.occurrences /  skimmer.maxOccurrence )
+						* ( skimmer.minRadius ) ) * 2.0 * scaleNow / scaleOld));
+					
+				/* origin ball draw()
+				ctx.beginPath();
+				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2), 0, Math.PI * 2, false);
+				ctx.fill();
+				ctx.closePath();
+				*/
+				
+				//new circle
+				ctx.beginPath();
+				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2), 0, Math.PI * 2, false); 
+				var gradient = ctx.createRadialGradient(Math.round(origin.x + agent.avgPos.x) - Math.round(radius / 2) / 2, Math.round(origin.y + agent.avgPos.y) - Math.round(radius / 2) / 2, 0, Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2) );  
+   
+    			//bright spot  
+    			gradient.addColorStop(0, ctx.fillStyle);  
+    			gradient.addColorStop(1, 'rgba(20,20,20,0.7)');  
+   				ctx.fillStyle = gradient;  
+   				ctx.fill();  
+   				ctx.closePath();  
+  				 /*
+   				 ctx.beginPath();  
+  				 ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y), Math.round(radius / 2) * 0.85, (Math.PI / 180) * 270,  (Math.PI / 180) * 200, false);  
+   				  //ctx.lineTo(ball.x, ball.y);  
+   				 var gradient = ctx.createRadialGradient(  
+        			Math.round(origin.x + agent.avgPos.x) - Math.round(origin.x + agent.avgPos.x) * .5, Math.round(origin.y + agent.avgPos.y) - Math.round(origin.x + agent.avgPos.x) * .5, 0, Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y), Math.round(origin.x + agent.avgPos.x));  
+   
+    			gradient.addColorStop(0, "#ffffff");  
+    			gradient.addColorStop(0.5, 'transparent');  
+    			ctx.fillStyle = gradient;  
+    			ctx.fill();  
+				*/
+				//new circle end
+			}
+		}
+		// Draw outline boxes for selected agents. //
+		for(var i = 0; i < skimmer.agents.length; i++){
+			var agent = skimmer.agents[i];
+			var alpha = parseFloat(parseFloat(agent.TICKS_TILL_FADE - agent.curTicksTillFade) / agent.TICKS_TILL_FADE);
+			if( alpha > 1.0 ) { alpha = 1.0; }
+			if( alpha < 0.0 ) { alpha = 0.0; }
+			if(skimmer.selectedWords.indexOf(agent) > -1){
+				ctx.fillStyle = agent.shapeColor.toString();
+				var agentBounds = agent.getBoundingBox();
+				ctx.beginPath();
+				ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x),
+						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y),
+						Math.round(agentBounds.extents.x * 2),
+						Math.round(agentBounds.extents.y * 2));
+				var colorOut = agent.shapeColor.brighter();
+				ctx.fillStyle = colorOut.toString();
+				//shapeColor -> brighter
+				ctx.strokeRect(Math.round( origin.x + agent.avgPos.x - agentBounds.extents.x ),
+						Math.round( origin.y + agent.avgPos.y - agentBounds.extents.y ),
+						Math.round( agentBounds.extents.x * 2 ),
+						Math.round( agentBounds.extents.y * 2 ) );
+				ctx.closePath();
+			}
+		}
+		
+
+		// Draw all of the text and set the agent's bounding box. //
+		for(var i = 0; i < skimmer.agents.length; i++){
+			var agent = skimmer.agents[i];
+			var alpha = parseFloat( (  agent.TICKS_TILL_FADE - agent.curTicksTillFade ) / agent.TICKS_TILL_FADE ) ;
+			if( alpha > 1.0 ) { alpha = 1.0; }
+			if( alpha < 0.0 ) { alpha = 0.0; }
+			ctx.fillStyle = agent.textColor.toString();
+			ctx.textBaseline = 'middle';
+			ctx.textAlign = 'center';
+			if(skimmer.zoomedAgents.indexOf(agent) > -1){
+				ctx.font = Math.round(12 * scaleNow / scaleOld) + 'px sans-serif';
+				//ctx.font = '12px sans-serif';
+			}
+			else{
+				ctx.font = 'bold ' + Math.round(16 * scaleNow / scaleOld) + 'px sans-serif';
+				//ctx.font = 'bold 16px sans-serif';
+			}
+			metrics = ctx.measureText(agent.text);
+			skimmer.agents[i].bounds.extents.set( metrics.width / 2.0 + 5, 8 );
+			if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 )){
+				var colorUnselected = agent.textColor.darker().darker();
+				ctx.fillStyle = colorUnselected.toString();
+			}
+			
+			 
+			//
+			//
+			ctx.fillStyle='rgba(200,200,200,0.6)'
+			ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
+			
+			//agent name
+			//shadow
+		}
+		
+
+		// Draw other user agent if it exists. //
+		if( skimmer.agentUser != null ) {
+
+			if( skimmer.DRAW_CIRCLES ) {
+				ctx.fillStyle = 'rgba(255,255,255,0.6)';
+				
+				//ctx.beginPath();
+				
+				//ctx.arc(Math.round( origin.x + skimmer.agentUser.avgPos.x), Math.round( origin.y + skimmer.agentUser.avgPos.y), skimmer.agentUser.radius, 0, Math.PI * 2, false );
+				//ctx.fill();
+				//ctx.closePath();
+				
+				ctx.beginPath();
+				ctx.arc(Math.round( origin.x + skimmer.agentUser.avgPos.x), Math.round( origin.y + skimmer.agentUser.avgPos.y), skimmer.agentUser.radius, 0, Math.PI * 2, false );
+				var gradient = ctx.createRadialGradient(Math.round( origin.x + skimmer.agentUser.avgPos.x) - skimmer.agentUser.radius / 2, Math.round( origin.y + skimmer.agentUser.avgPos.y) - skimmer.agentUser.radius / 2, 0, Math.round( origin.x + skimmer.agentUser.avgPos.x), Math.round( origin.y + skimmer.agentUser.avgPos.y),skimmer.agentUser.radius );  
+   
+    			//bright spot  
+    			gradient.addColorStop(0, ctx.fillStyle);  
+    			gradient.addColorStop(1, 'rgba(20,20,20,0.7)');  
+   				ctx.fillStyle = gradient;  
+   				ctx.fill();  
+   				ctx.closePath();
+				
+				
+			}
+
+		}
+		
+		// Draw the title agent if it exists. //
+		if( skimmer.agentTitle != null ) {
+			ctx.fillStyle = 'rgba(255,255,255,0.6)';
+			ctx.textBaseline = 'middle';
+			ctx.textAlign = 'center';
+			ctx.font = 'bold ' + Math.round(30 * scaleNow / scaleOld) + 'px sans-serif';
+			//ctx.font = 'bold 30px sans-serif';
+
+			//gradientPaint
+			ctx.beginPath();
+			ctx.fillRect(origin.x + skimmer.agentTitle.pos.x - (skimmer.agentTitle.text.length * 8 + 4) * skimmer.width / 1024, 0, (skimmer.agentTitle.text.length * 16 + 8) * skimmer.width / 1024, 40 * skimmer.height / 768);
+			//ctx.fillRect(origin.x + skimmer.agentTitle.pos.x - skimmer.agentTitle.text.length * 16 - 4, origin.y + skimmer.agentTitle.pos.y - 20, skimmer.agentTitle.text.length * 32 + 8, 40 );
+			ctx.fillStyle = 'rgba(0,0,0,0.8)';
+			ctx.fillText(skimmer.agentTitle.text, origin.x + skimmer.agentTitle.pos.x, 20 * skimmer.height / 768);
+			//ctx.fillText(skimmer.agentTitle.text, origin.x + skimmer.agentTitle.pos.x, origin.y + skimmer.agentTitle.pos.y);
+			//single title
+			
+		}
+		
+		if(skimmer.agentArticle != null){
+			// Clip the title to fit within the assigned width
+			var displayedTitle = "";
+			ctx.font = 'bold 30px sans-serif';
+			
+			var droppedChars = false;
+			for(var i = 0; i < skimmer.agentArticle.title.length; i++){
+				if(ctx.measureText(displayedTitle).width > skimmer.agentArticle.width +50 ){
+					droppedChars = true;
+					break;
+				}	
+				displayedTitle += skimmer.agentArticle.title.charAt(i);
+			}
+			if(droppedChars){
+				displayedTitle += "...";
+			}
+			
+			var displayedSource = "";
+			
+			var droppedChars1 = false;
+			for(var i = 0; i < skimmer.agentArticle.source.length; i++){
+				if(ctx.measureText(displayedSource).width > skimmer.agentArticle.width +100 ){
+					droppedChars1 = true;
+					break;
+				}
+				displayedSource += skimmer.agentArticle.source.charAt(i);
+			}
+			if(droppedChars1){
+				displayedSource += "...";
+			}
+			
+			// Reset Max Height to original height
+			skimmer.agentArticle.height = skimmer.agentArticle.originalHeight;
+			
+			// Extract the lines from the body text and match vertical height to this property
+			if(skimmer.agentArticle.text != ""){
+				// Extract meaningful measurements and adjust vertical height if necessary
+				
+				var requiredTextHeight = 20;
+				
+				//deal with text
+				var dealString = skimmer.agentArticle.text;
+				var dealWords = dealString.split(" ");
+				var dealedLines = new Array();
+				var j = 0;
+				dealedLines.push(new String(""));
+				ctx.font = 'bold 14px sans-serif';
+				dealedLines[0] += dealWords[0];
+				var textWidth = 0;
+				var lineWidth = 0;
+				for(var i = 1; i < dealWords.length; i++){
+					
+					if(ctx.measureText(dealedLines[j] + " " + dealWords[i]).width <= (skimmer.agentArticle.width - 10)){
+						dealedLines[j] += " ";
+						dealedLines[j] += dealWords[i];
+					}
+					else{
+						if(ctx.measureText(dealedLines[j]).width > textWidth){
+							textWidth = ctx.measureText(dealedLines[j]).width;
+						}
+						dealedLines.push(new String(""));
+						j += 1;
+						dealedLines[j] += dealWords[i];
+					}
+				}
+				if(ctx.measureText(dealedLines[j]).width > textWidth){
+					textWidth = ctx.measureText(dealedLines[j]).width;
+				}
+				
+				// Font height
+				requiredTextHeight += dealedLines.length * 15;
+				ctx.font = 'bold 20px sans-serif';
+				var titleWidth = ctx.measureText(displayedTitle).width;
+				var titleHeight = 24;
+				ctx.font = 'bold 16px sans-serif';
+				var sourceWidth = ctx.measureText(skimmer.agentArticle.source).width;
+				var sourceHeight = 20;
+				
+				skimmer.agentArticle.height = requiredTextHeight + titleHeight + sourceHeight;
+				var titleOffsetY = parseInt(Math.round(20 * 1.75));
+				var sourceOffsetY;
+				
+				var textBackgroundHeight = skimmer.agentArticle.height - titleHeight - sourceHeight;
+				
+				var titleOrigin = new Vector2();
+				titleOrigin.set(origin.x + skimmer.agentArticle.pos.x - skimmer.agentArticle.width / 2.0,
+						origin.y + skimmer.agentArticle.pos.y - skimmer.agentArticle.height / 2.0);
+				var textOrigin = new Vector2();
+				textOrigin.set(titleOrigin.x, titleOrigin.y + titleHeight);
+				var sourceOrigin = new Vector2();
+				sourceOrigin.set(textOrigin.x, textOrigin.y + textBackgroundHeight);
+				
+				ctx.lineWidth = "1";
+				ctx.fillStyle = 'rgba(90,90,90,0.9)';
+				ctx.strokeStyle = 'rgba(120,120,120,0.9)';
+				
+				ctx.fillRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
+				ctx.strokeRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
+				
+				ctx.fillRect(sourceOrigin.x, sourceOrigin.y, skimmer.agentArticle.width, sourceHeight);
+				ctx.strokeRect(sourceOrigin.x, sourceOrigin.y, skimmer.agentArticle.width, sourceHeight);
+				
+				ctx.strokeStyle = 'rgba(180,180,180,0.9)';
+				ctx.strokeRect(textOrigin.x, textOrigin.y, skimmer.agentArticle.width, textBackgroundHeight);
+				ctx.fillStyle = 'rgba(240,240,240,0.9)';
+				ctx.fillRect(textOrigin.x, textOrigin.y, skimmer.agentArticle.width, textBackgroundHeight);
+				
+				
+				//load image first as image rendering costs time
+				var imgNews = new Image();
+				if ( skimmer.agentArticle.imageUrl != null){
+				console.log("yeahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+				imgNews.src = skimmer.agentArticle.imageUrl;
+				ctx.drawImage(imgNews, Math.round( sourceOrigin.x ), sourceOrigin.y+20);
+				}
+				
+				
+				
+				
+				ctx.font = 'bold 14px Times New Roman';
+				ctx.textAlign = "left";
+				ctx.textBaseline = "top";
+				ctx.fillStyle = 'rgba(50,50,50,0.9)';
+				var lineOrigin = textOrigin.y + 10;
+				for(var i = 0; i < dealedLines.length; i++){
+					ctx.fillText(dealedLines[i],textOrigin.x + skimmer.agentArticle.width / 2.0 - textWidth / 2.0, lineOrigin);
+					/*
+					 * real content
+					 * 
+					 * */
+					lineOrigin += 15;
+					
+				}
+				
+				ctx.font = 'bold 20px Times New Roman';
+				ctx.fillText( displayedTitle, Math.round( titleOrigin.x + skimmer.agentArticle.width / 2.0
+						- titleWidth / 2.0 ), titleOrigin.y );
+				/*
+					 * real title
+					 * 
+					 * */
+				
+				
+				ctx.font = 'bold 16px Times New Roman';
+				ctx.fillText( displayedSource, Math.round( sourceOrigin.x + skimmer.agentArticle.width / 2.0
+						- titleWidth / 2.0 ), sourceOrigin.y );
+				
+				/*
+					 * real link
+					 * 
+					 * */
+				
+				skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 + 10, skimmer.agentArticle.height / 2 + 10);
+				
+				
+				
+				
+			}
+			else{
+				skimmer.agentArticle.remove = true;
+				skimmer.selectedWords.length = 0;
+				skimmer.selectedArticles.length = 0;
+				skimmer.selectedArticleRanking.clear();
+			}
+			
+		}
+		
+		skimmer.update(0.05);
+ 	}	
+	
+
+
+	function GetNewSource(){
+		var selectObj = document.getElementById("selectSource");
+		var selectIndex=selectObj.selectedIndex;
+		var selectVal = selectObj.options[selectIndex].value;
+		
+		//alert(selectVal);
+	
+		sourceAddress = selectVal;
+
+		// To assure that the number of entries is availables for the digg and new york times
+		numEntries = 10;
+		
+		// Set the URL for the google feed API
+		var feed = new google.feeds.Feed(selectVal);
+		// Set the number of entries to be read from the RSS online
+		feed.setNumEntries(numEntries);
+
+		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
+		feed.load(function(result) {
+			if (!result.error) {
+				feedResult = result;
+/*
+				var container = document.getElementById("feed");
+				for (var i = 0; i < result.feed.entries.length; i++) {
+					var entry = result.feed.entries[i];
+					var div = document.createElement("div");
+					div.appendChild(document.createTextNode(entry.title));
+					container.appendChild(div);
+				}
+*/
+				skimmer.UpdateSkimmer(feedResult, numEntries);
+				skimmer.addNewArticles();
+				skimmer.extractArticleMinMax();
+				skimmer.checkForAdjacencies();
+				skimmer.updateAgents();
+				skimmer.extractAgentMinMax();
+				
+				feedFinished = 1;
+
+			}
+		});
+
+		google.setOnLoadCallback(initialize);
+		
+	}
+
+	
+	
+	// The function used to searching the internet and get the result from the Search API
+	// The result here is got from the Google news because this website will provide me with RSS data source
+	function StartSearching() {
+		var selectObj = document.getElementById("searchKeyTextInput");
+		var selectVal = selectObj.value;
+		
+		//alert(selectVal);
+		
+		// Construct the news search address with the help of the google news api
+		sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=" + selectVal + "&num="+ numEntries +"&um=1&ie=UTF-8&output=rss";
+
+		// Set the URL for the google feed API
+		var feed = new google.feeds.Feed(sourceAddress);
+		// Set the number of entries to be read from the RSS online
+		feed.setNumEntries(numEntries);
+
+		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
+		feed.load(function(result) {
+			if (!result.error) {
+				feedResult = result;
+/*
+				var container = document.getElementById("feed");
+				for (var i = 0; i < result.feed.entries.length; i++) {
+					var entry = result.feed.entries[i];
+					var div = document.createElement("div");
+					div.appendChild(document.createTextNode(entry.title));
+					container.appendChild(div);
+				}
+*/
+				skimmer.UpdateSkimmer(feedResult, numEntries);
+				skimmer.addNewArticles();
+				skimmer.extractArticleMinMax();
+				skimmer.checkForAdjacencies();
+				skimmer.updateAgents();
+				skimmer.extractAgentMinMax();
+				
+				feedFinished = 1;
+
+			}
+		});
+
+		google.setOnLoadCallback(initialize);
+				
+	}
+	
+	
+	
+	// The function used to searching the internet and get the result from the Search API
+	// This functiion will use the Microsoft academic search engine instead of the Google scholar in that the Microsoft academic search will provide me with the RSS source
+	function AcademicSearching() {
+		var selectObj = document.getElementById("academicTextInput");
+		var selectVal = selectObj.value;
+		
+		// Construct the news search address with the help of the google news api
+		sourceAddress = "http://academic.research.microsoft.com/rss?query=" + selectVal + "&searchtype=0";
+
+		//alert(sourceAddress);
+
+		//window.open(sourceAddress);
+		
+		// Set the URL for the google feed API
+		var feed = new google.feeds.Feed(sourceAddress);
+		// Set the number of entries to be read from the RSS online
+		feed.setNumEntries(numEntries);
+
+		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
+		feed.load(function(result) {
+			if (!result.error) {
+				feedResult = result;
+/*
+				var container = document.getElementById("feed");
+				for (var i = 0; i < result.feed.entries.length; i++) {
+					var entry = result.feed.entries[i];
+					var div = document.createElement("div");
+					div.appendChild(document.createTextNode(entry.title));
+					container.appendChild(div);
+				}
+*/
+				skimmer.UpdateSkimmer(feedResult, numEntries);
+				skimmer.addNewArticles();
+				skimmer.extractArticleMinMax();
+				skimmer.checkForAdjacencies();
+				skimmer.updateAgents();
+				skimmer.extractAgentMinMax();
+				
+				feedFinished = 1;
+
+			}
+		});
+
+		google.setOnLoadCallback(initialize);
+				
+	}
+	
+	
+	// This function is used to get the canvas filling the screen when the size of the screen is changed
+	function resizeWindow() {
+		// Get the height and width of the window so that it will be scalable
+		var winWidth = 0;
+		var winHeight = 0;
+
+		if(window.innerWidth) {
+			winWidth=window.innerWidth;
+		}
+		else if((document.body)&&(document.body.clientWidth)) {
+			winWidth=document.body.clientWidth;
+		}
+		
+		if(window.innerHeight) {
+			winHeight=window.innerHeight;
+		}
+		else if((document.body)&&(document.body.clientHeight)) {
+			winHeight=document.body.clientHeight;
+		}
+
+		//alert("width : " + winWidth + " height : " + winHeight);
+		
+		
+		
+		
+		table = document.getElementById("overallFrame");
+		table.width = winWidth-40;
+		table.height = winHeight-40;
+		
+		tableSel = document.getElementById("selectFrame");
+		tableSel.width = 200;
+		//tableSel.width = table.width * 1.0 / 10;
+		tableSel.height = table.height;
+
+	
+	
+		canvas = document.getElementById("canvas");
+		canvas.width = table.width - 200;
+		canvas.height = table.height;
+		ctx = canvas.getContext("2d");
+		
+		
+		skimmer.width = canvas.width;
+		skimmer.height = canvas.height;
+
+	}
+
+	
+	
+	
+	
+	
+	
+	// The function used to searching the internet and get the result from the Search API
+	// The result here is got from the Google news because this website will provide me with RSS data source
+	function AddNewData() {
+
+		// Construct the news search address with the help of the google news api
+		//sourceAddress = "http://www.digg.com/rss/index.xml";
+
+		// THe Source address of the RSS source is kept untouched because when we are to update the RSS feed, there is no need for us to change the RSS source
+		
+		
+		// Set the URL for the google feed API
+		var feed = new google.feeds.Feed(sourceAddress);
+		// Set the number of entries to be read from the RSS online
+		feed.setNumEntries(numEntries);
+
+		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
+		feed.load(function(result) {
+			if (!result.error) {
+				feedResult = result;
+/*
+				var container = document.getElementById("feed");
+				for (var i = 0; i < result.feed.entries.length; i++) {
+					var entry = result.feed.entries[i];
+					var div = document.createElement("div");
+					div.appendChild(document.createTextNode(entry.title));
+					container.appendChild(div);
+				}
+*/
+				skimmer.UpdateUsingRssSource(feedResult, 10);
+				skimmer.addNewArticles();
+				skimmer.extractArticleMinMax();
+				skimmer.checkForAdjacencies();
+				skimmer.updateAgents();
+				skimmer.extractAgentMinMax();
+				
+				feedFinished = 1;
+
+			}
+		});
+
+		google.setOnLoadCallback(initialize);
+				
+	}
+	
+	
+	
+</script>
+
+</head>
+<body onload = "init();" onmousedown="mouseClick(event);" onkeydown="keyDown(event)" onresize="resizeWindow()">
+<table id = "overallFrame" border = "0" cellpadding = "0" cellspacing = "0">
+	<tr>
+		<td>
+
+			<table id = "selectFrame" border = "0" cellpadding = "0" width = "200">
+			
+				<tr>
+					<td>
+						<select id="selectSource" onChange = GetNewSource() width = "200">
+							<option value = "http://www.digg.com/rss/index.xml">digg top news</option>
+							<option value = "http://feeds.nytimes.com/nyt/rss/Arts">Newyork Times Arts</option>
+							<option value = "http://feeds1.nytimes.com/nyt/rss/Sports">Newyork Times Sports</option>
+							<option value = "http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&location=&type=N&binary=Y&keywords=">NCSU Events</option>
+							<option value = "http://api.flickr.com/services/feeds/photoset.gne?set=1344948&nsid=44124484001@N01&lang=en-us">Flickr</option>
+							<!--
+							<option value = "http://page2rss.com/rss/0afc694be2bc19e8d2cd530cc9aa076b">NCSU in the news</option>
+							<option value = "http://page2rss.com/rss/926a9b7a561a3f650ff41eef0c8ed45d">Digg From the Page2RSS</option>
+							-->
+						</select>
+						<br />
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						<input type = "text" id = "searchKeyTextInput" width = "130"/>
+						<button type = "button" name = "startSearching" id = "startSearching" onclick = StartSearching() width = "30">GO!</button>
+					</td>
+				</tr>
+
+				
+				<tr>
+					<td>
+						<input type = "text" id = "academicTextInput" width = "130"/>
+						<button type = "button" name = "academicSearching" id = "academicSearching" onclick = AcademicSearching() width = "30">GO!</button>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>
+						<button type = "button" name = "addData" id = "addData" onclick = "AddNewData();" width = "30">ADD!</button>
+					</td>
+				</tr>
+
+			</table>
+
+		</td>
+
+
+		<td>
+			<canvas id = "canvas" width = "1024" height = "768"></canvas>
+		</td>
+
+
+		<!--
+		<td>
+			<div id = "NewsDetail"></div>
+		</td>
+		-->
+		
+	</tr>
+</table>
+
+
+<script type="text/javascript">
+
+
+	// Get the height and width of the window so that it will be scalable
+	var winWidth = 0;
+	var winHeight = 0;
+
+	if(window.innerWidth) {
+		winWidth=window.innerWidth;
+	}
+	else if((document.body)&&(document.body.clientWidth)) {
+		winWidth=document.body.clientWidth;
+	}
+	
+	if(window.innerHeight) {
+		winHeight=window.innerHeight;
+	}
+	else if((document.body)&&(document.body.clientHeight)) {
+		winHeight=document.body.clientHeight;
+	}
+
+	//alert("width : " + winWidth + " height : " + winHeight);
+	
+	
+	
+	
+	table = document.getElementById("overallFrame");
+	table.width = winWidth-40;
+	table.height = winHeight-40;
+	
+	tableSel = document.getElementById("selectFrame");
+	tableSel.width = 200;
+	//tableSel.width = table.width * 1.0 / 10;
+	tableSel.height = table.height;
+
+	
+	
+	canvas = document.getElementById("canvas");
+	canvas.width = table.width - 200;
+	canvas.height = table.height;
+	
+	ctx = canvas.getContext("2d");
+
+	//intervalID = setInterval(draw, 25);
+	intervalID = setInterval(drawDriver, 25);
+
+	
+	
+	
+	// Set the refresh rate
+	//setInterval(AddNewData, 50000);
+	
+
+</script>
+<!--<div id="feed"></div>-->
+</body>
+</html>
