@@ -39,7 +39,7 @@
 	var isFlickr = 0;
 	var currentCursor = new Vector2();
 	var linkFlag = 0;
-
+	
 	
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
@@ -235,9 +235,9 @@
 					skimmer.agentArticle.title = skimmer.selectedArticle.title;
 					skimmer.agentArticle.text = skimmer.selectedArticle.summary;
 					skimmer.agentArticle.source = skimmer.selectedArticle.source;
-					if( isFlickr == 1 )
-					skimmer.agentArticle.imageUrl = convertUrl(skimmer.selectedArticle.imageUrl);
-					else
+					//if( isFlickr == 1 )
+					//skimmer.agentArticle.imageUrl = convertUrl(skimmer.selectedArticle.imageUrl);
+					//else
 					skimmer.agentArticle.imageUrl = skimmer.selectedArticle.imageUrl;
 				}
 			}
@@ -318,9 +318,9 @@
 					skimmer.selectedArticle = skimmer.selectedArticles[0];
 					
 					//alert("scaleNow" + scaleNow +"scaleOld" + scaleOld);
-					if( isFlickr == 1 )
-					skimmer.agentArticle = new AgentArticle(skimmer.width / 3 * scaleNow / scaleOld, skimmer.height / 3 * scaleNow / scaleOld, skimmer.selectedArticle.title, skimmer.selectedArticle.summary, skimmer.selectedArticle.source,convertUrl(skimmer.selectedArticle.imageUrl));
-					else
+					//if( isFlickr == 1 )
+					//skimmer.agentArticle = new AgentArticle(skimmer.width / 3 * scaleNow / scaleOld, skimmer.height / 3 * scaleNow / scaleOld, skimmer.selectedArticle.title, skimmer.selectedArticle.summary, skimmer.selectedArticle.source,convertUrl(skimmer.selectedArticle.imageUrl));
+					//else
 					skimmer.agentArticle = new AgentArticle(skimmer.width / 3 * scaleNow / scaleOld, skimmer.height / 3 * scaleNow / scaleOld, skimmer.selectedArticle.title, skimmer.selectedArticle.summary, skimmer.selectedArticle.source,skimmer.selectedArticle.imageUrl);
 					//fix color
 					//alert(skimmer.width / 3 * scaleNow / scaleOld+"  "+skimmer.height / 3 * scaleNow / scaleOld)
@@ -536,10 +536,15 @@
 				//ctx.fillStyle = "f00";
 				//new circle
 				ctx.beginPath();
+				
 				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2), 0, Math.PI * 2, false); 
+				
+				
 				
    				ctx.fill();  
    				ctx.closePath();  
+				
+				
 				
 				ctx.save();
 				ctx.beginPath();
@@ -548,7 +553,7 @@
 				ctx.clip();
 				
 				
-				if (skimmer.agents[i].imageLinkList[0] !=null )	{
+				if (skimmer.agents[i].imageLinkList[0] !=null && skimmer.colorType == 0  )	{
 					var imgNews = new Image();
 						try{
 							if(++skimmer.agents[i].imageFrequency%150 == 0 && Math.random() < 0.5)
@@ -557,8 +562,12 @@
 							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 							
 	 	 
-	 	 ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+	 					 ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 						
+						
+				//backgound of agent text
+				
+				
 						
 		//console.log(Math.round(origin.x + agent.avgPos.x-radius / 2 )+" "+Math.round(origin.y + agent.avgPos.y-radius / 2)+" "+(radius+Math.round(origin.x + agent.avgPos.x-radius / 2 ))+" "+(radius+Math.round(origin.y + agent.avgPos.y-radius / 2)));
 		
@@ -581,9 +590,24 @@
 				}
 				
 				ctx.restore();
+				
+				
 
 			}
 		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		// Draw outline boxes for selected agents. //
 		for(var i = 0; i < skimmer.agents.length; i++){
 			var agent = skimmer.agents[i];
@@ -595,7 +619,7 @@
 				var agentBounds = agent.getBoundingBox();
 				ctx.beginPath();
 				
-				ctx.fillStyle = "#f00";
+				//ctx.fillStyle = "#f00";
 				ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x * scaleNow / scaleOld),
 						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
 						Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
@@ -634,27 +658,26 @@
 				//ctx.font = 'bold 16px Arial';
 			}
 			metrics = ctx.measureText(agent.text);
-			skimmer.agents[i].bounds.extents.set( metrics.width / 2.0 + 5, 8 );
+			skimmer.agents[i].bounds.extents.set( metrics.width / 2.0 , 8 );
 			if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 )){
 				var colorUnselected = agent.textColor.darker().darker();
 				ctx.fillStyle = colorUnselected.toString();
-			}
-			
-			 
-			//
-			var agentBounds = agent.getBoundingBox();
-		
+			}		
 				
-			ctx.fillStyle = 'rgba(100,100,100,0.4)';
-			ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x * scaleNow / scaleOld),
+			//back ground color
+			
+			if (agent.imageLinkList[0] !=null && skimmer.colorType == 0  )	{
+	
+					ctx.fillStyle = 'rgba(100,100,100,0.9)';
+					var agentBounds = agent.getBoundingBox();
+					ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x * scaleNow / scaleOld),
 						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
 						Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
 						Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
-				
-				
+			}
 			
-			ctx.fillStyle='rgba(250,250,250,0.8)'
-			//ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
+			
+			ctx.fillStyle='rgba(250,250,250,0.8)';
 			ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
 			
 			//agent name
@@ -1374,7 +1397,7 @@
 		var selectIndex=selectObj.selectedIndex;
 		var selectVal = selectObj.options[selectIndex].value;
 
-
+		
 		skimmer.colorType = selectVal;
 		skimmer.updateAgentColor();
 		
@@ -1651,17 +1674,17 @@
 						<select id="selectColor" onChange = SelectColor()>
 							<option value = 0>Random</option>
 							<option value = 1>Dictionary</option>
-							<option value = 2>Source</option>
 							<option value = 3>Emotion</option>
 						</select>
 					</td>
 				</tr>
+				<!--
 				<tr>
 					<td>
 						<font color = "white" face = "Arial">Number</font>
 					</td>
 				</tr>
-
+				-->
 				<!--
 				<tr>
 					<td>
