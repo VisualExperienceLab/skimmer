@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>
+			Example
+		</title>
+		<script src="https://www.google.com/jsapi" type="text/javascript"></script>
+	</head>	
+	
+	<body>
+		<div>
+			<p id="computation_results">please wait, computing бн </p>
+		</div>
+		<script>
+			var worker = new Worker('numberworker.js');
+			worker.postMessage({first:123,second:456});
+			worker.onmessage = function (event)
+			{
+				alert(event.data);
+				document.getElementById('computation_results').textContent = event.data;
+			};
+		</script>
+	</body>
+</html>
