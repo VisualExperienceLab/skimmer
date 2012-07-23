@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<sourceconfig>
+	<source>http://feeds.feedburner.com/NCSULibrariesPESNews?format=xml</source>
+	<source>http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&amp;location=&amp;type=N&amp;binary=Y&amp;keywords=</source>
+	<source>http://search.twitter.com/search.rss?q=%23ncsu</source>
+	<source>http://www.facebook.com/feeds/page.php?format=rss20&amp;id=5983837179</source>
+	<source>http://news.google.com/news?hl=en&amp;gl=us&amp;q=ncsu&amp;num=100&amp;um=1&amp;ie=UTF-8&amp;output=rss</source>
+	<source>http://api.flickr.com/services/feeds/photos_public.gne?tags=ncsu&amp;lang=en-us&amp;format=rss_200</source>
+</sourceconfig>
