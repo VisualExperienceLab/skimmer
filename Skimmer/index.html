@@ -175,7 +175,7 @@
 	
 	function mouseMove(event){
 		
-		
+		if( skimmer != undefined )
 		currentCursor.set(event.clientX - skimmer.left , event.clientY - skimmer.top);
 		
 		//console.log(currentCursor.toString());
@@ -557,7 +557,7 @@
 							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 							
 	 	 
-	 	// ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+	 	 ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 						
 						
 		//console.log(Math.round(origin.x + agent.avgPos.x-radius / 2 )+" "+Math.round(origin.y + agent.avgPos.y-radius / 2)+" "+(radius+Math.round(origin.x + agent.avgPos.x-radius / 2 ))+" "+(radius+Math.round(origin.y + agent.avgPos.y-radius / 2)));
@@ -595,7 +595,7 @@
 				var agentBounds = agent.getBoundingBox();
 				ctx.beginPath();
 				
-				//ctx.fillStyle = "#f00";
+				ctx.fillStyle = "#f00";
 				ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x * scaleNow / scaleOld),
 						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
 						Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
@@ -609,6 +609,10 @@
 						Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
 				ctx.closePath();
 			}
+			
+			
+			
+			
 		}
 		
 
@@ -638,7 +642,17 @@
 			
 			 
 			//
-			//
+			var agentBounds = agent.getBoundingBox();
+		
+				
+			ctx.fillStyle = 'rgba(100,100,100,0.4)';
+			ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x * scaleNow / scaleOld),
+						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
+						Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
+						Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
+				
+				
+			
 			ctx.fillStyle='rgba(250,250,250,0.8)'
 			//ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
 			ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
