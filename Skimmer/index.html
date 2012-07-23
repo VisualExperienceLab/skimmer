@@ -1546,21 +1546,23 @@
 	
 	var sourceSelectOrder = 0;
 	
+	
+	
+	var sourceXmlDoc;
+	var sourceNodes;
+	
+	
 	//
 	function autoModeFunc()
 	{
 	
-		// Reading xml file from disk
-		var xmlDoc = loadXmlFile("data/sourceconfig.xml");
-		
-		var sourceNodes = xmlDoc.getElementsByTagName("source");
 		//for(var i = 0; i < sourceNodes.length; i++){
 			//var source = sourceNodes[i];
 			//alert(source.childNodes[0].nodeValue);
 		//}
 	
 		// circulate the source address
-		if (sourceSelectOrder == sourceNodes.length) {
+		if (sourceSelectOrder >= sourceNodes.length - 1) {
 			sourceSelectOrder = 0
 		}
 		else {
@@ -1569,8 +1571,6 @@
 	
 		// Get the source address from the xml file
 		sourceAddress = sourceNodes[sourceSelectOrder].childNodes[0].nodeValue;
-	
-	
 	
 	
 		//------------------------------------------- Get the content from the Google Feed Api ----------------------------------------
@@ -1632,6 +1632,11 @@
 	function autoModeDriver()
 	{
 		if (autoFlag == 0) {
+			// Reading xml file from disk
+			sourceXmlDoc = loadXmlFile("data/sourceconfig.xml");
+			sourceNodes = sourceXmlDoc.getElementsByTagName("source");
+
+		
 			autoIntervalID = setInterval(autoModeFunc, timeInterval);
 			autoFlag = 1;
 		}
