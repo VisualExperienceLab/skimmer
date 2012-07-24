@@ -992,11 +992,11 @@
 		tableSel.style.fontSize = Math.round(tableSel.height * heightRatioBlank) + "px";
 		
 		// The logo of the project as well as the DGL
-		skimmerLogo = document.getElementById("skimmerLogo");
-		skimmerLogo.style.width = tableSel.height * heightRatioLogo + "px";
+		//skimmerLogo = document.getElementById("skimmerLogo");
+		//skimmerLogo.style.width = tableSel.height * heightRatioLogo + "px";
 		
-		skimmerLogo = document.getElementById("DGLLogo");
-		skimmerLogo.style.width = tableSel.height * heightRatioLogo + "px";
+		//skimmerLogo = document.getElementById("DGLLogo");
+		//skimmerLogo.style.width = tableSel.height * heightRatioLogo + "px";
 		
 		selectColor = document.getElementById("selectColor");
 		selectColor.style.width = tableSel.width+"px";
@@ -1020,6 +1020,7 @@
 	// The function to be operated when the window is resized
 	function resizeWindow() {
 		init();
+		if(skimmer != undefined ){
 		skimmer.width = canvas.width;
 		skimmer.height = canvas.height;
 		if(skimmer.agentArticle!=null) {
@@ -1044,7 +1045,7 @@
 		skimmer.left = absPosX;
 		skimmer.top = absPosY;
 	}
-	
+	}
 
 	// Select the color mapping schema
 	function SelectColor(){
@@ -1245,6 +1246,7 @@
 	<tr>
 		<td>
 			<table id = "selectFrame" border = "0" cellpadding = "0">
+				<!--
 				<tr>
 					<td>
 						<a href="http://designgraphics.ncsu.edu/search/label/skimmer">
@@ -1259,6 +1261,7 @@
 						</a>
 					</td>
 				</tr>
+				-->
 				<tr>
 					<td>
 						<font color = "white" face = "Arial">Color</font>
