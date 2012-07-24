@@ -17,8 +17,6 @@
 		<script type="text/javascript" src="js/dictionary.js"></script>
 		
 		<script type="text/javascript" src="js/invertedFileSystem.js"></script>
-		<script type="text/javascript" src="js/hashing.js"></script>
-		
 		
 		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type = "text/javascript">
@@ -42,7 +40,7 @@
 	var currentCursor = new Vector2();
 	var linkFlag = 0;
 	var showImageFlag = 1;
-	var imgLinkInvalid = 0;
+	//var imgLinkInvalid = 0;
 	
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
@@ -88,7 +86,7 @@
 				skimmer = new Skimmer(absPosX, absPosY, canvas.width, canvas.height, feedResult, numEntries);
 				skimmer.addNewArticles();
 				skimmer.extractArticleMinMax();
-				//skimmer.checkForAdjacencies();
+				skimmer.checkForAdjacencies();
 				skimmer.updateAgents();
 				skimmer.extractAgentMinMax();
 				var selectObj = document.getElementById("selectColor");
@@ -283,11 +281,18 @@
 
 
 	function buildAgentLinkList(){
+		
 		for(var i = 0; i < skimmer.agents.length; i++){
 			for(var j = 0; j < skimmer.articles.length; j++){
 				if(skimmer.articles[j].words.indexOf(skimmer.agents[i].text) > -1 || skimmer.articles[j].titlewords.indexOf(skimmer.agents[i].text)  > -1 ){
-					if(skimmer.articles[j].imageUrl != null)
-					skimmer.agents[i].imageLinkList.push(skimmer.articles[j].imageUrl);
+					if(skimmer.articles[j].imageUrl != null){
+						var tmpImg = new Image();
+						tmpImg.src = skimmer.articles[j].imageUrl;
+						if(tmpImg.width > 0 && tmpImg.height > 0)
+						skimmer.agents[i].imageLinkList.push(skimmer.articles[j].imageUrl);
+						
+					
+					}
 				}
 			}		
 		}
@@ -441,7 +446,7 @@
 		}
 		else if(event.button == 0 && event.shiftKey == false && event.ctrlKey == true && event.altKey == false){
 			var clickedAgent = skimmer.getAgentClickedAt(cursor);
-			console.log(cursor.toString());
+			//console.log(cursor.toString());
 			if(clickedAgent != null){
 				// Build a collection of the top ranked words for entry
 				var newWords = new Array();
@@ -626,10 +631,11 @@
 						imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 						ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 						
-						imgLinkInvalid = 0;
+						
 					}
 					catch(e){
-						imgLinkInvalid = 1;
+						console.log(imgNews.src);
+						
 					    
 					}
 				}
@@ -688,7 +694,7 @@
 				
 			//back ground color
 			
-		if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 && imgLinkInvalid == 0)	{
+		if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1)	{
 	
 				ctx.save();
 				ctx.beginPath();
@@ -961,7 +967,7 @@
 
 				skimmer.addNewArticles();
 				skimmer.extractArticleMinMax();
-				//skimmer.checkForAdjacencies();
+				skimmer.checkForAdjacencies();
 				skimmer.updateAgentsAdd();
 				skimmer.extractAgentMinMax();
 				buildAgentLinkList();
@@ -1175,7 +1181,7 @@
 					skimmer.UpdateSkimmer(feedResult, numEntries);
 					skimmer.addNewArticles();
 					skimmer.extractArticleMinMax();
-					//skimmer.checkForAdjacencies();
+					skimmer.checkForAdjacencies();
 					skimmer.updateAgents();
 					skimmer.extractAgentMinMax();
 					buildAgentLinkList();
@@ -1248,7 +1254,7 @@
 					skimmer.UpdateSkimmer(feedResult, numEntries);
 					skimmer.addNewArticles();
 					skimmer.extractArticleMinMax();
-					//skimmer.checkForAdjacencies();
+					skimmer.checkForAdjacencies();
 					skimmer.updateAgents();
 					skimmer.extractAgentMinMax();
 					buildAgentLinkList();
