@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="ISO-8859-1">
+<title>Skimmer</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Skimmer</title>
+		<script type="text/javascript" src="js/skimmer.js"></script>
+		<script type="text/javascript" src="js/stopwords.js"></script>
+		<script type="text/javascript" src="lib/jquery/jquery-1.3.2.js"></script>
+		<script type="text/javascript" src="js/agent.js"></script>
+		<script type="text/javascript" src="js/obj_vet.js"></script>
+		<script type="text/javascript" src="js/article.js"></script>
+		<script type="text/javascript" src="js/map.js"></script>
+		<script type="text/javascript" src="js/stemmer.js"></script>
+		<script type="text/javascript" src="js/dictionary.js"></script>
+		
+		<script type="text/javascript" src="js/invertedFileSystem.js"></script>
+		
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type = "text/javascript">
+	var skimmer;
+	var canvas;
+	var ctx;
+	var intervalID;
+
+	var feedFinished = 0;		// A flag used in busy waiting, this should be replaced in the future
+	var feedResult;				// The result of using google feed API
+
+	var numEntries = 20;		// The number of entries to be obtained in the feed result
+	
+	// Default RSS source address
+	var sourceAddress = "http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&location=&type=N&binary=Y&keywords=";
+	//var ratioCanvas = 18.0/20;
+	var ratioCanvas = 1;
+	var scaleNow = 0;
+	var scaleOld = 0;
+	var isFlickr = 0;
+	var currentCursor = new Vector2();
+	var linkFlag = 0;
+	
+	
+	// Define the inverted file system
+	//var IFS = new InvertedFileSystem();
+	
+	// Read RSS from a website with the help of Google Javascript API Google Feed
+	google.load("feeds", "1");
+	// Define the callback function
+	function initialize() {
+		
+		// Set the URL for the google feed API
+		var feed = new google.feeds.Feed(sourceAddress);
+		// Set the number of entries to be read from the RSS online
+		feed.setNumEntries(numEntries);
+
+		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
+		feed.load(function(result) {
+			if (!result.error) {
+				feedResult = result;
+				canvas = document.getElementById("canvas");
+				
+				// Initialize the absolute position to zero
+				absPosX = 0;
+				absPosY = 0;
+				
+				tempElem = canvas;
+				
+				while (tempElem.offsetParent != null) {
+					absPosX += tempElem.offsetLeft;
+					absPosY += tempElem.offsetTop;
+					tempElem = tempElem.offsetParent;
+				}
+
+				// Finally get the absolute position of the canvas element
+				absPosX += tempElem.offsetLeft;
+				absPosY += tempElem.offsetTop;
+
+
+				// A gif image is used as the progress bar
+				duckGif = document.getElementById("duckGif");
+				duckGif.hidden  = '';
+				
+				// Build the skimmer and set the attributes for the skimmer
+				skimmer = new Skimmer(absPosX, absPosY, canvas.width, canvas.height, feedResult, numEntries);
+				skimmer.addNewArticles();
+				skimmer.extractArticleMinMax();
+				skimmer.checkForAdjacencies();
+				skimmer.updateAgents();
+				skimmer.extractAgentMinMax();
+				var selectObj = document.getElementById("selectColor");
+				var selectIndex=selectObj.selectedIndex;
+				var selectVal = selectObj.options[selectIndex].value;
+				skimmer.colorType = selectVal;
+				skimmer.updateAgentColor();
+
+				feedFinished = 1;
+				
+				// Hide the progress bar when feeding is done
+				duckGif.hidden = 'hidden';
+			}
+		});
+	}
+	google.setOnLoadCallback(initialize);
+
+
+	// Set the event when a key is pressed
+	function keyDown(event){
+		 var keyCode = ('which' in event) ? event.which : event.keyCode;
+		 if(keyCode == 27){
+			 if(skimmer.agentArticle != null){
+				 skimmer.agentArticle.remove = true;
+				 skimmer.selectedWords.length = 0;
+				 skimmer.selectedArticles.length = 0;
+				 skimmer.selectedArticleRanking.clear();
+			 }
+			 else if(skimmer.zoomedAgents.length > 0){
+				 for(var i = 0 ; i < skimmer.zoomedAgents.length; i++){
+					 skimmer.zoomedAgents[i].remove = true;
+				 }
+				 skimmer.zoomedAgents.length = 0;
+			 }
+			 else{
+				 clearInterval(intervalID);
+			 }
+		 }else if(keyCode == 49){
+			 skimmer.colorType = 0;
+			 skimmer.updateAgentColor();
+		 }else if(keyCode == 50){
+			 skimmer.colorType = 1;
+			 skimmer.updateAgentColor();
+		 }else if(keyCode == 51){
+			 skimmer.colorType = 2;
+			 skimmer.updateAgentColor();
+		 }else if(keyCode == 52){
+			 skimmer.colorType = 3;
+			 skimmer.updateAgentColor();
+		 }else if(keyCode == 13){
+			// Set the action when the "Enter" button is pressed down
+			document.getElementById("skimmerSearching").click();
+		 }
+	}
+	
+	function convertUrl(oldUrl){
+		
+		var tmpUrl = oldUrl;
+		var tmppat = new RegExp("_m.jpg");
+		if(tmppat.test(tmpUrl)){ 
+			tmpUrl = tmpUrl.replace("_m.jpg","_b.jpg"); //alert(tmpUrl);
+		}
+		return tmpUrl;
+		
+	}
+	
+	
+	var mouseMoveFlag = 0;
+	var isControlPanelHide = false;
+	var mouseMoveIntervalID;
+	
+	function mouseMove(event){
+	
+		mouseMoveFlag = 0;
+		
+		if( skimmer != undefined ) {
+			currentCursor.set(event.clientX - skimmer.left , event.clientY - skimmer.top);
+
+			if (isControlPanelHide == true) {
+				mouseMoveFlag = 0;
+			}
+		}
+	}
+	
+	function hideControlPanel(status) {
+		if (status == "hide") {
+			// Hide the control panel
+
+			var winWidth = getWinWidth();
+			var winHeight = getWinHeight();
+
+			table = document.getElementById("overallFrame");
+			table.style.display = winWidth*ratioCanvas;
+			table.height = winHeight*ratioCanvas;
+
+			tableSel = document.getElementById("selectFrame");
+			tableSel.hidden = true;
+			
+			canvas = document.getElementById("canvas");
+			canvas.width = table.width;
+			canvas.height = table.height;
+			
+			ctx = canvas.getContext("2d");
+
+			// Get the style ratio of the elements on the webpage
+			if (canvas.width <= canvas.height) {
+				scaleNow = canvas.width;
+				scaleOld = 1024;
+			}
+			else {
+				scaleNow = canvas.height;
+				scaleOld = 768;
+			}
+			
+			isControlPanelHide = true;
+		}
+		else {
+			// Show the control panel
+			var winWidth = getWinWidth();
+			var winHeight = getWinHeight();
+
+			table = document.getElementById("overallFrame");
+			table.style.display = winWidth*ratioCanvas;
+			table.height = winHeight*ratioCanvas;
+
+			tableSel = document.getElementById("selectFrame");
+			tableSel.hidden = false;
+			
+			canvas = document.getElementById("canvas");
+			canvas.width = Math.round(table.width * 8.0 / 9);
+			canvas.height = table.height;
+			
+			ctx = canvas.getContext("2d");
+
+			// Get the style ratio of the elements on the webpage
+			if (canvas.width <= canvas.height) {
+				scaleNow = canvas.width;
+				scaleOld = 1024;
+			}
+			else {
+				scaleNow = canvas.height;
+				scaleOld = 768;
+			}
+
+			isControlPanelHide = false;
+			mouseMoveFlag = 0;
+		}
+
+		skimmer.width = canvas.width;
+		skimmer.height = canvas.height;
+		if(skimmer.agentArticle!=null) {
+			skimmer.agentArticle.width = skimmer.width / 3 * scaleNow / scaleOld;
+
+			skimmer.agentArticle.height = skimmer.height / 3 * scaleNow / scaleOld;
+		}
+		
+		absPosX = 0;
+		absPosY = 0;
+		
+		tempElem = canvas;
+		
+		while (tempElem.offsetParent != null) {
+			absPosX += tempElem.offsetLeft;
+			absPosY += tempElem.offsetTop;
+			tempElem = tempElem.offsetParent;
+		}
+		
+		absPosX += tempElem.offsetLeft;
+		absPosY += tempElem.offsetTop;
+		
+		skimmer.left = absPosX;
+		skimmer.top = absPosY;
+
+	}
+
+	// Check whether the mouse is moving
+	function checkMouseMove() {
+		// Count up the time during which the mouse did not move
+		if (skimmer != undefined) {
+			if (mouseMoveFlag >= 10) {
+				hideControlPanel("hide");
+			}
+			else if (isControlPanelHide == true) {
+				hideControlPanel("show");
+			}
+			mouseMoveFlag++;
+		}
+	}
+
+
+	function buildAgentLinkList(){
+		for(var i = 0; i < skimmer.agents.length; i++){
+			for(var j = 0; j < skimmer.articles.length; j++){
+				if(skimmer.articles[j].words.indexOf(skimmer.agents[i].text) > -1 || skimmer.articles[j].titlewords.indexOf(skimmer.agents[i].text)  > -1 ){
+					if(skimmer.articles[j].imageUrl != null)
+					skimmer.agents[i].imageLinkList.push(skimmer.articles[j].imageUrl);
+				}
+			}		
+		}
+	}
+	
+
+	function mouseClick(event){
+		var cursor = new Vector2();
+		cursor.set(event.clientX - skimmer.left - (skimmer.width / 2), event.clientY - skimmer.top - (skimmer.height / 2 ));
+		
+		if(skimmer.agentArticle!=null){
+			var agentArticleBounds = skimmer.agentArticle.getBoundingBox();
+			if(agentArticleBounds.contains(cursor)){
+				var curIndex = skimmer.selectedArticles.indexOf(skimmer.selectedArticle);
+				if(curIndex >= 0){
+					if(event.button == 0){
+						//if(agentArticleBounds.containsLink(cursor))
+						if (linkFlag == 1)
+						{
+							window.open(skimmer.agentArticle.source);
+						}
+						else
+						{
+							curIndex += 1;
+						}
+					}
+					else{
+						curIndex -= 1;
+					}
+					if(curIndex >= skimmer.selectedArticles.length){
+						curIndex = 0;
+					}
+					if(curIndex < 0){
+						curIndex = skimmer.selectedArticles.length - 1;
+					}
+					skimmer.selectedArticle = skimmer.selectedArticles[curIndex];
+					skimmer.agentArticle.title = skimmer.selectedArticle.title;
+					skimmer.agentArticle.text = skimmer.selectedArticle.summary;
+					skimmer.agentArticle.source = skimmer.selectedArticle.source;
+					//if( isFlickr == 1 )
+					//skimmer.agentArticle.imageUrl = convertUrl(skimmer.selectedArticle.imageUrl);
+					//else
+					skimmer.agentArticle.imageUrl = skimmer.selectedArticle.imageUrl;
+				}
+			}
+			else{
+				skimmer.agentArticle.remove = true;
+				skimmer.selectedWords.length = 0;
+				skimmer.selectedArticles.length = 0;
+				skimmer.selectedArticleRanking.clear();
+			}
+		}
+		if(event.button == 0 && event.shiftKey == true && event.ctrlKey == false && event.altKey == false){
+			
+			skimmer.selectedWords.length = 0;
+			skimmer.selectedArticles.length = 0;
+			skimmer.selectedArticleRanking.clear();
+			
+			// Build the selected words list
+			var tmpVect = new Vector2();
+			var dist;
+			for(var i = 0; i < skimmer.agents.length; i++){
+				var agent = skimmer.agents[i];
+				
+				tmpVect.setVect(agent.pos);
+				tmpVect.sub(cursor);
+
+				dist = tmp = tmpVect.length();
+				if(dist < agent.radius){
+					skimmer.selectedWords.push(agent);
+				}
+			}
+			
+			// If words were selected, rank articles based on the selected articles
+			// Then sort them into a list of the top picks
+			// Finally generate the agent
+			if(skimmer.selectedWords.length > 0){
+				for(var i = 0; i < skimmer.articles.length; i++){
+					var article = skimmer.articles[i];
+					var rank = 0;
+					for(var j = 0; j < skimmer.selectedWords.length; j++){
+						var agent = skimmer.selectedWords[j];
+						if(article.words.indexOf(agent.stem) > -1){
+							rank += 1.0 + (agent.occurrences / skimmer.maxOccurrence);
+						}
+						if(article.titlewords.indexOf(agent.stem) > -1){
+							rank += 2.0;
+						}
+					}
+					skimmer.selectedArticleRanking.put(article,rank);
+		
+				}
+				
+				// Build a collection of the top ranked articles
+				for(var i = 0; i < skimmer.selectedArticleRanking.valSet().length; i++){
+					var article = skimmer.selectedArticleRanking.keySet()[i];
+					var rank = skimmer.selectedArticleRanking.valSet()[i];
+					
+					if(skimmer.selectedArticles.length == 0){
+						skimmer.selectedArticles.push(article);
+					}
+					else{
+						for(var j = 0; j < skimmer.selectedArticles.length; j++){
+							var curArticle = skimmer.selectedArticles[j];
+							var curRank = skimmer.selectedArticleRanking.get(curArticle);
+							
+							if(rank >= curRank){
+								skimmer.selectedArticles = skimmer.selectedArticles.add(article, j);
+								break;
+							}
+							
+						}
+						if(skimmer.selectedArticles.indexOf(article) < 0){
+							skimmer.selectedArticles.push(article);
+						}
+					}
+				}
+				
+				if(skimmer.selectedArticles.length != 0){
+					skimmer.selectedArticle = skimmer.selectedArticles[0];
+					
+					//alert("scaleNow" + scaleNow +"scaleOld" + scaleOld);
+					//if( isFlickr == 1 )
+					//skimmer.agentArticle = new AgentArticle(skimmer.width / 3 * scaleNow / scaleOld, skimmer.height / 3 * scaleNow / scaleOld, skimmer.selectedArticle.title, skimmer.selectedArticle.summary, skimmer.selectedArticle.source,convertUrl(skimmer.selectedArticle.imageUrl));
+					//else
+					skimmer.agentArticle = new AgentArticle(skimmer.width / 3 * scaleNow / scaleOld, skimmer.height / 3 * scaleNow / scaleOld, skimmer.selectedArticle.title, skimmer.selectedArticle.summary, skimmer.selectedArticle.source,skimmer.selectedArticle.imageUrl);
+					//fix color
+					//alert(skimmer.width / 3 * scaleNow / scaleOld+"  "+skimmer.height / 3 * scaleNow / scaleOld)
+					skimmer.agentArticle.pos.setVect(cursor);
+				}
+				
+			}
+			
+			
+			
+			//var showNews = document.getElementById("NewsDetail");
+			//showNews.appendChild(document.createTextNode(skimmer.selectedArticles[0].rsscontent));
+
+			
+		}
+		else if(event.button == 0 && event.shiftKey == false && event.ctrlKey == true && event.altKey == false){
+			var clickedAgent = skimmer.getAgentClickedAt(cursor);
+			console.log(cursor.toString());
+			if(clickedAgent != null){
+				// Build a collection of the top ranked words for entry
+				var newWords = new Array();
+				var clickedWord = clickedAgent.stem;
+				
+				for(var i = 0; i < skimmer.words.length; i++){
+					var word = skimmer.words[i];
+					var alreadyAnAgent = false;
+					for(var j = 0; j < skimmer.agents.length; j++){
+						var agent = skimmer.agents[j];
+						if(word.toLowerCase() == agent.stem.toLowerCase()){
+							alreadyAnAgent = true;
+							break;
+						}
+					}
+					if(!alreadyAnAgent){
+						var pair = skimmer.getPair(clickedWord, word);
+						var cooccurrence = skimmer.cooccurrences.get(pair);
+						var cfidf = cooccurrence / skimmer.occurrences.get(word);
+						
+						if(newWords.length == 0){
+							newWords.push(word);
+						}
+						else if(newWords.length < skimmer.MAX_WORDS_PER_ZOOM){
+							for(var j = 0; j < newWords.length; j++){
+								var curWord = newWords[j];
+								var curPair = skimmer.getPair(clickedWord, curWord);
+								var curCooccurrence = skimmer.cooccurrences.get(curPair);
+								var curCfidf = curCooccurrence / skimmer.occurrences.get(curWord);
+								
+								if(cfidf >= curCfidf){
+									newWords = newWords.add(word, j);
+									break;
+								}
+								
+							}
+							if(newWords.indexOf(word) < 0){
+								newWords.add(word);
+							}
+						}
+						else{
+							var lastWord = newWords[newWords.length - 1];
+							var lastPair = skimmer.getPair(clickedWord, lastWord);
+							var lastCooccurrence = skimmer.cooccurrences.get(lastPair);
+							var lastCfidf = lastCooccurrence / skimmer.occurrences.get(lastWord);
+							
+							if(cfidf > lastCfidf){
+								newWords.pop();
+								for(var j = 0; j < newWords.length; j++){
+									var curWord = newWords[j];
+									var curPair = skimmer.getPair(clickedWord, curWord);
+									var curCooccurrence = skimmer.cooccurrences.get(curPair);
+									var curCfidf = curCooccurrence / skimmer.occurrences.get(curWord);
+									
+									if(cfidf >= curCfidf){
+										newWords = newWords.add(word, j);
+										break;
+									}
+								}
+								if(newWords.indexOf(word) < 0){
+									newWords.push(word);
+								}
+							}
+						}
+					}
+				}
+				
+				var tmpAgent;
+				for(var i = 0; i < newWords.length; i++){
+					var word = newWords[i];
+					if(skimmer.zoomedAgents.length > skimmer.MAX_ZOOMED_AGENTS){
+						skimmer.zoomedAgents.shift().remove = true;
+					}
+					tmpAgent = new AgentWord();
+					
+					tmpAgent.stem = word;
+					tmpAgent.text = skimmer.stems.get(word);
+					tmpAgent.occurrences = skimmer.occurrences.get(word);
+					tmpAgent.pos.set(cursor.x - 3.0 + Math.random() * 6.0, cursor.y - 3.0 + Math.random() * 6.0);
+					tmpAgent.avgPos.setVect(tmpAgent.pos);
+					tmpAgent.timestamp = new Date();
+					tmpAgent.desiredAlpha = 1.0;
+					tmpAgent.textColor = skimmer.colorAgentWordText;
+					
+					//color
+					
+					skimmer.agents.push(tmpAgent);
+					skimmer.zoomedAgents.push(tmpAgent);
+				}
+				skimmer.updateAgentColor();
+				
+			}
+			
+			buildAgentLinkList();
+		}
+		else if(event.button == 0 && event.shiftKey == true && event.ctrlKey == true && event.altKey == true){
+			
+			var clickedAgent = skimmer.getAgentClickedAt(cursor);
+			if(clickedAgent != null){
+				var curIndex = skimmer.agents.indexOf(clickedAgent);
+				skimmer.agents[curIndex].remove = true;
+			}
+		}
+	}
+	
+	// Added as the driver of the draw funcion
+	function drawDriver(){
+		if (feedFinished == 1) {
+			draw();
+		}
+	}
+	
+	function draw(){
+		var origin = new Vector2();
+		
+		origin.set(skimmer.width/2, skimmer.height/2);
+		ctx.fillStyle = 'rgba(0,0,0,1.0)';
+	 	ctx.fillRect(0,0,skimmer.width,skimmer.height);
+		
+		// To scale the drawing result according to the screen
+		scaleNow = 0;		// The scale for the rescaled screen
+		scaleOld = 0;		// The scale for the 1024 * 768 screen
+		if (skimmer.width <= skimmer.height) {
+			scaleNow = skimmer.width;
+			scaleOld = 1024;
+		}
+		else {
+			scaleNow = skimmer.height;
+			scaleOld = 768;
+		}
+		
+		// Draw the circles. //
+		if( skimmer.DRAW_CIRCLES ) {
+			for(var i = 0; i < skimmer.agents.length; i++){
+				
+				if(skimmer.agents[i].scaleEnable == true){
+					skimmer.agents[i].avgPos.x *= 2;
+					skimmer.agents[i].scaleEnable  = false ;
+				}
+				
+				var agent = skimmer.agents[i];
+
+				var alpha = parseFloat( 0.75 * ( parseFloat( agent.TICKS_TILL_FADE - agent.curTicksTillFade ) / agent.TICKS_TILL_FADE ) );
+				if( alpha > 1.0 ) { alpha = 1.0; }
+				if( alpha < 0.0 ) { alpha = 0.0; }
+				skimmer.agents[i].shapeColor.alpha = alpha;
+				ctx.fillStyle = agent.shapeColor.toString();
+				if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 )){
+					var colorUnselected = agent.shapeColor.darker();
+					ctx.fillStyle = colorUnselected.toString();
+				}
+
+				var radius = parseInt(Math.round( ( skimmer.minRadius + ( agent.occurrences /  skimmer.maxOccurrence )
+						* ( skimmer.minRadius ) ) * 2.0 * scaleNow / scaleOld));
+					
+				// updates the radius value
+				skimmer.agents[i].radius = radius / 2;
+				ctx.beginPath();
+				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2), 0, Math.PI * 2, false); 
+   				ctx.fill();  
+   				ctx.closePath();  
+				
+				ctx.save();
+				ctx.beginPath();
+				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius/2),0,Math.PI*2,true);
+				ctx.closePath();
+				ctx.clip();
+				
+				
+				if (skimmer.agents[i].imageLinkList[0] !=null && skimmer.colorType == 0  )	{
+					var imgNews = new Image();
+					try{
+						if(++skimmer.agents[i].imageFrequency%150 == 0 && Math.random() < 0.5)
+						skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
+						imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
+						ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+					}
+					catch(e){
+					}
+				}
+				ctx.restore();
+			}
+		}
+		
+		// Draw outline boxes for selected agents. //
+		for(var i = 0; i < skimmer.agents.length; i++){
+			var agent = skimmer.agents[i];
+			var alpha = parseFloat(parseFloat(agent.TICKS_TILL_FADE - agent.curTicksTillFade) / agent.TICKS_TILL_FADE);
+			if( alpha > 1.0 ) { alpha = 1.0; }
+			if( alpha < 0.0 ) { alpha = 0.0; }
+			if(skimmer.selectedWords.indexOf(agent) > -1){
+				ctx.fillStyle = agent.shapeColor.toString();
+				var agentBounds = agent.getBoundingBox();
+				ctx.beginPath();
+				
+				//ctx.fillStyle = "#f00";
+				ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x * scaleNow / scaleOld),
+						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
+						Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
+						Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
+				var colorOut = agent.shapeColor.brighter();
+				ctx.fillStyle = colorOut.toString();
+				//shapeColor -> brighter
+				ctx.strokeRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x* scaleNow / scaleOld),
+						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
+						Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
+						Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
+				ctx.closePath();
+			}
+		}
+
+		// Draw all of the text and set the agent's bounding box. //
+		for(var i = 0; i < skimmer.agents.length; i++){
+			var agent = skimmer.agents[i];
+			var alpha = parseFloat( (  agent.TICKS_TILL_FADE - agent.curTicksTillFade ) / agent.TICKS_TILL_FADE ) ;
+			if( alpha > 1.0 ) { alpha = 1.0; }
+			if( alpha < 0.0 ) { alpha = 0.0; }
+			ctx.fillStyle = agent.textColor.toString();
+			ctx.textBaseline = 'middle';
+			ctx.textAlign = 'center';
+			if(skimmer.zoomedAgents.indexOf(agent) > -1){
+				ctx.font = 'bold' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
+			}
+			else{
+				ctx.font = 'bold ' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
+			}
+			metrics = ctx.measureText(agent.text);
+			skimmer.agents[i].bounds.extents.set( metrics.width / 2.0 , 8 );
+			if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 )){
+				var colorUnselected = agent.textColor.darker().darker();
+				ctx.fillStyle = colorUnselected.toString();
+			}		
+				
+			//back ground color
+			
+			if (agent.imageLinkList[0] !=null && skimmer.colorType == 0  )	{
+	
+					ctx.fillStyle = 'rgba(100,100,100,0.9)';
+					var agentBounds = agent.getBoundingBox();
+					ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x * scaleNow / scaleOld),
+						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
+						Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
+						Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
+			}
+			
+			
+			ctx.fillStyle='rgba(250,250,250,0.8)';
+			ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
+		}
+		
+
+		// Draw other user agent if it exists. //
+		if( skimmer.agentUser != null ) {
+
+			if( skimmer.DRAW_CIRCLES ) {
+				ctx.fillStyle = 'rgba(255,255,255,0.6)';
+				
+				ctx.beginPath();
+				ctx.arc(Math.round( origin.x + skimmer.agentUser.avgPos.x), Math.round( origin.y + skimmer.agentUser.avgPos.y), skimmer.agentUser.radius* scaleNow / scaleOld, 0, Math.PI * 2, false );
+
+   				ctx.fill();  
+   				ctx.closePath();
+			}
+		}
+		
+		// Draw the title agent if it exists. //
+		if( skimmer.agentTitle != null ) {
+			ctx.fillStyle = 'rgba(150,150,150,0.6)';
+			ctx.textBaseline = 'middle';
+			ctx.textAlign = 'center';
+			ctx.font = 'bold ' + Math.round(30 * scaleNow / scaleOld) + 'px Arial';
+			
+			//gradientPaint
+			ctx.beginPath();
+			ctx.fillRect(origin.x + skimmer.agentTitle.pos.x - (skimmer.agentTitle.text.length * 8 + 8) *  scaleNow / scaleOld, 0, (skimmer.agentTitle.text.length * 16 + 16) * scaleNow / scaleOld, 40 * scaleNow / scaleOld);
+			ctx.fillStyle = 'rgba(255,255,255,255.8)';
+			ctx.fillText(skimmer.agentTitle.text, origin.x + skimmer.agentTitle.pos.x, 20 * scaleNow / scaleOld);
+		}
+		
+		if(skimmer.agentArticle != null){
+			// Clip the title to fit within the assigned width
+			var displayedTitle = "";
+			ctx.font = 'bold '+Math.round(20* scaleNow / scaleOld)+'px Arial';
+			
+			var droppedChars = false;
+			for(var i = 0; i < skimmer.agentArticle.title.length; i++){
+				if(ctx.measureText(displayedTitle).width > skimmer.agentArticle.width * 0.75 ){
+					droppedChars = true;
+					break;
+				}	
+				displayedTitle += skimmer.agentArticle.title.charAt(i);
+			}
+			if(droppedChars){
+				displayedTitle += "...";
+			}
+			
+			ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
+			var displayedSource = "";
+			
+			var droppedChars1 = false;
+			for(var i = 0; i < skimmer.agentArticle.source.length; i++){
+				if(ctx.measureText(displayedSource).width > skimmer.agentArticle.width * 0.75 ){
+					droppedChars1 = true;
+					break;
+				}
+				displayedSource += skimmer.agentArticle.source.charAt(i);
+			}
+			if(droppedChars1){
+				displayedSource += "...";
+			}
+			
+			// Reset Max Height to original height
+			skimmer.agentArticle.height = skimmer.agentArticle.originalHeight;
+			
+			// Extract the lines from the body text and match vertical height to this property
+			if(skimmer.agentArticle.text != ""){
+				// Extract meaningful measurements and adjust vertical height if necessary
+				
+				var requiredTextHeight = 20;
+				
+				//deal with text
+				var dealString = skimmer.agentArticle.text;
+				var dealWords = dealString.split(" ");
+				var dealedLines = new Array();
+				var j = 0;
+				dealedLines.push(new String(""));
+				ctx.font = 'bold ' + Math.round(14*scaleNow / scaleOld)+'px Arial';
+				dealedLines[0] += dealWords[0];
+				var textWidth = 0;
+				var lineWidth = 0;
+				for(var i = 1; i < dealWords.length; i++){
+					
+					if(ctx.measureText(dealedLines[j] + " " + dealWords[i]).width <= (skimmer.agentArticle.width * 0.9 )){
+						
+						dealedLines[j] += " ";
+						dealedLines[j] += dealWords[i];
+					}
+					else{
+						if(ctx.measureText(dealedLines[j]).width > textWidth){
+							textWidth = ctx.measureText(dealedLines[j]).width;
+						}
+						dealedLines.push(new String(""));
+						j += 1;
+						dealedLines[j] += dealWords[i];
+					}
+				}
+				if(ctx.measureText(dealedLines[j]).width > textWidth){
+					textWidth = ctx.measureText(dealedLines[j]).width;
+				}
+				
+				// Font height
+				requiredTextHeight += dealedLines.length * 15 *scaleNow / scaleOld;
+				ctx.font = 'bold 20px Arial';
+				var titleWidth = ctx.measureText(displayedTitle).width;
+				var titleHeight = 24*scaleNow/scaleOld;
+				
+				ctx.font = 'bold 16px Arial';
+				var sourceWidth = ctx.measureText(skimmer.agentArticle.source).width;
+				var sourceHeight = 20*scaleNow/scaleOld;
+				
+				skimmer.agentArticle.height = requiredTextHeight + titleHeight + sourceHeight;
+				var titleOffsetY = parseInt(Math.round(20 * 1.75));
+				var sourceOffsetY;
+				
+				var textBackgroundHeight = skimmer.agentArticle.height - titleHeight - sourceHeight;
+				//alert("titleHeight"+titleHeight+"sourceHeight"+sourceHeight+"skimmer.agentArticle.height"+skimmer.agentArticle.height);
+				
+				var titleOrigin = new Vector2();
+				titleOrigin.set(origin.x + skimmer.agentArticle.pos.x - skimmer.agentArticle.width / 2.0,
+						origin.y + skimmer.agentArticle.pos.y - skimmer.agentArticle.height / 2.0);
+				var textOrigin = new Vector2();
+				textOrigin.set(titleOrigin.x, titleOrigin.y + titleHeight);
+				var sourceOrigin = new Vector2();
+				sourceOrigin.set(textOrigin.x, textOrigin.y + textBackgroundHeight);
+				
+				ctx.lineWidth = "1";
+				ctx.fillStyle = 'rgba(140,140,140,0.9)';
+				ctx.strokeStyle = 'rgba(150,150,150,0.9)';
+				
+				
+				ctx.fillRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
+				ctx.strokeRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
+				
+				ctx.fillRect(sourceOrigin.x, sourceOrigin.y, skimmer.agentArticle.width, sourceHeight);
+				ctx.strokeRect(sourceOrigin.x, sourceOrigin.y, skimmer.agentArticle.width, sourceHeight);
+				
+				ctx.strokeStyle = 'rgba(180,180,180,0.9)';
+				ctx.strokeRect(textOrigin.x, textOrigin.y, skimmer.agentArticle.width, textBackgroundHeight);
+				ctx.fillStyle = 'rgba(240,240,240,0.9)';
+				ctx.fillRect(textOrigin.x, textOrigin.y, skimmer.agentArticle.width, textBackgroundHeight);
+				
+				////////////////////////////////////////////////////////////////////////////////////
+				ctx.font = 'bold '+Math.round(14* scaleNow / scaleOld)+'px Arial';
+				ctx.textAlign = "left";
+				ctx.textBaseline = "top";
+				ctx.fillStyle = 'rgba(50,50,50,0.9)';
+				var lineOrigin = textOrigin.y + 10* scaleNow / scaleOld;
+				for(var i = 0; i < dealedLines.length; i++){
+					//ctx.fillText(dealedLines[i],textOrigin.x + (skimmer.agentArticle.width / 2.0 - textWidth / 2.0+5), lineOrigin);
+					ctx.fillText(dealedLines[i],textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), lineOrigin);
+					/*
+					 * real content
+					 * 
+					 * */
+					lineOrigin += 15* scaleNow / scaleOld;
+					
+				}
+				
+				ctx.font = 'bold '+Math.round(20* scaleNow / scaleOld)+'px Arial';
+				ctx.fillText( displayedTitle, Math.round( titleOrigin.x + skimmer.agentArticle.width* 0.1), titleOrigin.y );
+				/*
+					 * real title
+					 * 
+					 * */
+				
+				
+				ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
+				
+				if( sourceOrigin.x < currentCursor.x && currentCursor.x < sourceOrigin.x + skimmer.agentArticle.width )
+				{
+					//alert("oh");
+					if	( sourceOrigin.y < currentCursor.y && currentCursor.y < sourceOrigin.y + sourceHeight )
+					{
+						//alert("oh");
+						ctx.fillStyle = "#33f";
+						linkFlag = 1;
+					}
+					else{linkFlag = 0;}
+				}	
+				else{linkFlag = 0;}
+				ctx.fillText( displayedSource, Math.round( sourceOrigin.x + skimmer.agentArticle.width * 0.1), sourceOrigin.y );
+				
+				/*
+					 * real link
+					 * 
+					 * */
+				
+				skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 + 10, skimmer.agentArticle.height / 2 + 10);
+			}
+			else{
+				skimmer.agentArticle.remove = true;
+				skimmer.selectedWords.length = 0;
+				skimmer.selectedArticles.length = 0;
+				skimmer.selectedArticleRanking.clear();
+			}
+		}
+		skimmer.update(0.05, 1024.0, 768.0, scaleNow , scaleOld);
+ 	}	
+	
+	
+	// This function is used to get the canvas filling the screen when the size of the screen is changed
+	
+	// The function used to searching the internet and get the result from the Search API
+	// The result here is got from the Google news because this website will provide me with RSS data source
+	function AddNewData() {
+		isFlickr = 0;
+		// Construct the news search address with the help of the google news api
+		// THe Source address of the RSS source is kept untouched because when we are to update the RSS feed, there is no need for us to change the RSS source
+		
+		// Set the URL for the google feed API
+		var feed = new google.feeds.Feed(sourceAddress);
+		// Set the number of entries to be read from the RSS online
+		feed.setNumEntries(numEntries);
+
+		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
+		feed.load(function(result) {
+			if (!result.error) {
+				feedResult = result;
+				
+				skimmer.UpdateUsingRssSource(feedResult, 10);
+
+
+				skimmer.addNewArticles();
+				skimmer.extractArticleMinMax();
+				skimmer.checkForAdjacencies();
+				skimmer.updateAgentsAdd();
+				skimmer.extractAgentMinMax();
+				buildAgentLinkList();
+
+				feedFinished = 1;
+
+			}
+		});
+
+		google.setOnLoadCallback(initialize);
+				
+	}
+	
+	
+	// Get the width of the windows
+	function getWinWidth(){
+		if(window.innerWidth) {
+		winWidth=window.innerWidth;
+	}
+	else if((document.body)&&(document.body.clientWidth)) {
+		winWidth=document.body.clientWidth;
+	}
+		return winWidth;
+	}
+	
+	// Get the height of the windows
+	function getWinHeight(){
+		if(window.innerHeight) {
+			winHeight=window.innerHeight;
+		}
+		else if((document.body)&&(document.body.clientHeight)) {
+			winHeight=document.body.clientHeight;
+		}
+		return winHeight;
+	}
+	
+	
+	function init(){
+		
+		var winWidth = getWinWidth();
+		var winHeight = getWinHeight();
+
+		table = document.getElementById("overallFrame");
+		table.width = winWidth*ratioCanvas;
+		table.height = winHeight*ratioCanvas;
+
+		//table.width = 7000;
+		//table.height = 2000;
+
+		tableSel = document.getElementById("selectFrame");
+		tableSel.width = Math.round(table.width * 1.0 / 9);
+		tableSel.height = table.height;
+		
+		canvas = document.getElementById("canvas");
+		canvas.width = Math.round(table.width * 8.0 / 9);
+		canvas.height = table.height;
+		
+		ctx = canvas.getContext("2d");
+		
+		// Get the style ratio of the elements on the webpage
+		if (canvas.width <= canvas.height) {
+			scaleNow = canvas.width;
+			scaleOld = 1024;
+		}
+		else {
+			scaleNow = canvas.height;
+			scaleOld = 768;
+		}
+		
+		
+		// The ratio of the logo
+		var heightRatioLogo = 1.0 / 4;
+		// The ratio of text input
+		var heightRatioText = 1.0 / 30;
+		// The ratio of buttons
+		var heightRatioButton = 1.0 / 20;
+		// The ratio of blank between elements
+		var heightRatioBlank = 1.0 / 30;
+		// The ratio of font size
+		var heightRatioFont = 1.0 / 40;
+		
+		
+		// Adjust the blank between two sets of elements
+		tableSel.style.fontSize = Math.round(tableSel.height * heightRatioBlank) + "px";
+		
+		// The logo of the project as well as the DGL
+		skimmerLogo = document.getElementById("skimmerLogo");
+		skimmerLogo.style.width = tableSel.height * heightRatioLogo + "px";
+		
+		skimmerLogo = document.getElementById("DGLLogo");
+		skimmerLogo.style.width = tableSel.height * heightRatioLogo + "px";
+		
+		selectColor = document.getElementById("selectColor");
+		selectColor.style.width = tableSel.width+"px";
+		selectColor.style.height = Math.round(tableSel.height * heightRatioText)+"px";
+		selectColor.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
+	
+		
+		chooseSource = document.getElementById("chooseSource");
+		chooseSource.style.width = tableSel.width+"px";	
+		chooseSource.style.height = Math.round(tableSel.height * heightRatioText)+"px";
+		chooseSource.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
+
+
+		academicSearching = document.getElementById("skimmerSearching");
+		academicSearching.style.width = tableSel.width+"px";	
+		academicSearching.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
+		academicSearching.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
+			
+	}
+
+	// The function to be operated when the window is resized
+	function resizeWindow() {
+		init();
+		skimmer.width = canvas.width;
+		skimmer.height = canvas.height;
+		if(skimmer.agentArticle!=null) {
+			skimmer.agentArticle.width = skimmer.width / 3 * scaleNow / scaleOld;
+			skimmer.agentArticle.height = skimmer.height / 3 * scaleNow / scaleOld;
+		}
+		
+		absPosX = 0;
+		absPosY = 0;
+		
+		tempElem = canvas;
+		
+		while (tempElem.offsetParent != null) {
+			absPosX += tempElem.offsetLeft;
+			absPosY += tempElem.offsetTop;
+			tempElem = tempElem.offsetParent;
+		}
+		
+		absPosX += tempElem.offsetLeft;
+		absPosY += tempElem.offsetTop;
+		
+		skimmer.left = absPosX;
+		skimmer.top = absPosY;
+	}
+	
+
+	// Select the color mapping schema
+	function SelectColor(){
+		var selectObj = document.getElementById("selectColor");
+		var selectIndex=selectObj.selectedIndex;
+		var selectVal = selectObj.options[selectIndex].value;
+
+		skimmer.colorType = selectVal;
+		skimmer.updateAgentColor();
+	}
+	
+	// Search for the content in the skimmer
+	function skimmerSearching() {
+
+		var selectObj = document.getElementById("chooseSource");
+		var selectIndex=selectObj.selectedIndex;
+		var selectVal = selectObj.options[selectIndex].value;
+		
+		switch(selectVal) {
+			case 'ncsu_libpes':
+				isFlickr = 0;
+				sourceAddress = "http://feeds.feedburner.com/NCSULibrariesPESNews?format=xml";
+				break;
+			case 'ncsu_events':
+				isFlickr = 0;
+				sourceAddress = "http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&location=&type=N&binary=Y&keywords=";
+				break;
+			case 'ncsu_twitter':
+				isFlickr = 0;
+				var inputObj = document.getElementById("searchContent");
+				var inputVal = inputObj.value;
+				sourceAddress = "http://search.twitter.com/search.rss?q=" + inputVal + "%23ncsu";
+				break;
+			case 'ncsu_facebook':
+				isFlickr = 0;
+				sourceAddress = "http://www.facebook.com/feeds/page.php?format=rss20&id=5983837179";
+				break;
+			case "google_news":
+				isFlickr = 0;
+				var inputObj = document.getElementById("searchContent");
+				var inputVal = inputObj.value;
+				sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=" + inputVal + "&num=100&um=1&ie=UTF-8&output=rss";
+				break;
+			case "flickr_tags":
+				isFlickr = 1;
+				var inputObj = document.getElementById("searchContent");
+				var inputVal = inputObj.value;
+				sourceAddress = "http://api.flickr.com/services/feeds/photos_public.gne?tags=" + inputVal + "&lang=en-us&format=rss_200";
+				break;
+			default:
+				break;
+		}
+	
+	
+		duckGif = document.getElementById("duckGif");
+		duckGif.hidden  = '';
+
+		//------------------------------------------- Get the content from the Google Feed Api ----------------------------------------
+		
+		// Set the URL for the google feed API
+		var feed = new google.feeds.Feed(sourceAddress);
+		// Set the number of entries to be read from the RSS online
+		//feed.setNumEntries(numEntries);
+		feed.setNumEntries(100);
+
+		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
+		feed.load(function(result) {
+			if (!result.error) {
+				feedResult = result;
+
+				numEntries = feedResult.feed.entries.length;
+				if (numEntries > 0) {
+					skimmer.UpdateSkimmer(feedResult, numEntries);
+					skimmer.addNewArticles();
+					skimmer.extractArticleMinMax();
+					skimmer.checkForAdjacencies();
+					skimmer.updateAgents();
+					skimmer.extractAgentMinMax();
+					buildAgentLinkList();
+					
+					var selectObj = document.getElementById("selectColor");
+					var selectIndex=selectObj.selectedIndex;
+					var selectVal = selectObj.options[selectIndex].value;
+
+					skimmer.colorType = selectVal;
+					skimmer.updateAgentColor();
+
+					feedFinished = 1;
+				}
+				else {
+					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
+				}
+
+			}
+		});
+
+		google.setOnLoadCallback(initialize);
+				
+		duckGif.hidden = 'hidden';
+	}
+	
+	//-----------------------------------------------------------------------------------------------------------	
+	//---------------------------------------------- Automatical Mode -------------------------------------	
+	//-----------------------------------------------------------------------------------------------------------	
+	
+	
+	// variables setting the function intervals
+	var autoIntervalID;
+	var autoFlag = 0;
+	var timeInterval = 30000;		// the time interval is set 1 minute
+	
+	var sourceSelectOrder = 0;
+	
+	var sourceXmlDoc;
+	var sourceNodes;
+	
+	
+	//
+	function autoModeFunc()
+	{
+		// circulate the source address
+		if (sourceSelectOrder >= sourceNodes.length - 1) {
+			sourceSelectOrder = 0
+		}
+		else {
+			sourceSelectOrder = sourceSelectOrder + 1;
+		}
+	
+		// Get the source address from the xml file
+		sourceAddress = sourceNodes[sourceSelectOrder].childNodes[0].nodeValue;
+	
+		//------------------------------------------- Get the content from the Google Feed Api ----------------------------------------
+
+		// Set the URL for the google feed API
+		var feed = new google.feeds.Feed(sourceAddress);
+		// Set the number of entries to be read from the RSS online
+		feed.setNumEntries(100);
+
+		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
+		feed.load(function(result) {
+			if (!result.error) {
+				feedResult = result;
+				numEntries = feedResult.feed.entries.length;
+				
+				if (numEntries > 0) {
+					skimmer.UpdateSkimmer(feedResult, numEntries);
+					skimmer.addNewArticles();
+					skimmer.extractArticleMinMax();
+					skimmer.checkForAdjacencies();
+					skimmer.updateAgents();
+					skimmer.extractAgentMinMax();
+					buildAgentLinkList();
+				
+					var selectObj = document.getElementById("selectColor");
+					var selectIndex=selectObj.selectedIndex;
+					var selectVal = selectObj.options[selectIndex].value;
+
+
+					skimmer.colorType = selectVal;
+					skimmer.updateAgentColor();
+
+					feedFinished = 1;
+
+				}
+				else {
+					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
+				}
+			}
+		});
+
+		google.setOnLoadCallback(initialize);
+	}
+	
+	// Start or end the auto mode in skimmer
+	function autoModeDriver()
+	{
+		if (autoFlag == 0) {
+			// Reading xml file from disk
+			sourceXmlDoc = loadXmlFile("data/sourceconfig.xml");
+			sourceNodes = sourceXmlDoc.getElementsByTagName("source");
+
+		
+			autoIntervalID = setInterval(autoModeFunc, timeInterval);
+			autoFlag = 1;
+		}
+		else{
+			clearInterval(autoIntervalID);
+			autoFlag = 0;
+		}
+	}
+	
+	
+</script>
+
+</head>
+<body onload = "init();" style="overflow:hidden" onmousedown="mouseClick(event);" onmousemove="mouseMove(event);" onkeydown="keyDown(event)" onresize="resizeWindow()" bgcolor="black">
+<table id = "overallFrame" border = "0" cellpadding = "0" cellspacing = "0" bgcolor="black">
+	<tr>
+		<td>
+			<table id = "selectFrame" border = "0" cellpadding = "0">
+				<tr>
+					<td>
+						<a href="http://designgraphics.ncsu.edu/search/label/skimmer">
+							<img id = "skimmerLogo" src="data/SkimmerLogo.png" align = "center"/>
+						</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="http://designgraphics.ncsu.edu">
+							<img id = "DGLLogo" src="data/DGLLogo.png" />
+						</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<font color = "white" face = "Arial">Color</font>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<select id="selectColor" onChange = SelectColor()>
+							<option value = 0>Random</option>
+							<option value = 1>Dictionary</option>
+							<option value = 3>Emotion</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<font color = "white" face = "Arial">Source</font>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<select id="chooseSource">
+							<option value = "ncsu_events">NCSU Events</option>
+							<option value = "ncsu_libpes">NCSU Library</option>
+							<option value = "ncsu_twitter">NCSU twitter</option>
+							<option value = "ncsu_facebook">NCSU facebook</option>
+							<option value = "google_news">Google News</option>
+							<option value = "flickr_tags">Flickr Images</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<font color = "white" face = "Arial">Keyword</font>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<button type = "button" name = "skimmerSearching" id = "skimmerSearching" onclick = skimmerSearching()>Search</button>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<image id = "duckGif" name = "duckGif" src="data/duck.gif" align="center">
+					</td>
+				</tr>
+			</table>
+		</td>
+
+
+		<td>
+			<canvas id = "canvas"></canvas>
+		</td>
+		
+	</tr>
+</table>
+
+<script type="text/javascript">
+	mouseMoveIntervalID = setInterval(checkMouseMove, 1000);
+
+	//intervalID = setInterval(draw, 25);
+	intervalID = setInterval(drawDriver, 25);
+
+	// Set the refresh rate
+	//setInterval(AddNewData, 500000);
+</script>
+</body>
+</html>
