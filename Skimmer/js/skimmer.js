@@ -1728,6 +1728,8 @@ Skimmer.prototype.updateAgentColor = function(){
 	}
 	else if(this.colorType == 3){
 		// Calculate emotion for articles from the dictionary. //
+		
+		/*
 		for(var i = 0; i < this.articles.length; i++){
 			var article = this.articles[i];
 			var sumValence = 0;
@@ -1820,6 +1822,33 @@ Skimmer.prototype.updateAgentColor = function(){
 			this.agents[i].activation = sumActivation;
 			this.agents[i].imagery = sumImagery;
 		}
+
+*/
+
+
+		// Calculate emotion for agents from the dictionary for all the agents
+		for(var i = 0; i < this.agents.length; i++){
+			var agent = this.agents[i];
+
+			var word = agent.stem;
+			
+			var data = null;
+			if(this.stems.containsKey(word)){
+				data = this.dictionary.get(this.stems.get(word));
+			}else{
+				data = this.dictionary.get(word);
+			}
+			if(data != null){
+				this.agents[i].valence = data.valence * Math.abs(data.valence);
+				this.agents[i].activation = data.activation;
+				this.agents[i].imagery = data.imagery;
+			}
+		}
+
+
+
+
+
 		
 		//Color agents based on emotion
 		for(var i = 0; i < this.agents.length; i++){
