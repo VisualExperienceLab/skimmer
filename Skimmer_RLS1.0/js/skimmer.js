@@ -316,7 +316,7 @@ Skimmer.prototype.addNewArticles = function(){
 	
 	var removalList = new Array();
 	for(var i = 0; i < this.newArticles.length; i++){
-		console.log(this.newArticles.length);
+		//console.log(this.newArticles.length);
 		var duplicateArticle = false;
 		for(var j = 0; j < this.articles.length; j++){
 			if(this.articles[j].title.toLowerCase() == this.newArticles[i].title.toLowerCase()){
