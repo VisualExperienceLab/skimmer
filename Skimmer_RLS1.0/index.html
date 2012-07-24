@@ -40,6 +40,7 @@
 	var currentCursor = new Vector2();
 	var linkFlag = 0;
 	var showImageFlag = 1;
+	var imgLinkInvalid = 0;
 	
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
@@ -607,8 +608,11 @@
 						skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 						imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 						ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+						imgLinkInvalid = 0;
 					}
 					catch(e){
+						imgLinkInvalid = 1;
+					    
 					}
 				}
 				ctx.restore();
@@ -666,7 +670,7 @@
 				
 			//back ground color
 			
-		if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 )	{
+		if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 && imgLinkInvalid == 0)	{
 	
 				ctx.save();
 				ctx.beginPath();
