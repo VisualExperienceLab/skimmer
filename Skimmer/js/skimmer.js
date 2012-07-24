@@ -32,12 +32,12 @@ function Skimmer(canvasOffsetLeft, canvasOffsetTop, canvasWidth, canvasHeight, f
 	this.occurrences = new VisHashMap();
 	this.maxOccurrence = 0;
 	this.lowOccurrence = 0;
-	this.orderings = new VisHashMap();
+	//this.orderings = new VisHashMap();
 	this.cooccurrences = new VisHashMap();
 	this.maxCooccurrence = 0;
 	this.lowCooccurrence = 0;
 	this.adjacencies = new VisHashMap();
-	this.maxAdjacency = 0;
+	//this.maxAdjacency = 0;
 	
 	this.minRadius = 0;
 	
@@ -316,11 +316,14 @@ Skimmer.prototype.addNewArticles = function(){
 	
 	var removalList = new Array();
 	for(var i = 0; i < this.newArticles.length; i++){
+		//console.log(this.newArticles.length);
 		var duplicateArticle = false;
 		for(var j = 0; j < this.articles.length; j++){
 			if(this.articles[j].title.toLowerCase() == this.newArticles[i].title.toLowerCase()){
+				
 				duplicateArticle = true;
 			}
+			
 		}
 		if(!duplicateArticle){
 			//For summary words
@@ -396,6 +399,8 @@ Skimmer.prototype.addNewArticles = function(){
 	}
 	
 	// Build the ordering matrix. //
+	// It seems these lines of codes are never used in the program
+	/*
 	for(var i = 0; i < this.newArticles.length; i++){
 		var article = this.newArticles[i];
 		
@@ -457,6 +462,11 @@ Skimmer.prototype.addNewArticles = function(){
 			}
 		}
 	}
+<<<<<<< HEAD
+=======
+	*/
+	
+>>>>>>> Accelarated
 	// Build the cooccurrence matrix. //
 	// As well as adjacency matrix. //
 	for(var i = 0; i < this.newArticles.length; i++){
@@ -481,17 +491,21 @@ Skimmer.prototype.addNewArticles = function(){
 					var adjCount = parseInt(this.adjacencies.get(pair));
 					adjCount += 1;
 					this.adjacencies.put(pair, adjCount);
+					/*
 					if(adjCount > this.maxAdjacency){
 						this.maxAdjacency = adjCount;
 					}
+					*/
 				}
 				if(article.summary.indexOf(inversePair) >= 0){
 					var adjCount = parseInt(this.adjacencies.get(pair));
 					adjCount += 1000;
 					this.adjacencies.put(pair, adjCount);
+					/*
 					if(adjCount > this.maxAdjacency){
 						this.maxAdjacency = adjCount;
 					}
+					*/
 				}
 			}
 		}
@@ -516,17 +530,21 @@ Skimmer.prototype.addNewArticles = function(){
 						var adjCount = parseInt(this.adjacencies.get(pair));
 						adjCount += 1;
 						this.adjacencies.put(pair, adjCount);
+						/*
 						if(adjCount > this.maxAdjacency){
 							this.maxAdjacency = adjCount;
 						}
+						*/
 					}
 					if(article.summary.indexOf(inversePair) >= 0){
 						var adjCount = parseInt(this.adjacencies.get(pair));
 						adjCount += 1000;
 						this.adjacencies.put(pair, adjCount);
+						/*
 						if(adjCount > this.maxAdjacency){
 							this.maxAdjacency = adjCount;
 						}
+						*/
 					}
 				}
 			}
@@ -586,6 +604,9 @@ Skimmer.prototype.addNewArticles = function(){
 
 Skimmer.prototype.extractArticleMinMax = function(){
 	//Maximum Occurrence
+	// this.maxOccurrence has been calculated in the former funcion
+	// so here the calculations are removed
+	/*
 	this.maxOccurrence = 0;
 	for(var i = 0; i < this.words.length; i++){
 		var occurrence = this.occurrences.get(this.words[i]);
@@ -593,8 +614,13 @@ Skimmer.prototype.extractArticleMinMax = function(){
 			this.maxOccurrence = occurrence;
 		}
 	}
+	*/
+	
 	
 	//Maximum Cocurrence
+	// this.maxCooccurrence has been calculated in the former funcion
+	// so here the calculations are removed
+	/*
 	this.maxCooccurrence = 0;
 	for(var i = 0; i < this.cooccurrences.size(); i++){
 		var pair = this.cooccurrences.keys()[i];
@@ -603,8 +629,12 @@ Skimmer.prototype.extractArticleMinMax = function(){
 			this.maxCooccurrence = coCount;
 		}
 	}
+	*/
 	
 	//Maximum Adjacency
+	// It seems this value is never used
+	// So these lines of code are removed
+	/*
 	this.maxAdjacency = 0;
 	for(var i = 0; i < this.adjacencies.size(); i++){
 		var pair = this.adjacencies.keys()[i];
@@ -615,8 +645,12 @@ Skimmer.prototype.extractArticleMinMax = function(){
 			this.maxAdjacency = totalAdjacency;
 		}
 	}
+	*/
 	
 	//Maximum Ordering
+	// The value of maxOrdering has never been used in the program
+	// So these lines of code are removed
+	/*
 	this.maxOrdering = 0;
 	for(var i = 0; i < this.orderings.size(); i++){
 		var pair = this.orderings.keys()[i];
@@ -625,6 +659,7 @@ Skimmer.prototype.extractArticleMinMax = function(){
 			this.maxOrdering = ordering;
 		} 
 	}
+	*/
 		
 };
 
@@ -712,6 +747,8 @@ Skimmer.prototype.updateAgents = function(){
 			}
 		}
 	}
+
+
 	// Build a collection of the top cooccurring pairs. //
 	var topPairs = new Array();
 	for(var i = 0; i < this.cooccurrences.size(); i++){
@@ -763,7 +800,8 @@ Skimmer.prototype.updateAgents = function(){
 	else{
 		this.lowCooccurrence = 0;
 	}
-	
+
+		
 	// Make sure that part of speech requirements make sense. //
 	// Also fill in total number of agents per. //
 	// Allocate lists for each. //
@@ -891,6 +929,7 @@ Skimmer.prototype.updateAgents = function(){
 			}
 		}
 	}
+
 	
 	while(nouns.length != 0 && numNounAgents > 0){
 		var newAgent = nouns.shift();
@@ -1035,7 +1074,7 @@ Skimmer.prototype.updateAgents = function(){
 	
 	// Update the words of top occurence and record them
 	this.recordedTopWords = topWords;
-	
+
 };
 
 
@@ -1203,6 +1242,9 @@ Skimmer.prototype.update = function(delta){
 						}
 						
 						// Apply orderings. //
+						// In fact this branch will never be used because ENFORCE_ORDERING is always false
+						// So these lines of code are removed
+						/*
 						if(this.ENFORCE_ORDERING){
 							var orderingVectA = new Vector2();
 							var orderingVectB = new Vector2();
@@ -1233,7 +1275,7 @@ Skimmer.prototype.update = function(delta){
 								this.agents[j].addVelocity(orderingVectB);
 							}
 						}
-						
+						*/
 					}
 				}
 				else{
@@ -2125,12 +2167,12 @@ Skimmer.prototype.UpdateSkimmer = function(feedResult, numEntries){
 	this.occurrences = new VisHashMap();
 	this.maxOccurrence = 0;
 	this.lowOccurrence = 0;
-	this.orderings = new VisHashMap();
+	//this.orderings = new VisHashMap();
 	this.cooccurrences = new VisHashMap();
 	this.maxCooccurrence = 0;
 	this.lowCooccurrence = 0;
 	this.adjacencies = new VisHashMap();
-	this.maxAdjacency = 0;
+	//this.maxAdjacency = 0;
 	
 	this.minRadius = 0;
 	
@@ -2821,12 +2863,11 @@ Skimmer.prototype.ChangeUsingXMLSource = function(){
 	this.occurrences = new VisHashMap();
 	this.maxOccurrence = 0;
 	this.lowOccurrence = 0;
-	this.orderings = new VisHashMap();
 	this.cooccurrences = new VisHashMap();
 	this.maxCooccurrence = 0;
 	this.lowCooccurrence = 0;
 	this.adjacencies = new VisHashMap();
-	this.maxAdjacency = 0;
+	//this.maxAdjacency = 0;
 	
 	this.minRadius = 0;
 	
