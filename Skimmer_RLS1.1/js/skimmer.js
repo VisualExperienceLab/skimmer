@@ -462,11 +462,8 @@ Skimmer.prototype.addNewArticles = function(){
 			}
 		}
 	}
-<<<<<<< HEAD
-=======
 	*/
-	
->>>>>>> Accelarated
+
 	// Build the cooccurrence matrix. //
 	// As well as adjacency matrix. //
 	for(var i = 0; i < this.newArticles.length; i++){
