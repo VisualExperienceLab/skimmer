@@ -286,12 +286,15 @@
 			for(var j = 0; j < skimmer.articles.length; j++){
 				if(skimmer.articles[j].words.indexOf(skimmer.agents[i].text) > -1 || skimmer.articles[j].titlewords.indexOf(skimmer.agents[i].text)  > -1 ){
 					if(skimmer.articles[j].imageUrl != null){
+					alert(skimmer.articles[j].imageUrl);
 						var tmpImg = new Image();
 						tmpImg.src = skimmer.articles[j].imageUrl;
-						if(tmpImg.width > 0 && tmpImg.height > 0)
+						alert("valid"+tmpImg.width+" "+tmpImg.height);
+						if(tmpImg.width > 0 && tmpImg.height > 0){
+				
 						skimmer.agents[i].imageLinkList.push(skimmer.articles[j].imageUrl);
-						
-					
+						console.log("ok");
+					    }
 					}
 				}
 			}		
@@ -1147,6 +1150,10 @@
 				isFlickr = 0;
 				sourceAddress = "http://www.facebook.com/feeds/page.php?format=rss20&id=5983837179";
 				break;
+			case 'ncsu_MSacademic':
+				isFlickr = 0;
+				sourceAddress = "http://academic.research.microsoft.com/Rss?AppId=6f3c9107-971e-4987-a492-3ca19e6b8fde&query=ncsu&searchtype=0";
+				break;			
 			case "google_news":
 				isFlickr = 0;
 				sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=ncsu&num=100&um=1&ie=UTF-8&output=rss";
@@ -1349,6 +1356,7 @@
 							<option value = "ncsu_twitter_search">twitter search</option>
 							<option value = "ncsu_twitter_account">twitter account</option>
 							<option value = "ncsu_facebook">NCSU facebook</option>
+							<option value = "ncsu_MSacademic">NCSU academic</option>
 							<option value = "google_news">Google News</option>
 							<option value = "flickr_tags">Flickr Images</option>
 						</select>
