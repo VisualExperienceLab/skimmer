@@ -82,20 +82,51 @@
 				duckGif = document.getElementById("duckGif");
 				duckGif.hidden  = '';
 				
-				// Build the skimmer and set the attributes for the skimmer
-				skimmer = new Skimmer(absPosX, absPosY, canvas.width, canvas.height, feedResult, numEntries);
-				skimmer.addNewArticles();
-				skimmer.extractArticleMinMax();
-				skimmer.checkForAdjacencies();
-				skimmer.updateAgents();
-				skimmer.extractAgentMinMax();
-				var selectObj = document.getElementById("selectColor");
-				var selectIndex=selectObj.selectedIndex;
-				var selectVal = selectObj.options[selectIndex].value;
-				skimmer.colorType = selectVal;
-				skimmer.updateAgentColor();
+				
+				if( skimmer == undefined ) {
 
-				feedFinished = 1;
+					// Build the skimmer and set the attributes for the skimmer
+					skimmer = new Skimmer(absPosX, absPosY, canvas.width, canvas.height, feedResult, numEntries);
+					skimmer.addNewArticles();
+					skimmer.extractArticleMinMax();
+					skimmer.checkForAdjacencies();
+					skimmer.updateAgents();
+					skimmer.extractAgentMinMax();
+					var selectObj = document.getElementById("selectColor");
+					var selectIndex=selectObj.selectedIndex;
+					var selectVal = selectObj.options[selectIndex].value;
+					skimmer.colorType = selectVal;
+					skimmer.updateAgentColor();
+
+					feedFinished = 1;
+					
+				}
+				else {
+
+					numEntries = feedResult.feed.entries.length;
+					if (numEntries > 0) {
+						skimmer.UpdateSkimmer(feedResult, numEntries);
+						skimmer.addNewArticles();
+						skimmer.extractArticleMinMax();
+						skimmer.checkForAdjacencies();
+						skimmer.updateAgents();
+						skimmer.extractAgentMinMax();
+						buildAgentLinkList();
+						
+						var selectObj = document.getElementById("selectColor");
+						var selectIndex=selectObj.selectedIndex;
+						var selectVal = selectObj.options[selectIndex].value;
+
+						skimmer.colorType = selectVal;
+						skimmer.updateAgentColor();
+
+						feedFinished = 1;
+					}
+					else {
+						alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
+					}
+
+				}
 				
 				// Hide the progress bar when feeding is done
 				duckGif.hidden = 'hidden';
@@ -1141,12 +1172,33 @@
 
 				numEntries = feedResult.feed.entries.length;
 				if (numEntries > 0) {
+				
+					alert("Finish reading data from google");
+				
 					skimmer.UpdateSkimmer(feedResult, numEntries);
+
+					alert("Finish updating");
+
 					skimmer.addNewArticles();
+
+					alert("Finish articles adding");
+
 					skimmer.extractArticleMinMax();
+
+					alert("Finish min max extracting");
+
 					skimmer.checkForAdjacencies();
+
+					alert("Finish ajacency checking");
+
 					skimmer.updateAgents();
+
+					alert("Finish agents updating");
+
 					skimmer.extractAgentMinMax();
+
+					alert("Finish agent extracting");
+					
 					buildAgentLinkList();
 					
 					var selectObj = document.getElementById("selectColor");

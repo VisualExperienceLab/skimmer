@@ -61,7 +61,7 @@ function Dictionary(){
     };
 	
 	this.count = 0;
-		var xmlDoc = loadXmlFile("data/dic.xml");
+		var xmlDoc = loadXmlFile("data/dictionary.xml");
 		
 		var wordNodes = xmlDoc.getElementsByTagName("word");
 		for(var i = 0; i < wordNodes.length; i++){
