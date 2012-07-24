@@ -39,7 +39,8 @@
 	var isFlickr = 0;
 	var currentCursor = new Vector2();
 	var linkFlag = 0;
-	
+	var showImageFlag = 1;
+
 	
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
@@ -556,6 +557,12 @@
 			scaleOld = 768;
 		}
 		
+		var showImage = document.getElementsByName("showImage");
+		if(showImage[0].checked == true)
+		 showImageFlag = 1;
+		else
+		 showImageFlag = 0;
+		
 		// Draw the circles. //
 		if( skimmer.DRAW_CIRCLES ) {
 			for(var i = 0; i < skimmer.agents.length; i++){
@@ -594,7 +601,7 @@
 				ctx.clip();
 				
 				
-				if (skimmer.agents[i].imageLinkList[0] !=null && skimmer.colorType == 0  )	{
+				if (skimmer.agents[i].imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1  )	{
 					var imgNews = new Image();
 					try{
 						if(++skimmer.agents[i].imageFrequency%150 == 0 && Math.random() < 0.5)
@@ -660,7 +667,7 @@
 				
 			//back ground color
 			
-			if (agent.imageLinkList[0] !=null && skimmer.colorType == 0  )	{
+			if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 )	{
 	
 					ctx.fillStyle = 'rgba(100,100,100,0.9)';
 					var agentBounds = agent.getBoundingBox();
@@ -1296,6 +1303,16 @@
 							<option value = "google_news">Google News</option>
 							<option value = "flickr_tags">Flickr Images</option>
 						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="radio" name="showImage" value="1" checked="true"> <font color = "white" face = "Arial">picture</font>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="radio" name="showImage" value="2"> <font color = "white" face = "Arial">no picture</font>
 					</td>
 				</tr>
 				<tr>
