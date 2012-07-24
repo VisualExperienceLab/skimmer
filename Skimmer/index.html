@@ -43,8 +43,6 @@
 	
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
-
-	
 	
 	// Read RSS from a website with the help of Google Javascript API Google Feed
 	google.load("feeds", "1");
@@ -60,18 +58,6 @@
 		feed.load(function(result) {
 			if (!result.error) {
 				feedResult = result;
-
-				/*
-				var container = document.getElementById("feed");
-				for (var i = 0; i < result.feed.entries.length; i++) {
-					var entry = result.feed.entries[i];
-					var div = document.createElement("div");
-					div.appendChild(document.createTextNode(entry.title));
-					container.appendChild(div);
-				}
-				*/
-
-				
 				canvas = document.getElementById("canvas");
 				
 				// Initialize the absolute position to zero
@@ -90,42 +76,35 @@
 				absPosX += tempElem.offsetLeft;
 				absPosY += tempElem.offsetTop;
 
-				//alert("absPosX"+absPosX+"absPosY"+absPosY);
-				
+
+				// A gif image is used as the progress bar
 				duckGif = document.getElementById("duckGif");
 				duckGif.hidden  = '';
 				
+				// Build the skimmer and set the attributes for the skimmer
 				skimmer = new Skimmer(absPosX, absPosY, canvas.width, canvas.height, feedResult, numEntries);
 				skimmer.addNewArticles();
 				skimmer.extractArticleMinMax();
 				skimmer.checkForAdjacencies();
 				skimmer.updateAgents();
 				skimmer.extractAgentMinMax();
-				
 				var selectObj = document.getElementById("selectColor");
 				var selectIndex=selectObj.selectedIndex;
 				var selectVal = selectObj.options[selectIndex].value;
-
 				skimmer.colorType = selectVal;
 				skimmer.updateAgentColor();
 
-
 				feedFinished = 1;
-
-					
-	
+				
+				// Hide the progress bar when feeding is done
 				duckGif.hidden = 'hidden';
-				
-				//IFS.addContent(feedResult.feed.entries,numEntries);
-				
 			}
 		});
 	}
 	google.setOnLoadCallback(initialize);
 
 
-	
-	
+	// Set the event when a key is pressed
 	function keyDown(event){
 		 var keyCode = ('which' in event) ? event.which : event.keyCode;
 		 if(keyCode == 27){
@@ -323,6 +302,7 @@
 
 	}
 	
+
 	function mouseClick(event){
 		
 		var cursor = new Vector2();
