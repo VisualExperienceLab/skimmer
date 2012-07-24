@@ -658,7 +658,7 @@
 				ctx.font = 'bold ' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
 			}
 			metrics = ctx.measureText(agent.text);
-			skimmer.agents[i].bounds.extents.set( metrics.width / 2.0 , 8 );
+			skimmer.agents[i].bounds.extents.set( metrics.width / 2.0 , 10 );
 			if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 )){
 				var colorUnselected = agent.textColor.darker().darker();
 				ctx.fillStyle = colorUnselected.toString();
@@ -666,27 +666,38 @@
 				
 			//back ground color
 			
-			if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 )	{
+		if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 )	{
 	
-					ctx.fillStyle = 'rgba(100,100,100,0.9)';
+				ctx.save();
+				ctx.beginPath();
+				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius/2),0,Math.PI*2,true);
+				ctx.closePath();
+				ctx.clip();
+			
+			
+					ctx.fillStyle = 'rgba(50,50,50,0.5)';
 					var agentBounds = agent.getBoundingBox();
-					ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x * scaleNow / scaleOld),
-						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
-						Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
+					ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x),
+						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y * scaleNow / scaleOld),
+						Math.round(agentBounds.extents.x * 2),
 						Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
-			}
+			
+				ctx.restore();	
+			
+		}
 			
 			
 			ctx.fillStyle='rgba(250,250,250,0.8)';
 			ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
-		}
+
+	}
 		
 
 		// Draw other user agent if it exists. //
 		if( skimmer.agentUser != null ) {
 
 			if( skimmer.DRAW_CIRCLES ) {
-				ctx.fillStyle = 'rgba(255,255,255,0.6)';
+				ctx.fillStyle = 'rgba(255,255,255,0.8)';
 				
 				ctx.beginPath();
 				ctx.arc(Math.round( origin.x + skimmer.agentUser.avgPos.x), Math.round( origin.y + skimmer.agentUser.avgPos.y), skimmer.agentUser.radius* scaleNow / scaleOld, 0, Math.PI * 2, false );
@@ -705,9 +716,11 @@
 			
 			//gradientPaint
 			ctx.beginPath();
-			ctx.fillRect(origin.x + skimmer.agentTitle.pos.x - (skimmer.agentTitle.text.length * 8 + 8) *  scaleNow / scaleOld, 0, (skimmer.agentTitle.text.length * 16 + 16) * scaleNow / scaleOld, 40 * scaleNow / scaleOld);
+			//ctx.fillRect(origin.x + skimmer.agentTitle.pos.x - (skimmer.agentTitle.text.length * 8 + 8) *  scaleNow / scaleOld, 0, (skimmer.agentTitle.text.length * 16 + 16) * scaleNow / scaleOld, 40 * scaleNow / scaleOld);
 			ctx.fillStyle = 'rgba(255,255,255,255.8)';
-			ctx.fillText(skimmer.agentTitle.text, origin.x + skimmer.agentTitle.pos.x, 20 * scaleNow / scaleOld);
+			ctx.fillText(skimmer.agentTitle.text, origin.x + skimmer.agentTitle.pos.x, 20 * scaleNow / scaleOld); //top
+			ctx.fillText("Skimmer  Design Graphics Lab", origin.x + skimmer.agentTitle.pos.x, skimmer.height - 20 * scaleNow / scaleOld);  //bottom
+			
 		}
 		
 		if(skimmer.agentArticle != null){
@@ -757,7 +770,7 @@
 				var dealedLines = new Array();
 				var j = 0;
 				dealedLines.push(new String(""));
-				ctx.font = 'bold ' + Math.round(14*scaleNow / scaleOld)+'px Arial';
+				ctx.font = 'bold ' + Math.round(16*scaleNow / scaleOld)+'px Arial';
 				dealedLines[0] += dealWords[0];
 				var textWidth = 0;
 				var lineWidth = 0;
@@ -823,7 +836,7 @@
 				ctx.fillRect(textOrigin.x, textOrigin.y, skimmer.agentArticle.width, textBackgroundHeight);
 				
 				////////////////////////////////////////////////////////////////////////////////////
-				ctx.font = 'bold '+Math.round(14* scaleNow / scaleOld)+'px Arial';
+				ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
 				ctx.textAlign = "left";
 				ctx.textBaseline = "top";
 				ctx.fillStyle = 'rgba(50,50,50,0.9)';
