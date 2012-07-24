@@ -42,6 +42,7 @@
 	var currentCursor = new Vector2();
 	var linkFlag = 0;
 	var showImageFlag = 1;
+	var imgLinkInvalid = 0;
 	
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
@@ -164,8 +165,11 @@
 		mouseMoveFlag = 0;
 		
 		if( skimmer != undefined ) {
+			
 			currentCursor.set(event.clientX - skimmer.left , event.clientY - skimmer.top);
-
+			//console.log(currentCursor);
+			
+			
 			if (isControlPanelHide == true) {
 				mouseMoveFlag = 0;
 			}
@@ -294,6 +298,16 @@
 		var cursor = new Vector2();
 		cursor.set(event.clientX - skimmer.left - (skimmer.width / 2), event.clientY - skimmer.top - (skimmer.height / 2 ));
 		
+		if(event.button == 0 && linkFlag == 2)
+		{
+			window.open('http://designgraphics.ncsu.edu/search/label/skimmer');
+		}
+		else if(event.button == 0 && linkFlag == 3 )
+		{
+			window.open('http://designgraphics.ncsu.edu');
+		}
+		
+		
 		if(skimmer.agentArticle!=null){
 			var agentArticleBounds = skimmer.agentArticle.getBoundingBox();
 			if(agentArticleBounds.contains(cursor)){
@@ -305,6 +319,7 @@
 						{
 							window.open(skimmer.agentArticle.source);
 						}
+						
 						else
 						{
 							curIndex += 1;
@@ -568,10 +583,10 @@
 		if( skimmer.DRAW_CIRCLES ) {
 			for(var i = 0; i < skimmer.agents.length; i++){
 				
-				if(skimmer.agents[i].scaleEnable == true){
-					skimmer.agents[i].avgPos.x *= 2;
-					skimmer.agents[i].scaleEnable  = false ;
-				}
+				//if(skimmer.agents[i].scaleEnable == true){
+				//	skimmer.agents[i].avgPos.x *= 2;
+				//	skimmer.agents[i].scaleEnable  = false ;
+				//}
 				
 				var agent = skimmer.agents[i];
 
@@ -607,10 +622,15 @@
 					try{
 						if(++skimmer.agents[i].imageFrequency%150 == 0 && Math.random() < 0.5)
 						skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
+						
 						imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 						ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+						
+						imgLinkInvalid = 0;
 					}
 					catch(e){
+						imgLinkInvalid = 1;
+					    
 					}
 				}
 				ctx.restore();
@@ -668,7 +688,7 @@
 				
 			//back ground color
 			
-		if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 )	{
+		if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 && imgLinkInvalid == 0)	{
 	
 				ctx.save();
 				ctx.beginPath();
@@ -677,7 +697,7 @@
 				ctx.clip();
 			
 			
-					ctx.fillStyle = 'rgba(50,50,50,0.5)';
+					ctx.fillStyle = 'rgba(50,50,50,0.8)';
 					var agentBounds = agent.getBoundingBox();
 					ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x),
 						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y * scaleNow / scaleOld),
@@ -721,6 +741,27 @@
 			//ctx.fillRect(origin.x + skimmer.agentTitle.pos.x - (skimmer.agentTitle.text.length * 8 + 8) *  scaleNow / scaleOld, 0, (skimmer.agentTitle.text.length * 16 + 16) * scaleNow / scaleOld, 40 * scaleNow / scaleOld);
 			ctx.fillStyle = 'rgba(255,255,255,255.8)';
 			ctx.fillText(skimmer.agentTitle.text, origin.x + skimmer.agentTitle.pos.x, 20 * scaleNow / scaleOld); //top
+			
+			var skimmerTextWidth = ctx.measureText("Skimmer  Design Graphics Lab").width;
+			
+			
+				if( origin.x + skimmer.agentTitle.pos.x - skimmerTextWidth / 2.0 < currentCursor.x && currentCursor.x < origin.x + skimmer.agentTitle.pos.x + skimmerTextWidth / 2.0 )
+				{
+					
+				if	( skimmer.height - 2*20 * scaleNow / scaleOld < currentCursor.y && currentCursor.y < skimmer.height - 20 * scaleNow / scaleOld )
+					{
+						//alert("oh");
+						ctx.fillStyle = "#333";
+						if(origin.x + skimmer.agentTitle.pos.x - skimmerTextWidth / 6.0 < currentCursor.x )
+						linkFlag = 3;
+						else
+						linkFlag = 2;
+					}
+					else{linkFlag = 0;}
+				}	
+				else{linkFlag = 0;}
+			
+			
 			ctx.fillText("Skimmer  Design Graphics Lab", origin.x + skimmer.agentTitle.pos.x, skimmer.height - 20 * scaleNow / scaleOld);  //bottom
 			
 		}
@@ -855,7 +896,7 @@
 				}
 				
 				ctx.font = 'bold '+Math.round(20* scaleNow / scaleOld)+'px Arial';
-				ctx.fillText( displayedTitle, Math.round( titleOrigin.x + skimmer.agentArticle.width* 0.1), titleOrigin.y );
+				ctx.fillText( displayedTitle, textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), titleOrigin.y );
 				/*
 					 * real title
 					 * 
@@ -876,7 +917,7 @@
 					else{linkFlag = 0;}
 				}	
 				else{linkFlag = 0;}
-				ctx.fillText( displayedSource, Math.round( sourceOrigin.x + skimmer.agentArticle.width * 0.1), sourceOrigin.y );
+				ctx.fillText( displayedSource, textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), sourceOrigin.y );
 				
 				/*
 					 * real link
@@ -1088,10 +1129,14 @@
 				isFlickr = 0;
 				sourceAddress = "http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&location=&type=N&binary=Y&keywords=";
 				break;
-			case 'ncsu_twitter':
+			case 'ncsu_twitter_search':
 				isFlickr = 0;
 				sourceAddress = "http://search.twitter.com/search.rss?q=%23ncsu";
 				break;
+			case 'ncsu_twitter_account':
+				isFlickr = 0;
+				sourceAddress = "http://twitter.ncsu.edu/feed.php";
+				break;	
 			case 'ncsu_facebook':
 				isFlickr = 0;
 				sourceAddress = "http://www.facebook.com/feeds/page.php?format=rss20&id=5983837179";
@@ -1295,7 +1340,8 @@
 						<select id="chooseSource">
 							<option value = "ncsu_events">NCSU Events</option>
 							<option value = "ncsu_libpes">NCSU Library</option>
-							<option value = "ncsu_twitter">NCSU twitter</option>
+							<option value = "ncsu_twitter_search">twitter search</option>
+							<option value = "ncsu_twitter_account">twitter account</option>
 							<option value = "ncsu_facebook">NCSU facebook</option>
 							<option value = "google_news">Google News</option>
 							<option value = "flickr_tags">Flickr Images</option>
