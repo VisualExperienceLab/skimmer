@@ -1075,9 +1075,7 @@
 				break;
 			case 'ncsu_twitter':
 				isFlickr = 0;
-				var inputObj = document.getElementById("searchContent");
-				var inputVal = inputObj.value;
-				sourceAddress = "http://search.twitter.com/search.rss?q=" + inputVal + "%23ncsu";
+				sourceAddress = "http://search.twitter.com/search.rss?q=%23ncsu";
 				break;
 			case 'ncsu_facebook':
 				isFlickr = 0;
@@ -1085,15 +1083,11 @@
 				break;
 			case "google_news":
 				isFlickr = 0;
-				var inputObj = document.getElementById("searchContent");
-				var inputVal = inputObj.value;
-				sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=" + inputVal + "&num=100&um=1&ie=UTF-8&output=rss";
+				sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=ncsu&num=100&um=1&ie=UTF-8&output=rss";
 				break;
 			case "flickr_tags":
 				isFlickr = 1;
-				var inputObj = document.getElementById("searchContent");
-				var inputVal = inputObj.value;
-				sourceAddress = "http://api.flickr.com/services/feeds/photos_public.gne?tags=" + inputVal + "&lang=en-us&format=rss_200";
+				sourceAddress = "http://api.flickr.com/services/feeds/photos_public.gne?tags=ncsu&lang=en-us&format=rss_200";
 				break;
 			default:
 				break;
