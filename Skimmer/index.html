@@ -1030,6 +1030,15 @@
 		autoMode.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
 		autoMode.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 		
+		//radio1 = document.getElementById("radio1");
+		//radio1.style.width = tableSel.width+"px";	
+		//radio1.style.borderWidth = "100px";	
+		
+		//radio2 = document.getElementById("radio2");
+		//radio2.style.width = tableSel.width+"px";	
+
+
+		
 	}
 
 	// The function to be operated when the window is resized
@@ -1307,12 +1316,13 @@
 				</tr>
 				<tr>
 					<td>
-						<input type="radio" name="showImage" value="1" checked="true"> <font color = "white" face = "Arial">picture</font>
+						<font color = "white" face = "Arial">Picture</font>
 					</td>
 				</tr>
 				<tr>
 					<td>
-						<input type="radio" name="showImage" value="2"> <font color = "white" face = "Arial">no picture</font>
+						<input type="radio" id="radio1" name="showImage" value="1" checked="true"> <font color = "white" face = "Arial">Yes</font>
+						<input type="radio" id="radio2" name="showImage" value="2"> <font color = "white" face = "Arial">No</font>
 					</td>
 				</tr>
 				<tr>
