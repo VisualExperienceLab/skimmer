@@ -17,6 +17,8 @@
 		<script type="text/javascript" src="js/dictionary.js"></script>
 		
 		<script type="text/javascript" src="js/invertedFileSystem.js"></script>
+		<script type="text/javascript" src="js/hashing.js"></script>
+		
 		
 		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type = "text/javascript">
@@ -85,7 +87,7 @@
 				skimmer = new Skimmer(absPosX, absPosY, canvas.width, canvas.height, feedResult, numEntries);
 				skimmer.addNewArticles();
 				skimmer.extractArticleMinMax();
-				skimmer.checkForAdjacencies();
+				//skimmer.checkForAdjacencies();
 				skimmer.updateAgents();
 				skimmer.extractAgentMinMax();
 				var selectObj = document.getElementById("selectColor");
@@ -918,7 +920,7 @@
 
 				skimmer.addNewArticles();
 				skimmer.extractArticleMinMax();
-				skimmer.checkForAdjacencies();
+				//skimmer.checkForAdjacencies();
 				skimmer.updateAgentsAdd();
 				skimmer.extractAgentMinMax();
 				buildAgentLinkList();
@@ -1128,7 +1130,7 @@
 					skimmer.UpdateSkimmer(feedResult, numEntries);
 					skimmer.addNewArticles();
 					skimmer.extractArticleMinMax();
-					skimmer.checkForAdjacencies();
+					//skimmer.checkForAdjacencies();
 					skimmer.updateAgents();
 					skimmer.extractAgentMinMax();
 					buildAgentLinkList();
@@ -1201,7 +1203,7 @@
 					skimmer.UpdateSkimmer(feedResult, numEntries);
 					skimmer.addNewArticles();
 					skimmer.extractArticleMinMax();
-					skimmer.checkForAdjacencies();
+					//skimmer.checkForAdjacencies();
 					skimmer.updateAgents();
 					skimmer.extractAgentMinMax();
 					buildAgentLinkList();

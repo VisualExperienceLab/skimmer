@@ -122,6 +122,22 @@ function Skimmer(canvasOffsetLeft, canvasOffsetTop, canvasWidth, canvasHeight, f
 	this.ORDERING_MULTIPLIER = 400;	
 	
 	
+	// The following code is a simple example of hashing table
+	/*
+	this.ArticlesHashTable = new Hashing();
+	
+	this.ArticlesHashTable.addEntry("Wakaka");
+	this.ArticlesHashTable.addEntry("Hahahaha");
+	this.ArticlesHashTable.addEntry("This is a centence with blank spaces between words");
+	this.ArticlesHashTable.addEntry("Anther test! Interesting isn't it?");
+	this.ArticlesHashTable.addEntry("1234567");
+
+	alert(this.ArticlesHashTable.findEntry("Wakaka"));
+	alert(this.ArticlesHashTable.findEntry("This is a centence with blank spaces between words"));
+	alert(this.ArticlesHashTable.findEntry("Java"));
+	*/
+	
+	
 	
 	//alert("In skimmer");
 	//alert(feedResult.feed.title);
@@ -233,6 +249,7 @@ function Skimmer(canvasOffsetLeft, canvasOffsetTop, canvasWidth, canvasHeight, f
 
 
 Skimmer.prototype.addNewArticles = function(){
+
 	for(var i = 0; i < this.newArticles.length; i++){
 		this.newArticles[i].summary = this.newArticles[i].summary.trim();
 	}
@@ -311,6 +328,7 @@ Skimmer.prototype.addNewArticles = function(){
 		
 	}
 	
+	
 	// Extract all stemmed words from all articles, ignoring duplicates. //
 	// Also count total occurrences while doing this loop. /
 	
@@ -369,6 +387,7 @@ Skimmer.prototype.addNewArticles = function(){
 	}
 	removalList.length = 0;
 	
+	
 	// Remove all words that fall below the minimum occurrence requirement.
 	for(var i = 0; i < this.words.length; i++){
 		var word = this.words[i];
@@ -394,6 +413,7 @@ Skimmer.prototype.addNewArticles = function(){
 			i -= 1;		
 		}
 	}
+	
 	
 	// Build the ordering matrix. //
 	for(var i = 0; i < this.newArticles.length; i++){
@@ -457,6 +477,7 @@ Skimmer.prototype.addNewArticles = function(){
 			}
 		}
 	}
+	
 	// Build the cooccurrence matrix. //
 	// As well as adjacency matrix. //
 	for(var i = 0; i < this.newArticles.length; i++){
@@ -578,6 +599,7 @@ Skimmer.prototype.addNewArticles = function(){
 		// Replace the old articles with new ones
 //		this.articles = this.articles.slice(this.numberOfArticles, this.articles.length);
 	}
+	
 	
 };
 
