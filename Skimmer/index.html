@@ -165,14 +165,9 @@
 			currentCursor.set(event.clientX - skimmer.left , event.clientY - skimmer.top);
 
 			if (isControlPanelHide == true) {
-				//mouseMoveIntervalID = setInterval(checkMouseMove, 1000);
 				mouseMoveFlag = 0;
 			}
 		}
-
-		
-		
-		//console.log(currentCursor.toString());
 	}
 	
 	function hideControlPanel(status) {
@@ -206,9 +201,6 @@
 			}
 			
 			isControlPanelHide = true;
-			
-			//clearInterval(mouseMoveIntervalID);
-			//---------------------------------------------------------------------------------------------
 		}
 		else {
 			// Show the control panel
@@ -246,7 +238,6 @@
 		skimmer.height = canvas.height;
 		if(skimmer.agentArticle!=null) {
 			skimmer.agentArticle.width = skimmer.width / 3 * scaleNow / scaleOld;
-					//		alert("a width"+skimmer.agentArticle.width);
 
 			skimmer.agentArticle.height = skimmer.height / 3 * scaleNow / scaleOld;
 		}
@@ -269,10 +260,10 @@
 		skimmer.top = absPosY;
 
 	}
-	
+
+	// Check whether the mouse is moving
 	function checkMouseMove() {
-		console.log(mouseMoveFlag);
-	
+		// Count up the time during which the mouse did not move
 		if (skimmer != undefined) {
 			if (mouseMoveFlag >= 10) {
 				hideControlPanel("hide");
@@ -283,34 +274,23 @@
 			mouseMoveFlag++;
 		}
 	}
-	
-	
-	
-	function buildAgentLinkList(){
-		
-			for(var i = 0; i < skimmer.agents.length; i++){
-			//alert("oh"+skimmer.agents.length+" "+i);
-				for(var j = 0; j < skimmer.articles.length; j++){
-						
-						if(skimmer.articles[j].words.indexOf(skimmer.agents[i].text) > -1 || skimmer.articles[j].titlewords.indexOf(skimmer.agents[i].text)  > -1 ){
-						
-								if(skimmer.articles[j].imageUrl != null)
-									skimmer.agents[i].imageLinkList.push(skimmer.articles[j].imageUrl);
-						}
-					}		
-				}
 
+
+	function buildAgentLinkList(){
+		for(var i = 0; i < skimmer.agents.length; i++){
+			for(var j = 0; j < skimmer.articles.length; j++){
+				if(skimmer.articles[j].words.indexOf(skimmer.agents[i].text) > -1 || skimmer.articles[j].titlewords.indexOf(skimmer.agents[i].text)  > -1 ){
+					if(skimmer.articles[j].imageUrl != null)
+					skimmer.agents[i].imageLinkList.push(skimmer.articles[j].imageUrl);
+				}
+			}		
+		}
 	}
 	
 
 	function mouseClick(event){
-		
 		var cursor = new Vector2();
 		cursor.set(event.clientX - skimmer.left - (skimmer.width / 2), event.clientY - skimmer.top - (skimmer.height / 2 ));
-		
-		
-		//alert("x: " + cursor.x + " y: " + cursor.y);
-		//alert("x: " + event.clientX + " y: " + event.clientY);
 		
 		if(skimmer.agentArticle!=null){
 			var agentArticleBounds = skimmer.agentArticle.getBoundingBox();
@@ -538,9 +518,7 @@
 				
 			}
 			
-							buildAgentLinkList();
-
-			
+			buildAgentLinkList();
 		}
 		else if(event.button == 0 && event.shiftKey == true && event.ctrlKey == true && event.altKey == true){
 			
@@ -550,58 +528,35 @@
 				skimmer.agents[curIndex].remove = true;
 			}
 		}
-		
-		
-		
 	}
 	
-	
-	// Added as the driver of the funcion
+	// Added as the driver of the draw funcion
 	function drawDriver(){
 		if (feedFinished == 1) {
 			draw();
 		}
 	}
 	
-	
-	
 	function draw(){
-		
 		var origin = new Vector2();
 		
 		origin.set(skimmer.width/2, skimmer.height/2);
 		ctx.fillStyle = 'rgba(0,0,0,1.0)';
 	 	ctx.fillRect(0,0,skimmer.width,skimmer.height);
-	 	//ctx.fillRect(0,0,1536,768);
-		
 		
 		// To scale the drawing result according to the screen
 		scaleNow = 0;		// The scale for the rescaled screen
 		scaleOld = 0;		// The scale for the 1024 * 768 screen
-		
 		if (skimmer.width <= skimmer.height) {
 			scaleNow = skimmer.width;
 			scaleOld = 1024;
 		}
-		
 		else {
 			scaleNow = skimmer.height;
 			scaleOld = 768;
 		}
 		
-		
-		
-		
-		// Just a test of displaying image on the website
-		//var imgNews = new Image();
-		//imgNews.src = "http://nt2.ggpht.com/news/tbn/zl17qfRWiHbJVM/6.jpg";
-		//ctx.drawImage(imgNews, 40, 40);
-		
-		
-		
-		
-		
-	 // Draw the circles. //
+		// Draw the circles. //
 		if( skimmer.DRAW_CIRCLES ) {
 			for(var i = 0; i < skimmer.agents.length; i++){
 				
@@ -611,8 +566,7 @@
 				}
 				
 				var agent = skimmer.agents[i];
-				//console.log(skimmer.agents.length+" "+i+" "+"agent.avgPos.x"+agent.avgPos.x+" "+"agent.avgPos.y"+agent.avgPos.y);
-				
+
 				var alpha = parseFloat( 0.75 * ( parseFloat( agent.TICKS_TILL_FADE - agent.curTicksTillFade ) / agent.TICKS_TILL_FADE ) );
 				if( alpha > 1.0 ) { alpha = 1.0; }
 				if( alpha < 0.0 ) { alpha = 0.0; }
@@ -622,35 +576,16 @@
 					var colorUnselected = agent.shapeColor.darker();
 					ctx.fillStyle = colorUnselected.toString();
 				}
-				/*
-				var radius = parseInt(Math.round( ( skimmer.minRadius + ( agent.occurrences /  skimmer.maxOccurrence )
-						* ( skimmer.minRadius ) ) * 2));
-				*/
+
 				var radius = parseInt(Math.round( ( skimmer.minRadius + ( agent.occurrences /  skimmer.maxOccurrence )
 						* ( skimmer.minRadius ) ) * 2.0 * scaleNow / scaleOld));
 					
 				// updates the radius value
 				skimmer.agents[i].radius = radius / 2;
-					
-				/* origin ball draw()
 				ctx.beginPath();
-				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2), 0, Math.PI * 2, false);
-				ctx.fill();
-				ctx.closePath();
-				*/
-			
-				//ctx.fillStyle = "f00";
-				//new circle
-				ctx.beginPath();
-				
 				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2), 0, Math.PI * 2, false); 
-				
-				
-				
    				ctx.fill();  
    				ctx.closePath();  
-				
-				
 				
 				ctx.save();
 				ctx.beginPath();
@@ -661,58 +596,18 @@
 				
 				if (skimmer.agents[i].imageLinkList[0] !=null && skimmer.colorType == 0  )	{
 					var imgNews = new Image();
-						try{
-							if(++skimmer.agents[i].imageFrequency%150 == 0 && Math.random() < 0.5)
-							skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
-							
-							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
-							
-	 	 
-	 					 ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-						
-						
-				//backgound of agent text
-				
-				
-						
-		//console.log(Math.round(origin.x + agent.avgPos.x-radius / 2 )+" "+Math.round(origin.y + agent.avgPos.y-radius / 2)+" "+(radius+Math.round(origin.x + agent.avgPos.x-radius / 2 ))+" "+(radius+Math.round(origin.y + agent.avgPos.y-radius / 2)));
-		
-		//var imageData=ctx.getImageData(Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-		
-	//	console.log(imageData);
-	//	console.log(imageData.width+" "+imageData.height+"ok");
-    /*					for (var i=0; i<imageData.width*imageData.height*4;i+=4){
-  						
-  							var average = (imageData.data[i]+imageData.data[i+1]+imageData.data[i+2])/3;
-  							imageData.data[i]=imageData.data[i+1]=imageData.data[i+2]=average;
-    	     				console.log(imageData.data[i]);
-    	     			}		 	 
-    	     			
-    	
-    	ctx.putImageData(imageData,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2));
-					*/
-						}
-						catch(e){}
+					try{
+						if(++skimmer.agents[i].imageFrequency%150 == 0 && Math.random() < 0.5)
+						skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
+						imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
+						ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+					}
+					catch(e){
+					}
 				}
-				
 				ctx.restore();
-				
-				
-
 			}
 		}
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 		// Draw outline boxes for selected agents. //
 		for(var i = 0; i < skimmer.agents.length; i++){
@@ -739,12 +634,7 @@
 						Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
 				ctx.closePath();
 			}
-			
-			
-			
-			
 		}
-		
 
 		// Draw all of the text and set the agent's bounding box. //
 		for(var i = 0; i < skimmer.agents.length; i++){
@@ -757,11 +647,9 @@
 			ctx.textAlign = 'center';
 			if(skimmer.zoomedAgents.indexOf(agent) > -1){
 				ctx.font = 'bold' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
-				//ctx.font = '12px Arial';
 			}
 			else{
 				ctx.font = 'bold ' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
-				//ctx.font = 'bold 16px Arial';
 			}
 			metrics = ctx.measureText(agent.text);
 			skimmer.agents[i].bounds.extents.set( metrics.width / 2.0 , 8 );
@@ -785,9 +673,6 @@
 			
 			ctx.fillStyle='rgba(250,250,250,0.8)';
 			ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
-			
-			//agent name
-			//shadow
 		}
 		
 
@@ -797,26 +682,12 @@
 			if( skimmer.DRAW_CIRCLES ) {
 				ctx.fillStyle = 'rgba(255,255,255,0.6)';
 				
-				//ctx.beginPath();
-				
-				//ctx.arc(Math.round( origin.x + skimmer.agentUser.avgPos.x), Math.round( origin.y + skimmer.agentUser.avgPos.y), skimmer.agentUser.radius, 0, Math.PI * 2, false );
-				//ctx.fill();
-				//ctx.closePath();
-				
 				ctx.beginPath();
 				ctx.arc(Math.round( origin.x + skimmer.agentUser.avgPos.x), Math.round( origin.y + skimmer.agentUser.avgPos.y), skimmer.agentUser.radius* scaleNow / scaleOld, 0, Math.PI * 2, false );
-				//var gradient = ctx.createRadialGradient(Math.round( origin.x + skimmer.agentUser.avgPos.x) - skimmer.agentUser.radius / 2, Math.round( origin.y + skimmer.agentUser.avgPos.y) - skimmer.agentUser.radius / 2, 0, Math.round( origin.x + skimmer.agentUser.avgPos.x), Math.round( origin.y + skimmer.agentUser.avgPos.y),skimmer.agentUser.radius );  
-   
-    			//bright spot  
-    			//gradient.addColorStop(0, ctx.fillStyle);  
-    			//gradient.addColorStop(1, 'rgba(20,20,20,0.7)');  
-   				//ctx.fillStyle = gradient;  
+
    				ctx.fill();  
    				ctx.closePath();
-				
-				
 			}
-
 		}
 		
 		// Draw the title agent if it exists. //
@@ -829,14 +700,8 @@
 			//gradientPaint
 			ctx.beginPath();
 			ctx.fillRect(origin.x + skimmer.agentTitle.pos.x - (skimmer.agentTitle.text.length * 8 + 8) *  scaleNow / scaleOld, 0, (skimmer.agentTitle.text.length * 16 + 16) * scaleNow / scaleOld, 40 * scaleNow / scaleOld);
-			//ctx.fillRect(origin.x + skimmer.agentTitle.pos.x - skimmer.agentTitle.text.length * 16 - 4, origin.y + skimmer.agentTitle.pos.y - 20, skimmer.agentTitle.text.length * 32 + 8, 40 );
-			ctx.fillStyle = 'rgba(0,0,0,0.8)';
+			ctx.fillStyle = 'rgba(255,255,255,255.8)';
 			ctx.fillText(skimmer.agentTitle.text, origin.x + skimmer.agentTitle.pos.x, 20 * scaleNow / scaleOld);
-			//ctx.fillText("hello", origin.x + skimmer.agentTitle.pos.x, 20 * scaleNow / scaleOld);
-		
-			//top news
-			//single title
-			
 		}
 		
 		if(skimmer.agentArticle != null){
@@ -894,7 +759,6 @@
 					
 					if(ctx.measureText(dealedLines[j] + " " + dealWords[i]).width <= (skimmer.agentArticle.width * 0.9 )){
 						
-						//alert("width"+skimmer.agentArticle.width);
 						dealedLines[j] += " ";
 						dealedLines[j] += dealWords[i];
 					}
@@ -978,8 +842,6 @@
 				
 				
 				ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
-				//ctx.fillText( displayedSource, Math.round( sourceOrigin.x + skimmer.agentArticle.width * 0.1), sourceOrigin.y );
-				
 				
 				if( sourceOrigin.x < currentCursor.x && currentCursor.x < sourceOrigin.x + skimmer.agentArticle.width )
 				{
@@ -1001,10 +863,6 @@
 					 * */
 				
 				skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 + 10, skimmer.agentArticle.height / 2 + 10);
-				
-				
-				
-				
 			}
 			else{
 				skimmer.agentArticle.remove = true;
@@ -1012,253 +870,10 @@
 				skimmer.selectedArticles.length = 0;
 				skimmer.selectedArticleRanking.clear();
 			}
-			
 		}
-
 		skimmer.update(0.05, 1024.0, 768.0, scaleNow , scaleOld);
  	}	
 	
-	function GetNewSource(){
-		isFlickr = 0;
-
-		duckGif = document.getElementById("duckGif");
-		duckGif.hidden  = '';
-
-
-		var selectObj = document.getElementById("selectSource");
-		var selectIndex=selectObj.selectedIndex;
-		var selectVal = selectObj.options[selectIndex].value;
-		
-		//alert(selectVal);
-	
-		sourceAddress = selectVal;
-
-		// To assure that the number of entries is availables for the digg and new york times
-		numEntries = 10;
-		
-		// Set the URL for the google feed API
-		var feed = new google.feeds.Feed(selectVal);
-		// Set the number of entries to be read from the RSS online
-		feed.setNumEntries(numEntries);
-
-		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
-		feed.load(function(result) {
-			if (!result.error) {
-				feedResult = result;
-/*
-				var container = document.getElementById("feed");
-				for (var i = 0; i < result.feed.entries.length; i++) {
-					var entry = result.feed.entries[i];
-					var div = document.createElement("div");
-					div.appendChild(document.createTextNode(entry.title));
-					container.appendChild(div);
-				}
-*/
-				if (feedResult.feed.entries.length >= numEntries) {
-	
-
-					skimmer.UpdateSkimmer(feedResult, numEntries);
-					skimmer.addNewArticles();
-					skimmer.extractArticleMinMax();
-					skimmer.checkForAdjacencies();
-					skimmer.updateAgents();
-					skimmer.extractAgentMinMax();
-					
-					feedFinished = 1;
-
-				}
-				else {
-					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
-				}
-				
-			}
-		});
-
-		google.setOnLoadCallback(initialize);
-		
-		duckGif.hidden = 'hidden';
-	}
-
-	
-	
-	// The function used to searching the internet and get the result from the Search API
-	// The result here is got from the Google news because this website will provide me with RSS data source
-	function StartSearching() {
-		isFlickr = 0;
-		duckGif = document.getElementById("duckGif");
-		duckGif.hidden  = '';
-
-		var selectObj = document.getElementById("searchKeyTextInput");
-		var selectVal = selectObj.value;
-		
-		//alert(selectVal);
-		
-		// Construct the news search address with the help of the google news api
-		sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=" + selectVal + "&num="+ numEntries +"&um=1&ie=UTF-8&output=rss";
-
-		// Set the URL for the google feed API
-		var feed = new google.feeds.Feed(sourceAddress);
-		// Set the number of entries to be read from the RSS online
-		feed.setNumEntries(numEntries);
-
-		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
-		feed.load(function(result) {
-			if (!result.error) {
-				feedResult = result;
-/*
-				var container = document.getElementById("feed");
-				for (var i = 0; i < result.feed.entries.length; i++) {
-					var entry = result.feed.entries[i];
-					var div = document.createElement("div");
-					div.appendChild(document.createTextNode(entry.title));
-					container.appendChild(div);
-				}
-*/
-
-				if (feedResult.feed.entries.length >= numEntries) {
-					skimmer.UpdateSkimmer(feedResult, numEntries);
-					skimmer.addNewArticles();
-					skimmer.extractArticleMinMax();
-					skimmer.checkForAdjacencies();
-					skimmer.updateAgents();
-					skimmer.extractAgentMinMax();
-					
-					feedFinished = 1;
-				}
-				else {
-					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
-				}
-			}
-		});
-
-		google.setOnLoadCallback(initialize);
-				
-		duckGif.hidden = 'hidden';
-	}
-	
-	
-	
-	// The function used to searching the internet and get the result from the Search API
-	// This functiion will use the Microsoft academic search engine instead of the Google scholar in that the Microsoft academic search will provide me with the RSS source
-	function AcademicSearching() {
-		isFlickr = 0;
-		duckGif = document.getElementById("duckGif");
-		duckGif.hidden  = '';
-
-		var selectObj = document.getElementById("academicTextInput");
-		var selectVal = selectObj.value;
-		
-		// Construct the news search address with the help of the google news api
-		sourceAddress = "http://academic.research.microsoft.com/rss?query=" + selectVal + "&searchtype=0";
-
-		//alert(sourceAddress);
-
-		//window.open(sourceAddress);
-		
-		// Set the URL for the google feed API
-		var feed = new google.feeds.Feed(sourceAddress);
-		// Set the number of entries to be read from the RSS online
-		feed.setNumEntries(numEntries);
-
-		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
-		feed.load(function(result) {
-			if (!result.error) {
-				feedResult = result;
-/*
-				var container = document.getElementById("feed");
-				for (var i = 0; i < result.feed.entries.length; i++) {
-					var entry = result.feed.entries[i];
-					var div = document.createElement("div");
-					div.appendChild(document.createTextNode(entry.title));
-					container.appendChild(div);
-				}
-*/
-				if (feedResult.feed.entries.length >= numEntries) {
-					skimmer.UpdateSkimmer(feedResult, numEntries);
-					skimmer.addNewArticles();
-					skimmer.extractArticleMinMax();
-					skimmer.checkForAdjacencies();
-					skimmer.updateAgents();
-					skimmer.extractAgentMinMax();
-					
-					feedFinished = 1;
-				}
-				else {
-					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
-				}
-
-			}
-		});
-
-		google.setOnLoadCallback(initialize);
-
-		duckGif.hidden = 'hidden';
-			
-	}
-	
-	
-	
-	
-	// The function used to searching the internet and get the result from the Search API
-	// This functiion will use the Flickr to get image searching result
-	function FlickrSearching() {
-		isFlickr = 1;
-		duckGif = document.getElementById("duckGif");
-		duckGif.hidden  = '';
-
-		var selectObj = document.getElementById("flickrTextInput");
-		var selectVal = selectObj.value;
-		
-		// Construct the news search address with the help of the google news api
-		sourceAddress = "http://api.flickr.com/services/feeds/photos_public.gne?tags=" + selectVal + "&lang=en-us&format=rss_200";
-
-		//alert(sourceAddress);
-
-		//window.open(sourceAddress);
-		
-		// Set the URL for the google feed API
-		var feed = new google.feeds.Feed(sourceAddress);
-		// Set the number of entries to be read from the RSS online
-		feed.setNumEntries(numEntries);
-
-		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
-		feed.load(function(result) {
-			if (!result.error) {
-				feedResult = result;
-/*
-				var container = document.getElementById("feed");
-				for (var i = 0; i < result.feed.entries.length; i++) {
-					var entry = result.feed.entries[i];
-					var div = document.createElement("div");
-					div.appendChild(document.createTextNode(entry.title));
-					container.appendChild(div);
-				}
-*/
-				if (feedResult.feed.entries.length >= numEntries) {
-
-					skimmer.UpdateSkimmer(feedResult, numEntries);
-					skimmer.addNewArticles();
-					skimmer.extractArticleMinMax();
-					skimmer.checkForAdjacencies();
-					skimmer.updateAgents();
-					skimmer.extractAgentMinMax();
-					
-					feedFinished = 1;
-				}
-				else {
-					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
-				}
-
-			}
-		});
-
-		google.setOnLoadCallback(initialize);
-				
-		duckGif.hidden = 'hidden';
-	}
-	
-	
-
 	
 	// This function is used to get the canvas filling the screen when the size of the screen is changed
 	
@@ -1267,10 +882,7 @@
 	function AddNewData() {
 		isFlickr = 0;
 		// Construct the news search address with the help of the google news api
-		//sourceAddress = "http://www.digg.com/rss/index.xml";
-
 		// THe Source address of the RSS source is kept untouched because when we are to update the RSS feed, there is no need for us to change the RSS source
-		
 		
 		// Set the URL for the google feed API
 		var feed = new google.feeds.Feed(sourceAddress);
@@ -1281,22 +893,16 @@
 		feed.load(function(result) {
 			if (!result.error) {
 				feedResult = result;
-
 				
 				skimmer.UpdateUsingRssSource(feedResult, 10);
-
-				
-				// Used for test refreshing
-				//skimmer.UpdateUsingXMLSource();
 
 
 				skimmer.addNewArticles();
 				skimmer.extractArticleMinMax();
 				skimmer.checkForAdjacencies();
-				//skimmer.updateAgents();
 				skimmer.updateAgentsAdd();
 				skimmer.extractAgentMinMax();
-								buildAgentLinkList();
+				buildAgentLinkList();
 
 				feedFinished = 1;
 
@@ -1308,6 +914,7 @@
 	}
 	
 	
+	// Get the width of the windows
 	function getWinWidth(){
 		if(window.innerWidth) {
 		winWidth=window.innerWidth;
@@ -1318,6 +925,7 @@
 		return winWidth;
 	}
 	
+	// Get the height of the windows
 	function getWinHeight(){
 		if(window.innerHeight) {
 			winHeight=window.innerHeight;
@@ -1341,24 +949,15 @@
 		//table.width = 7000;
 		//table.height = 2000;
 
-		//alert("twidth : " + table.width + " theight : " + table.height);
-
 		tableSel = document.getElementById("selectFrame");
 		tableSel.width = Math.round(table.width * 1.0 / 9);
 		tableSel.height = table.height;
-
-		
-		
-		
 		
 		canvas = document.getElementById("canvas");
 		canvas.width = Math.round(table.width * 8.0 / 9);
 		canvas.height = table.height;
 		
 		ctx = canvas.getContext("2d");
-
-		
-		
 		
 		// Get the style ratio of the elements on the webpage
 		if (canvas.width <= canvas.height) {
@@ -1369,8 +968,6 @@
 			scaleNow = canvas.height;
 			scaleOld = 768;
 		}
-		
-		
 		
 		
 		// The ratio of the logo
@@ -1388,8 +985,6 @@
 		// Adjust the blank between two sets of elements
 		tableSel.style.fontSize = Math.round(tableSel.height * heightRatioBlank) + "px";
 		
-		
-		
 		// The logo of the project as well as the DGL
 		skimmerLogo = document.getElementById("skimmerLogo");
 		skimmerLogo.style.width = tableSel.height * heightRatioLogo + "px";
@@ -1397,80 +992,46 @@
 		skimmerLogo = document.getElementById("DGLLogo");
 		skimmerLogo.style.width = tableSel.height * heightRatioLogo + "px";
 		
-		
-		
 		selectColor = document.getElementById("selectColor");
-		//selectSource.width = table.width * 1.0 / 9;
 		selectColor.style.width = tableSel.width+"px";
 		selectColor.style.height = Math.round(tableSel.height * heightRatioText)+"px";
 		selectColor.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 	
-			
-		/*
-		entryNumber = document.getElementById("entryNumber");
-		//academicSearching.width = table.width * 1.0 / 9;
-		entryNumber.style.width = tableSel.width+"px";	
-		entryNumber.style.height = Math.round(tableSel.height * heightRatioText)+"px";
-		entryNumber.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
-		*/
-
 		
 		chooseSource = document.getElementById("chooseSource");
-		//academicSearching.width = table.width * 1.0 / 9;
 		chooseSource.style.width = tableSel.width+"px";	
 		chooseSource.style.height = Math.round(tableSel.height * heightRatioText)+"px";
 		chooseSource.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 
-
 		searchContent = document.getElementById("searchContent");
-		//academicSearching.width = table.width * 1.0 / 9;
 		searchContent.style.width = tableSel.width+"px";	
 		searchContent.style.height = Math.round(tableSel.height * heightRatioText)+"px";
 		searchContent.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 
-
-		
 		academicSearching = document.getElementById("skimmerSearching");
-		//academicSearching.width = table.width * 1.0 / 9;
 		academicSearching.style.width = tableSel.width+"px";	
 		academicSearching.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
 		academicSearching.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
-
 			
 		addData = document.getElementById("addData");
-		//addData.width = table.width * 1.0 / 9;
 		addData.style.width = tableSel.width+"px";
 		addData.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
 		addData.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 		
-		
-		
 		autoMode = document.getElementById("autoMode");
-		//addData.width = table.width * 1.0 / 9;
 		autoMode.style.width = tableSel.width+"px";
 		autoMode.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
 		autoMode.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 		
-		
-		
-		// *scaleNow / scaleOld
-		
-		//---------------------------------------------------------------------------------------------
-		
-	
 	}
-	
-	
-		
+
+	// The function to be operated when the window is resized
 	function resizeWindow() {
-	
 		init();
 		skimmer.width = canvas.width;
 		skimmer.height = canvas.height;
 		if(skimmer.agentArticle!=null) {
 			skimmer.agentArticle.width = skimmer.width / 3 * scaleNow / scaleOld;
-					//		alert("a width"+skimmer.agentArticle.width);
-
 			skimmer.agentArticle.height = skimmer.height / 3 * scaleNow / scaleOld;
 		}
 		
@@ -1490,47 +1051,25 @@
 		
 		skimmer.left = absPosX;
 		skimmer.top = absPosY;
-				
-	
 	}
 	
-	
-	
-	
-	function SelectColor(){
 
+	// Select the color mapping schema
+	function SelectColor(){
 		var selectObj = document.getElementById("selectColor");
 		var selectIndex=selectObj.selectedIndex;
 		var selectVal = selectObj.options[selectIndex].value;
 
-		
 		skimmer.colorType = selectVal;
 		skimmer.updateAgentColor();
-		
-		//alert(selectVal);
 	}
-	
-	
-	
-	
 	
 	// Search for the content in the skimmer
 	function skimmerSearching() {
 
-	
-	/*
-		var numberObj = document.getElementById("entryNumber");
-		var numberIndex = numberObj.selectedIndex;
-		var numberVal = numberObj.options[numberIndex].value;	
-
-		numEntries = numberVal;
-		*/
-		
-		
 		var selectObj = document.getElementById("chooseSource");
 		var selectIndex=selectObj.selectedIndex;
 		var selectVal = selectObj.options[selectIndex].value;
-		
 		
 		switch(selectVal) {
 			case 'ncsu_libpes':
@@ -1550,10 +1089,6 @@
 			case 'ncsu_facebook':
 				isFlickr = 0;
 				sourceAddress = "http://www.facebook.com/feeds/page.php?format=rss20&id=5983837179";
-				break;
-				case "digg_news":
-				isFlickr = 0;
-				sourceAddress = "http://www.digg.com/rss/index.xml"
 				break;
 			case "google_news":
 				isFlickr = 0;
@@ -1575,9 +1110,6 @@
 		duckGif = document.getElementById("duckGif");
 		duckGif.hidden  = '';
 
-
-		
-
 		//------------------------------------------- Get the content from the Google Feed Api ----------------------------------------
 		
 		// Set the URL for the google feed API
@@ -1590,20 +1122,9 @@
 		feed.load(function(result) {
 			if (!result.error) {
 				feedResult = result;
-/*
-				var container = document.getElementById("feed");
-				for (var i = 0; i < result.feed.entries.length; i++) {
-					var entry = result.feed.entries[i];
-					var div = document.createElement("div");
-					div.appendChild(document.createTextNode(entry.title));
-					container.appendChild(div);
-				}
-*/
 
 				numEntries = feedResult.feed.entries.length;
-				//if (feedResult.feed.entries.length >= numEntries) {
 				if (numEntries > 0) {
-
 					skimmer.UpdateSkimmer(feedResult, numEntries);
 					skimmer.addNewArticles();
 					skimmer.extractArticleMinMax();
@@ -1611,12 +1132,10 @@
 					skimmer.updateAgents();
 					skimmer.extractAgentMinMax();
 					buildAgentLinkList();
-
 					
 					var selectObj = document.getElementById("selectColor");
 					var selectIndex=selectObj.selectedIndex;
 					var selectVal = selectObj.options[selectIndex].value;
-
 
 					skimmer.colorType = selectVal;
 					skimmer.updateAgentColor();
@@ -1635,14 +1154,9 @@
 		duckGif.hidden = 'hidden';
 	}
 	
-
-		
-	//-------------------------------------------------------------------------------------------------------	
-	//-------------------------------------------------------------------------------------------------------	
-	//-------------------------------------------------------------------------------------------------------	
-	//-------------------------------------------------------------------------------------------------------	
-	//-------------------------------------------------------------------------------------------------------	
-	
+	//-----------------------------------------------------------------------------------------------------------	
+	//---------------------------------------------- Automatical Mode -------------------------------------	
+	//-----------------------------------------------------------------------------------------------------------	
 	
 	
 	// variables setting the function intervals
@@ -1652,8 +1166,6 @@
 	
 	var sourceSelectOrder = 0;
 	
-	
-	
 	var sourceXmlDoc;
 	var sourceNodes;
 	
@@ -1661,12 +1173,6 @@
 	//
 	function autoModeFunc()
 	{
-	
-		//for(var i = 0; i < sourceNodes.length; i++){
-			//var source = sourceNodes[i];
-			//alert(source.childNodes[0].nodeValue);
-		//}
-	
 		// circulate the source address
 		if (sourceSelectOrder >= sourceNodes.length - 1) {
 			sourceSelectOrder = 0
@@ -1678,9 +1184,8 @@
 		// Get the source address from the xml file
 		sourceAddress = sourceNodes[sourceSelectOrder].childNodes[0].nodeValue;
 	
-	
 		//------------------------------------------- Get the content from the Google Feed Api ----------------------------------------
-		
+
 		// Set the URL for the google feed API
 		var feed = new google.feeds.Feed(sourceAddress);
 		// Set the number of entries to be read from the RSS online
@@ -1690,19 +1195,8 @@
 		feed.load(function(result) {
 			if (!result.error) {
 				feedResult = result;
-/*
-				var container = document.getElementById("feed");
-				for (var i = 0; i < result.feed.entries.length; i++) {
-					var entry = result.feed.entries[i];
-					var div = document.createElement("div");
-					div.appendChild(document.createTextNode(entry.title));
-					container.appendChild(div);
-				}
-*/
-
 				numEntries = feedResult.feed.entries.length;
 				
-
 				if (numEntries > 0) {
 					skimmer.UpdateSkimmer(feedResult, numEntries);
 					skimmer.addNewArticles();
@@ -1726,8 +1220,6 @@
 				else {
 					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
 				}
-
-
 			}
 		});
 
@@ -1789,28 +1281,6 @@
 						</select>
 					</td>
 				</tr>
-				<!--
-				<tr>
-					<td>
-						<font color = "white" face = "Arial">Number</font>
-					</td>
-				</tr>
-				-->
-				<!--
-				<tr>
-					<td>
-						<select id="entryNumber">
-							<option value = 5>5</option>
-							<option value = 10>10</option>
-							<option value = 20>20</option>
-							<option value = 30>30</option>
-							<option value = 50>50</option>
-							<option value = 100>100</option>
-						</select>
-					</td>
-				</tr>
-				-->
-				
 				<tr>
 					<td>
 						<font color = "white" face = "Arial">Source</font>
@@ -1825,7 +1295,6 @@
 							<option value = "ncsu_facebook">NCSU facebook</option>
 							<option value = "google_news">Google News</option>
 							<option value = "flickr_tags">Flickr Images</option>
-							<option value = "digg_news">digg top news</option>
 						</select>
 					</td>
 				</tr>
