@@ -352,11 +352,20 @@ function HashMap()
 function VisHashMap(){
 	var size = 0;
     var entry = new Object(); 
+	
+	// New added to store all the keys in the entry to speed up the keys function
+	this.entryKeys = new Array();
+	
     this.put = function (key , value){
         if(!this.containsKey(key)){
             size ++ ;
         }
         entry[key] = value;
+		
+
+		// New added to store all the keys in the entry to speed up the keys function
+		this.entryKeys.push(key);
+		
     };
     this.get = function (key){
         return this.containsKey(key) ? entry[key] : 0;
@@ -367,6 +376,16 @@ function VisHashMap(){
         {
             size --;
         }
+		
+		
+		
+		// Reconstruct the array to delete the element in the array entryKeyssss
+		this.entryKeys = new Array();
+		for(var prop in entry)
+		{
+			this.entryKeys.push(prop);
+		}
+
     };
     
     
@@ -404,12 +423,16 @@ function VisHashMap(){
     
     this.keys = function ()
     {
+		return this.entryKeys;
+		
+		/*
         var keys = new Array();
         for(var prop in entry)
         {
             keys.push(prop);
         }
         return keys;
+		*/
     };
     
     this.size = function ()
