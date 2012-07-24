@@ -1127,10 +1127,14 @@
 				isFlickr = 0;
 				sourceAddress = "http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&location=&type=N&binary=Y&keywords=";
 				break;
-			case 'ncsu_twitter':
+			case 'ncsu_twitter_search':
 				isFlickr = 0;
 				sourceAddress = "http://search.twitter.com/search.rss?q=%23ncsu";
 				break;
+			case 'ncsu_twitter_account':
+				isFlickr = 0;
+				sourceAddress = "http://twitter.ncsu.edu/feed.php";
+				break;	
 			case 'ncsu_facebook':
 				isFlickr = 0;
 				sourceAddress = "http://www.facebook.com/feeds/page.php?format=rss20&id=5983837179";
@@ -1334,7 +1338,8 @@
 						<select id="chooseSource">
 							<option value = "ncsu_events">NCSU Events</option>
 							<option value = "ncsu_libpes">NCSU Library</option>
-							<option value = "ncsu_twitter">NCSU twitter</option>
+							<option value = "ncsu_twitter_search">twitter search</option>
+							<option value = "ncsu_twitter_account">twitter account</option>
 							<option value = "ncsu_facebook">NCSU facebook</option>
 							<option value = "google_news">Google News</option>
 							<option value = "flickr_tags">Flickr Images</option>
