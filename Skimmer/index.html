@@ -173,13 +173,139 @@
 		
 	}
 	
+	
+	var mouseMoveFlag = 0;
+	var isControlPanelHide = false;
+	var mouseMoveIntervalID;
+	
 	function mouseMove(event){
+	
+		mouseMoveFlag = 0;
 		
-		if( skimmer != undefined )
-		currentCursor.set(event.clientX - skimmer.left , event.clientY - skimmer.top);
+		if( skimmer != undefined ) {
+			currentCursor.set(event.clientX - skimmer.left , event.clientY - skimmer.top);
+
+			if (isControlPanelHide == true) {
+				//mouseMoveIntervalID = setInterval(checkMouseMove, 1000);
+				mouseMoveFlag = 0;
+			}
+		}
+
+		
 		
 		//console.log(currentCursor.toString());
 	}
+	
+	function hideControlPanel(status) {
+		if (status == "hide") {
+			// Hide the control panel
+
+			var winWidth = getWinWidth();
+			var winHeight = getWinHeight();
+
+			table = document.getElementById("overallFrame");
+			table.style.display = winWidth*ratioCanvas;
+			table.height = winHeight*ratioCanvas;
+
+			tableSel = document.getElementById("selectFrame");
+			tableSel.hidden = true;
+			
+			canvas = document.getElementById("canvas");
+			canvas.width = table.width;
+			canvas.height = table.height;
+			
+			ctx = canvas.getContext("2d");
+
+			// Get the style ratio of the elements on the webpage
+			if (canvas.width <= canvas.height) {
+				scaleNow = canvas.width;
+				scaleOld = 1024;
+			}
+			else {
+				scaleNow = canvas.height;
+				scaleOld = 768;
+			}
+			
+			isControlPanelHide = true;
+			
+			//clearInterval(mouseMoveIntervalID);
+			//---------------------------------------------------------------------------------------------
+		}
+		else {
+			// Show the control panel
+			var winWidth = getWinWidth();
+			var winHeight = getWinHeight();
+
+			table = document.getElementById("overallFrame");
+			table.style.display = winWidth*ratioCanvas;
+			table.height = winHeight*ratioCanvas;
+
+			tableSel = document.getElementById("selectFrame");
+			tableSel.hidden = false;
+			
+			canvas = document.getElementById("canvas");
+			canvas.width = Math.round(table.width * 8.0 / 9);
+			canvas.height = table.height;
+			
+			ctx = canvas.getContext("2d");
+
+			// Get the style ratio of the elements on the webpage
+			if (canvas.width <= canvas.height) {
+				scaleNow = canvas.width;
+				scaleOld = 1024;
+			}
+			else {
+				scaleNow = canvas.height;
+				scaleOld = 768;
+			}
+
+			isControlPanelHide = false;
+			mouseMoveFlag = 0;
+		}
+
+		skimmer.width = canvas.width;
+		skimmer.height = canvas.height;
+		if(skimmer.agentArticle!=null) {
+			skimmer.agentArticle.width = skimmer.width / 3 * scaleNow / scaleOld;
+					//		alert("a width"+skimmer.agentArticle.width);
+
+			skimmer.agentArticle.height = skimmer.height / 3 * scaleNow / scaleOld;
+		}
+		
+		absPosX = 0;
+		absPosY = 0;
+		
+		tempElem = canvas;
+		
+		while (tempElem.offsetParent != null) {
+			absPosX += tempElem.offsetLeft;
+			absPosY += tempElem.offsetTop;
+			tempElem = tempElem.offsetParent;
+		}
+		
+		absPosX += tempElem.offsetLeft;
+		absPosY += tempElem.offsetTop;
+		
+		skimmer.left = absPosX;
+		skimmer.top = absPosY;
+
+	}
+	
+	function checkMouseMove() {
+		console.log(mouseMoveFlag);
+	
+		if (skimmer != undefined) {
+			if (mouseMoveFlag >= 10) {
+				hideControlPanel("hide");
+			}
+			else if (isControlPanelHide == true) {
+				hideControlPanel("show");
+			}
+			mouseMoveFlag++;
+		}
+	}
+	
+	
 	
 	function buildAgentLinkList(){
 		
@@ -1765,6 +1891,8 @@
 </table>
 
 <script type="text/javascript">
+	mouseMoveIntervalID = setInterval(checkMouseMove, 1000);
+
 	//intervalID = setInterval(draw, 25);
 	intervalID = setInterval(drawDriver, 25);
 
