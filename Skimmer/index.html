@@ -265,10 +265,10 @@
 	function checkMouseMove() {
 		// Count up the time during which the mouse did not move
 		if (skimmer != undefined) {
-			if (mouseMoveFlag >= 10) {
+			if ((isControlPanelHide == false)&&(mouseMoveFlag >= 10)) {
 				hideControlPanel("hide");
 			}
-			else if (isControlPanelHide == true) {
+			else if ((isControlPanelHide == true)&&(mouseMoveFlag < 10)) {
 				hideControlPanel("show");
 			}
 			mouseMoveFlag++;
