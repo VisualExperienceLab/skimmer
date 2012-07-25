@@ -1,9 +1,52 @@
 <?xml version="1.0" ?>
 <sourceconfig>
-	<source>http://feeds.feedburner.com/NCSULibrariesPESNews?format=xml</source>
-	<source>http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&amp;location=&amp;type=N&amp;binary=Y&amp;keywords=</source>
-	<source>http://search.twitter.com/search.rss?q=%23ncsu</source>
-	<source>http://www.facebook.com/feeds/page.php?format=rss20&amp;id=5983837179</source>
-	<source>http://news.google.com/news?hl=en&amp;gl=us&amp;q=ncsu&amp;num=100&amp;um=1&amp;ie=UTF-8&amp;output=rss</source>
-	<source>http://api.flickr.com/services/feeds/photos_public.gne?tags=ncsu&amp;lang=en-us&amp;format=rss_200</source>
+	<source>
+		<feed>http://feeds.feedburner.com/NCSULibrariesPESNews?format=xml</feed>
+		<color>random</color>
+	</source>
+	<source>
+		<feed>http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&amp;location=&amp;type=N&amp;binary=Y&amp;keywords=</feed>
+		<color>dictionary</color>
+	</source>
+	<source>
+		<feed>http://search.twitter.com/search.rss?q=%23ncsu</feed>
+		<color>emotion</color>
+	</source>
+	<source>
+		<website>ncsu_twitter</website>
+		<keyword>ncsu</keyword>
+		<color>random</color>
+	</source>
+	<source>
+		<website>google_news</website>
+		<keyword>football</keyword>
+		<color>random</color>
+	</source>
+	<source>
+		<website>flickr</website>
+		<keyword>dog</keyword>
+		<color>random</color>
+	</source>
+	<source>
+		<feed>http://www.facebook.com/feeds/page.php?format=rss20&amp;id=5983837179</feed>
+		<color>random</color>
+	</source>
+	<source>
+		<feed>http://news.google.com/news?hl=en&amp;gl=us&amp;q=ncsu&amp;num=100&amp;um=1&amp;ie=UTF-8&amp;output=rss</feed>
+		<color>dictionary</color>
+	</source>
+	<source>
+		<feed>http://api.flickr.com/services/feeds/photos_public.gne?tags=ncsu&amp;lang=en-us&amp;format=rss_200</feed>
+	</source>
 </sourceconfig>
+<!--
+USER GUIDE:
+	1. You can change the content between the tags <sourceconfig> and </sourceconfig> to set the sources to be displayed in the skimmer
+	2. The content between tags <source> and </source> refers to a source for the simmer
+	3. The content between tags <website> and </website> is some of the websites that can be used to search ketwords from sources
+		Available website tags are
+			a. ncsu_twitter
+			b. google_news
+			c. flickr
+	4. The content between tags <keyword> and </keyword> defines the keyword to be searched when
+-->

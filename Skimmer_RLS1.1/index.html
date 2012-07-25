@@ -1405,16 +1405,50 @@
 	//
 	function autoModeFunc()
 	{
-		// circulate the source address
-		if (sourceSelectOrder >= sourceNodes.length - 1) {
-			sourceSelectOrder = 0
+
+
+		// Get the source address from the xml file
+
+		websiteNodes = sourceNodes[sourceSelectOrder].getElementsByTagName("website");
+		if (websiteNodes[0] != undefined) {
+			website = websiteNodes[0].childNodes[0].nodeValue;
+			
+			var keywordVal = "";
+					
+			keywordNodes = sourceNodes[sourceSelectOrder].getElementsByTagName("keyword");
+			if (keywordNodes[0] != undefined) {
+				keywordVal = keywordNodes[0].childNodes[0].nodeValue;
+			}
+
+			
+			switch (website) {
+				case 'ncsu_twitter':
+					isFlickr = 0;
+					sourceAddress = "http://search.twitter.com/search.rss?q=" + keywordVal + "%23ncsu";
+					break;
+				case "google_news":
+					isFlickr = 0;
+					sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=" + keywordVal + "&num=100&um=1&ie=UTF-8&output=rss";
+					break;
+				case "flickr":
+					isFlickr = 1;
+					sourceAddress = "http://api.flickr.com/services/feeds/photos_public.gne?tags=" + keywordVal + "&lang=en-us&format=rss_200";
+					break;
+			}
+
 		}
 		else {
-			sourceSelectOrder = sourceSelectOrder + 1;
+			// Read URL directly from the xml file
+			feedNodes = sourceNodes[sourceSelectOrder].getElementsByTagName("feed");
+			if (feedNodes[0] != undefined) {
+				sourceAddress = feedNodes[0].childNodes[0].nodeValue;
+			}
 		}
+
+		//sourceAddress = sourceNodes[sourceSelectOrder].childNodes[0].nodeValue;
 	
-		// Get the source address from the xml file
-		sourceAddress = sourceNodes[sourceSelectOrder].childNodes[0].nodeValue;
+	
+	
 	
 		//------------------------------------------- Get the content from the Google Feed Api ----------------------------------------
 
@@ -1438,12 +1472,31 @@
 					skimmer.extractAgentMinMax();
 					buildAgentLinkList();
 				
-					var selectObj = document.getElementById("selectColor");
-					var selectIndex=selectObj.selectedIndex;
-					var selectVal = selectObj.options[selectIndex].value;
+
+					colorscheme = 0;
+					colorNodes = sourceNodes[sourceSelectOrder].getElementsByTagName("color");
+					if (colorNodes[0] != undefined) {
+						colortag = colorNodes[0].childNodes[0].nodeValue;
+						
+						switch (colortag) {
+							case 'random':
+								colorscheme = 0;
+								break;
+							case 'dictionary':
+								colorscheme = 1;
+								break;
+							case 'emotion':
+								colorscheme = 3;
+								break;
+							default: 
+								colorscheme = 0;
+								break;
+						}
+
+					}
 
 
-					skimmer.colorType = selectVal;
+					skimmer.colorType = colorscheme;
 					skimmer.updateAgentColor();
 
 					feedFinished = 1;
@@ -1456,6 +1509,15 @@
 		});
 
 		google.setOnLoadCallback(initialize);
+
+		// circulate the source address
+		if (sourceSelectOrder >= sourceNodes.length - 1) {
+			sourceSelectOrder = 0
+		}
+		else {
+			sourceSelectOrder = sourceSelectOrder + 1;
+		}
+
 	}
 	
 	// Start or end the auto mode in skimmer
