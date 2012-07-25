@@ -1083,6 +1083,12 @@
 		addData.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
 		addData.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 
+
+		autoMode = document.getElementById("autoMode");
+		autoMode.style.width = tableSel.width+"px";
+		autoMode.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
+		autoMode.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
+
 	}
 
 	// The function to be operated when the window is resized
@@ -1221,7 +1227,7 @@
 	// variables setting the function intervals
 	var autoIntervalID;
 	var autoFlag = 0;
-	var timeInterval = 30000;		// the time interval is set 1 minute
+	var timeInterval = 15000;		// the time interval is set 1 minute
 	
 	var sourceSelectOrder = 0;
 	
@@ -1296,10 +1302,17 @@
 		
 			autoIntervalID = setInterval(autoModeFunc, timeInterval);
 			autoFlag = 1;
+
+			autoMode = document.getElementById("autoMode");
+			autoMode.textContent = "Mannual";
+
 		}
 		else{
 			clearInterval(autoIntervalID);
 			autoFlag = 0;
+
+			autoMode = document.getElementById("autoMode");
+			autoMode.textContent = "AutoMode";
 		}
 	}
 	
@@ -1376,11 +1389,19 @@
 						<button type = "button" name = "skimmerSearching" id = "skimmerSearching" onclick = skimmerSearching()>Search</button>
 					</td>
 				</tr>
+
 				<tr>
 					<td>
 						<button type = "button" name = "addData" id = "addData" onclick = "AddNewData();">Refresh</button>
 					</td>
 				</tr>
+
+				<tr>
+					<td>
+						<button type = "button" name = "autoMode" id = "autoMode" onclick = "autoModeDriver();">AutoMode</button>
+					</td>
+				</tr>
+
 				<tr>
 					<td>
 						<image id = "duckGif" name = "duckGif" src="data/duck.gif" align="center">
