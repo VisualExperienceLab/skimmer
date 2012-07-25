@@ -1077,6 +1077,12 @@
 		academicSearching.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
 		academicSearching.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 			
+
+		addData = document.getElementById("addData");
+		addData.style.width = tableSel.width+"px";
+		addData.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
+		addData.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
+
 	}
 
 	// The function to be operated when the window is resized
@@ -1368,6 +1374,11 @@
 				<tr>
 					<td>
 						<button type = "button" name = "skimmerSearching" id = "skimmerSearching" onclick = skimmerSearching()>Search</button>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<button type = "button" name = "addData" id = "addData" onclick = "AddNewData();">Refresh</button>
 					</td>
 				</tr>
 				<tr>
