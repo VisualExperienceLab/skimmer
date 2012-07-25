@@ -158,9 +158,13 @@
 	var isControlPanelHide = false;
 	var mouseMoveIntervalID;
 	
+	
+	var recordeClientMouseCoorX = 0;
+	var recordeClientMouseCoorY = 0;
+	
 	function mouseMove(event){
 	
-		mouseMoveFlag = 0;
+		//mouseMoveFlag = 0;
 		
 		if( skimmer != undefined ) {
 			
@@ -168,9 +172,22 @@
 			//console.log(currentCursor);
 			
 			
-			if (isControlPanelHide == true) {
+			// The last position of the cursor is recorded to check mouse move
+			// These code are added because of the bug in Chrome browsers
+			if ((event.clientX != recordeClientMouseCoorX) && (event.clientY != recordeClientMouseCoorY)) {
+
+				if (isControlPanelHide == true) {
+				}
+
 				mouseMoveFlag = 0;
+
+				recordeClientMouseCoorX = event.clientX;
+				recordeClientMouseCoorY = event.clientY;
 			}
+			
+		}
+		else {
+			mouseMoveFlag = 0;
 		}
 	}
 	
@@ -1094,6 +1111,25 @@
 		autoMode.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
 		autoMode.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 
+
+		searchContent = document.getElementById("searchContent");
+		searchContent.style.width = tableSel.width+"px";
+		searchContent.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
+		searchContent.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
+
+
+		advancedSearching = document.getElementById("advancedSearching");
+		advancedSearching.style.width = tableSel.width+"px";
+		advancedSearching.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
+		advancedSearching.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
+		
+		
+		AdvancedSearchBtn = document.getElementById("AdvancedSearchBtn");
+		AdvancedSearchBtn.style.width = tableSel.width+"px";
+		AdvancedSearchBtn.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
+		AdvancedSearchBtn.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
+		
+		
 	}
 
 	// The function to be operated when the window is resized
@@ -1224,6 +1260,132 @@
 		duckGif.hidden = 'hidden';
 	}
 	
+	
+	
+	
+	//------------------------------- Advanced Searching --------------------------------
+	
+	
+	// Search for the content in the skimmer
+	function AdvancedSearching() {
+
+		var selectObj = document.getElementById("chooseSource");
+		var selectIndex=selectObj.selectedIndex;
+		var selectVal = selectObj.options[selectIndex].value;
+		
+		switch(selectVal) {
+			case 'ncsu_libpes':
+				isFlickr = 0;
+				sourceAddress = "http://feeds.feedburner.com/NCSULibrariesPESNews?format=xml";
+				break;
+			case 'ncsu_events':
+				isFlickr = 0;
+				sourceAddress = "http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&location=&type=N&binary=Y&keywords=";
+				break;
+			case 'ncsu_twitter':
+				isFlickr = 0;
+				var inputObj = document.getElementById("searchContent");
+				var inputVal = inputObj.value;
+				sourceAddress = "http://search.twitter.com/search.rss?q=" + inputVal + "%23ncsu";
+				break;
+			case 'ncsu_facebook':
+				isFlickr = 0;
+				sourceAddress = "http://www.facebook.com/feeds/page.php?format=rss20&id=5983837179";
+				break;
+			case "google_news":
+				isFlickr = 0;
+				var inputObj = document.getElementById("searchContent");
+				var inputVal = inputObj.value;
+				sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=" + inputVal + "&num=100&um=1&ie=UTF-8&output=rss";
+				break;
+			case "flickr_tags":
+				isFlickr = 1;
+				var inputObj = document.getElementById("searchContent");
+				var inputVal = inputObj.value;
+				sourceAddress = "http://api.flickr.com/services/feeds/photos_public.gne?tags=" + inputVal + "&lang=en-us&format=rss_200";
+				break;
+			default:
+				break;
+		}
+	
+	
+		duckGif = document.getElementById("duckGif");
+		duckGif.hidden  = '';
+
+		//------------------------------------------- Get the content from the Google Feed Api ----------------------------------------
+		
+		// Set the URL for the google feed API
+		var feed = new google.feeds.Feed(sourceAddress);
+		// Set the number of entries to be read from the RSS online
+		//feed.setNumEntries(numEntries);
+		feed.setNumEntries(100);
+
+		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
+		feed.load(function(result) {
+			if (!result.error) {
+				feedResult = result;
+
+				numEntries = feedResult.feed.entries.length;
+				if (numEntries > 0) {
+					skimmer.UpdateSkimmer(feedResult, numEntries);
+					skimmer.addNewArticles();
+					skimmer.extractArticleMinMax();
+					skimmer.checkForAdjacencies();
+					skimmer.updateAgents();
+					skimmer.extractAgentMinMax();
+					buildAgentLinkList();
+					
+					var selectObj = document.getElementById("selectColor");
+					var selectIndex=selectObj.selectedIndex;
+					var selectVal = selectObj.options[selectIndex].value;
+
+					skimmer.colorType = selectVal;
+					skimmer.updateAgentColor();
+
+					feedFinished = 1;
+				}
+				else {
+					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
+				}
+
+			}
+		});
+
+		google.setOnLoadCallback(initialize);
+				
+		duckGif.hidden = 'hidden';
+	}
+	
+	
+	
+	
+	var advancedFlag = 0;
+
+	function AdvancedSearchDriver() {
+	
+		if (advancedFlag == 0) {
+			AdvancedSearchBtn = document.getElementById("AdvancedSearchBtn");
+			AdvancedSearchBtn.textContent = "Advanced";
+		
+			basicModeTbl = document.getElementById("advancedMode");
+			basicModeTbl.hidden = true;
+			
+			advancedFlag = 1;
+		}
+		else {
+			AdvancedSearchBtn = document.getElementById("AdvancedSearchBtn");
+			AdvancedSearchBtn.textContent = "Basic";
+		
+			advancedModeTbl = document.getElementById("advancedMode");
+			advancedModeTbl.hidden = false;
+			
+			advancedFlag = 0;
+		}
+		
+	}
+
+	
+	
 	//-----------------------------------------------------------------------------------------------------------	
 	//---------------------------------------------- Automatical Mode -------------------------------------	
 	//-----------------------------------------------------------------------------------------------------------	
@@ -1232,7 +1394,7 @@
 	// variables setting the function intervals
 	var autoIntervalID;
 	var autoFlag = 0;
-	var timeInterval = 60000;		// the time interval is set 1 minute 0 seconds
+	var timeInterval = 5001;		// the time interval is set 1 minute 10 seconds
 	
 	var sourceSelectOrder = 0;
 	
@@ -1304,12 +1466,24 @@
 			sourceXmlDoc = loadXmlFile("data/sourceconfig.xml");
 			sourceNodes = sourceXmlDoc.getElementsByTagName("source");
 
-		
 			autoIntervalID = setInterval(autoModeFunc, timeInterval);
 			autoFlag = 1;
 
 			autoMode = document.getElementById("autoMode");
 			autoMode.textContent = "Mannual";
+
+			// Hide the basic mannual mode
+			AdvancedSearchBtn = document.getElementById("AdvancedSearchBtn");
+			AdvancedSearchBtn.textContent = "Advanced";
+
+			basicModeTbl = document.getElementById("basicMode");
+			basicModeTbl.hidden = true;
+			
+			basicModeTbl = document.getElementById("advancedMode");
+			basicModeTbl.hidden = true;
+			
+			advancedFlag = 1;
+
 
 		}
 		else{
@@ -1318,9 +1492,15 @@
 
 			autoMode = document.getElementById("autoMode");
 			autoMode.textContent = "AutoMode";
+
+			// Show the basic mannual mode
+			basicModeTbl = document.getElementById("basicMode");
+			basicModeTbl.hidden = false;
+
 		}
 	}
 	
+
 	
 </script>
 
@@ -1346,72 +1526,124 @@
 					</td>
 				</tr>
 				-->
+				
+				
 				<tr>
 					<td>
-						<font color = "white" face = "Arial">Color</font>
+					
+						<table id = "basicMode" border = "0" cellpadding = "0">
+
+							<!-- Basic mannual mode-->
+							<tr>
+								<td>
+									<font color = "white" face = "Arial">Color</font>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<select id="selectColor" onChange = SelectColor()>
+										<option value = 0>Random</option>
+										<option value = 1>Dictionary</option>
+										<option value = 3>Emotion</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<font color = "white" face = "Arial">Source</font>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<select id="chooseSource">
+										<option value = "ncsu_events">NCSU Events</option>
+										<option value = "ncsu_libpes">NCSU Library</option>
+										<option value = "ncsu_twitter_search">twitter search</option>
+										<option value = "ncsu_twitter_account">twitter account</option>
+										<option value = "ncsu_facebook">NCSU facebook</option>
+										<option value = "google_news">Google News</option>
+										<option value = "flickr_tags">Flickr Images</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<font color = "white" face = "Arial">Picture</font>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<input type="radio" id="radio1" name="showImage" value="1" checked="true"> <font color = "white" face = "Arial">Yes</font>
+									<input type="radio" id="radio2" name="showImage" value="2"> <font color = "white" face = "Arial">No</font>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<button type = "button" name = "skimmerSearching" id = "skimmerSearching" onclick = skimmerSearching()>Search</button>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<button type = "button" name = "AdvancedSearchBtn" id = "AdvancedSearchBtn" onclick = AdvancedSearchDriver()>Advanced</button>
+								</td>
+							</tr>							
+						</table>
+					
 					</td>
+
 				</tr>
-				<tr>
-					<td>
-						<select id="selectColor" onChange = SelectColor()>
-							<option value = 0>Random</option>
-							<option value = 1>Dictionary</option>
-							<option value = 3>Emotion</option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<font color = "white" face = "Arial">Source</font>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<select id="chooseSource">
-							<option value = "ncsu_events">NCSU Events</option>
-							<option value = "ncsu_libpes">NCSU Library</option>
-							<option value = "ncsu_twitter_search">twitter search</option>
-							<option value = "ncsu_twitter_account">twitter account</option>
-							<option value = "ncsu_facebook">NCSU facebook</option>
-							<option value = "google_news">Google News</option>
-							<option value = "flickr_tags">Flickr Images</option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<font color = "white" face = "Arial">Picture</font>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<input type="radio" id="radio1" name="showImage" value="1" checked="true"> <font color = "white" face = "Arial">Yes</font>
-						<input type="radio" id="radio2" name="showImage" value="2"> <font color = "white" face = "Arial">No</font>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<button type = "button" name = "skimmerSearching" id = "skimmerSearching" onclick = skimmerSearching()>Search</button>
-					</td>
-				</tr>
+
 
 				<tr>
 					<td>
-						<button type = "button" name = "addData" id = "addData" onclick = "AddNewData();">Refresh</button>
+						<table id = "advancedMode" border = "0" cellpadding = "0">
+				
+							<!-- These are used as the Advanced interactive mode -->
+							<tr>
+								<td>
+									<font color = "white" face = "Arial">Keyword</font>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<input type = "text" id = "searchContent" name = "searchContent"/>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<button type = "button" name = "advancedSearching" id = "advancedSearching" onclick = "AdvancedSearching();">AdvancedSearch</button>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<button type = "button" name = "addData" id = "addData" onclick = "AddNewData();">Refresh</button>
+								</td>
+							</tr>
+
+						</table>
 					</td>
 				</tr>
 
+
+				<!-- This button is used for switching between the mannual mode and the automated mode -->
 				<tr>
 					<td>
 						<button type = "button" name = "autoMode" id = "autoMode" onclick = "autoModeDriver();">AutoMode</button>
 					</td>
 				</tr>
+				
+				
 
+				<!-- The duck gif is used as the progress bar in the program -->
 				<tr>
 					<td>
 						<image id = "duckGif" name = "duckGif" src="data/duck.gif" align="center">
 					</td>
 				</tr>
+				
+				
+				
+				
 			</table>
 		</td>
 
@@ -1424,13 +1656,28 @@
 </table>
 
 <script type="text/javascript">
-	mouseMoveIntervalID = setInterval(checkMouseMove, 1000);
+
+	// Initially set basic mannual mode
+	AdvancedSearchDriver();
+	// Initially set automated mode
+	autoModeDriver();
+	
+
+	// Set the time interval for mouse move checking
+	var mouseMoveCheckingTimeInterval = 1000;
+
+	mouseMoveIntervalID = setInterval(checkMouseMove, mouseMoveCheckingTimeInterval);
 
 	//intervalID = setInterval(draw, 25);
 	intervalID = setInterval(drawDriver, 25);
 
+	
+	
+	// Set the time interval for auto refreshing
+	var autoRefreshingTimeInterval = 500000;
+	
 	// Set the refresh rate
-	//setInterval(AddNewData, 500000);
+	setInterval(AddNewData, autoRefreshingTimeInterval);
 </script>
 </body>
 </html>
