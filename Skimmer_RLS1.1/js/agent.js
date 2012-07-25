@@ -197,6 +197,7 @@ Agent.prototype.update = function(delta){
 	if( this.posBuffer.length > this.POS_BUFFER_SIZE ) {
 		this.posBuffer.pop();
 	}
+	
 	//important
 	this.posBuffer.push(this.pos);
 	var x = 0, y = 0;
@@ -209,8 +210,8 @@ Agent.prototype.update = function(delta){
 		this.posBuffer.forEach(addValue);
 		
 		if(this.moveFlag == true || this.enableRemoveJitter == false){
-		this.avgPos.set((x / this.posBuffer.length), (y / this.posBuffer.length));
-		this.lastPosition.setVect(this.avgPos);
+			this.avgPos.set((x / this.posBuffer.length), (y / this.posBuffer.length));
+			this.lastPosition.setVect(this.avgPos);
 		}
 		
 		if(this.moveFlag == false && this.enableRemoveJitter == true && this.GLOBAL_COUNT%this.SMOOTH_FREQUENCY == 0){
@@ -223,43 +224,43 @@ Agent.prototype.update = function(delta){
 		}
 		
 		if(this.enableRemoveJitter == true){
-		this.position_queue[this.CURRENT_POSITION].set((x / this.posBuffer.length), (y / this.posBuffer.length));
-		this.CURRENT_POSITION = (this.CURRENT_POSITION+1)%this.POSITION_QUEUE_MAX;
-		
-		if(this.GLOBAL_COUNT%this.DETECT_FREQUENCY == 0){
+			this.position_queue[this.CURRENT_POSITION].set((x / this.posBuffer.length), (y / this.posBuffer.length));
+			this.CURRENT_POSITION = (this.CURRENT_POSITION+1)%this.POSITION_QUEUE_MAX;
 			
-		
-			var a = new Vector2();
-			var tmp = new Vector2();
+			if(this.GLOBAL_COUNT%this.DETECT_FREQUENCY == 0){
+				
 			
+				var a = new Vector2();
+				var tmp = new Vector2();
+				
+				
+				a.setVect(this.getSum());
+				tmp.setVect(this.getSum());
+				
+				a.sub(this.previous_avgP);
+				a.scale(1.0 / this.POSITION_QUEUE_MAX);
+				
+				
+				this.previous_avgP.setVect(tmp);
 			
-			a.setVect(this.getSum());
-			tmp.setVect(this.getSum());
-			
-			a.sub(this.previous_avgP);
-			a.scale(1.0 / this.POSITION_QUEUE_MAX);
-			
-			
-			this.previous_avgP.setVect(tmp);
-		
-			//console.log(a.length()+"\n");
-			
-			if(a.length() != NaN && a.length() < this.JITTER_DISTANCE){
-			
-			//console.log("FIXED");
-			this.moveFlag = false;
-			
+				//console.log(a.length()+"\n");
+				
+				if(a.length() != NaN && a.length() < this.JITTER_DISTANCE){
+				
+				//console.log("FIXED");
+				this.moveFlag = false;
+				
+				}
+				
+				else if(a.length() != NaN && a.length() >= this.JITTER_DISTANCE)
+				{
+				//console.log("MOVE");
+				this.moveFlag = true;	
+				}
+				
+				
 			}
-			
-			else if(a.length() != NaN && a.length() >= this.JITTER_DISTANCE)
-			{
-			//console.log("MOVE");
-			this.moveFlag = true;	
-			}
-			
-			
-		}
-		//console.log(this.GLOBAL_COUNT+"\n");
+			//console.log(this.GLOBAL_COUNT+"\n");
 		
 		}
 			

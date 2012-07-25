@@ -1138,6 +1138,7 @@ Skimmer.prototype.update = function(delta){
 						atob.negate();
 						velocityA.set(atob.x, atob.y);
 						
+						
 						this.agents[i].addOverlap(velocityA);
 						this.agents[j].addOverlap(velocityB);
 					}
@@ -1146,12 +1147,17 @@ Skimmer.prototype.update = function(delta){
 						
 						//idealSep = idealSep * Math.sqrt(this.width * this.width + this.height * this.height) / Math.sqrt(1024 * 1024 + 768 * 768);
 						
-						sepDiff = (idealSep - sep);
+						//sepDiff = (idealSep - sep);
+						
+						
+						// A ratio is set the the x and y coordinates saperatedly so that the cicles will fill up the whole screen
+						var RatioXY = this.height / this.width;
+						
+						sepDiff = (idealSep - Math.sqrt(RatioXY * atob.x * atob.x + 1.0 / RatioXY * atob.y * atob.y));
 						
 						var speed = Math.abs(sepDiff) * 1.25;
 						
 						
-						/*
 						atob.normalize();
 						
 						if(sepDiff > 0.0){
@@ -1169,14 +1175,25 @@ Skimmer.prototype.update = function(delta){
 						velocityA.scale(speed);
 						velocityB.scale(speed);						
 						
+						
+
+						/*
+						var diag = Math.sqrt(this.width * this.width + this.height * this.height);
+						velocityA.x = velocityA.x * this.width / diag;
+						velocityA.y = velocityA.y * this.height / diag;
+						velocityB.x = velocityB.x * this.width / diag;
+						velocityB.y = velocityB.y * this.height / diag;
 						*/
 						
 						
+						/*
 						// calculathe the projection of the idealSep on two coordinates
 						// Horizonal ideal distance between angents
-						idealSepX = Math.abs(idealSep * atob.x / sep);
+						idealSepX = Math.abs(idealSep * this.width / diag);
+						//idealSepX = Math.abs(idealSep * atob.x / sep);
 						// Vertical ideal distance between angents
-						idealSepY = Math.abs(idealSep * atob.y / sep);
+						idealSepY = Math.abs(idealSep * this.height / diag);
+						//idealSepY = Math.abs(idealSep * atob.y / sep);
 
 						// Calculate the horizonal speed and the vertical speed separatedly
 						var ratioX = this.width / 1024;
@@ -1184,11 +1201,12 @@ Skimmer.prototype.update = function(delta){
 
 
 						var velocityField = new Vector2();
-						velocityField.set(atob.length() / 4, atob.length() / 4);
+						//velocityField.set(atob.length() / 4, atob.length() / 4);
+						velocityField.set(0, 0);
 
 
 						// Some transformations of the ratios are done to adjust the scale of the circles on the screen
-						if(idealSepX * ratioX - Math.abs(atob.x) > 0.0){
+						if(idealSepX - Math.abs(atob.x) > 0.0){
 							velocityB.x = atob.x + velocityField.x;
 							velocityA.x = - atob.x - velocityField.x;
 
@@ -1203,7 +1221,7 @@ Skimmer.prototype.update = function(delta){
 							//velocityB.sub(velocityField);
 						}
 
-						if(idealSepY * ratioY - Math.abs(atob.y) > 0.0){
+						if(idealSepY - Math.abs(atob.y) > 0.0){
 							velocityB.y = atob.y + velocityField.y;
 							velocityA.y = - atob.y - velocityField.y;
 
@@ -1218,17 +1236,24 @@ Skimmer.prototype.update = function(delta){
 							//velocityB.sub(velocityField);
 						}
 						
+						*/
 						
+						/*
+						velocityA.x = 2 * velocityA.x / Math.abs(velocityA.x) * Math.sqrt(Math.abs(velocityA.x));
+						velocityA.y = 2 * velocityA.y / Math.abs(velocityA.y) * Math.sqrt(Math.abs(velocityA.y));
+						velocityB.x = 2 * velocityB.x / Math.abs(velocityB.x) * Math.sqrt(Math.abs(velocityB.x));
+						velocityB.y = 2 * velocityB.y / Math.abs(velocityB.y) * Math.sqrt(Math.abs(velocityB.y));
+						*/
 						
-						velocityA.normalize();
-						velocityB.normalize();
+						//velocityA.normalize();
+						//velocityB.normalize();
 
 						
 						
 						// Scaling based on distance to ideal sep. //
-						velocityA.scale(speed);
-						velocityB.scale(speed);
-						
+						//velocityA.scale(speed);
+						//velocityB.scale(speed);
+
 						
 						
 						// Fix random bug. //
@@ -1605,10 +1630,11 @@ Skimmer.prototype.getIdealSeparation = function(agentA, agentB){
 	
 	var overlap = (overlapA + overlapB) / 2;
 	
-	var idealVennSep = Math.abs(radiusA + radiusB - overlap);
+	//var idealVennSep = Math.abs(radiusA + radiusB - overlap);
+	var idealVennSep = Math.abs(radiusA + radiusB - overlap) * Math.sqrt(this.height * this.height + this.width * this.width) / this.height;
+
 	
-	
-	
+	/*
 	var scale;
 	
 	if (this.height > this.width) {
@@ -1617,10 +1643,11 @@ Skimmer.prototype.getIdealSeparation = function(agentA, agentB){
 	else {
 		scale = this.height;
 	}
-	
+	*/
 	
 	//var idealCoSep = ( 1.0 - (coCount / this.maxCooccurrence)) * this.height * 0.65;
-	var idealCoSep = ( 1.0 - (coCount / this.maxCooccurrence)) * 1280 * 0.35;
+	//var idealCoSep = ( 1.0 - (coCount / this.maxCooccurrence)) * 1280 * 0.35;
+	var idealCoSep = ( 1.0 - (coCount / this.maxCooccurrence)) * Math.sqrt(this.height * this.height + this.width * this.width) * 0.3;
 	
 	if(overlap > 5){
 		return idealVennSep;
