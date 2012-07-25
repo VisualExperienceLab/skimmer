@@ -307,15 +307,15 @@
 	}
 
 	function buildAgentLinkList(){
-		ctx.globalAlpha = 0;
+		//ctx.globalAlpha = 0;
 		for(var i = 0; i < skimmer.agents.length; i++){
 			for(var j = 0; j < skimmer.articles.length; j++){
 				if(skimmer.articles[j].words.indexOf(skimmer.agents[i].text) > -1 || skimmer.articles[j].titlewords.indexOf(skimmer.agents[i].text)  > -1 ){
 					if(skimmer.articles[j].imageUrl != null){
-						var tmpImg = new Image();
-						tmpImg.src = skimmer.articles[j].imageUrl;
-						ctx.drawImage = (tmpImg,0,0);
-						if(tmpImg.width > 0 && tmpImg.height > 0)
+						//var tmpImg = new Image();
+						//tmpImg.src = skimmer.articles[j].imageUrl;
+						//ctx.drawImage = (tmpImg,0,0);
+						//if(tmpImg.width > 0 && tmpImg.height > 0)
 						skimmer.agents[i].imageLinkList.push(skimmer.articles[j].imageUrl);
 						
 					
@@ -323,7 +323,7 @@
 				}
 			}		
 		}
-		ctx.globalAlpha = 1;
+		//ctx.globalAlpha = 1;
 	}
 	
 
