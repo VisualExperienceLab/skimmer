@@ -73,6 +73,8 @@ function Agent(){
 	this.imageLinkList = new Array();
 	this.imageFrequency = 0;
 	this.imageIndex = 0;
+	this.imageLinkValidation = 0;
+
 }
 
 Agent.prototype.initPStack = function(){

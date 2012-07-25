@@ -286,9 +286,9 @@
 			for(var j = 0; j < skimmer.articles.length; j++){
 				if(skimmer.articles[j].words.indexOf(skimmer.agents[i].text) > -1 || skimmer.articles[j].titlewords.indexOf(skimmer.agents[i].text)  > -1 ){
 					if(skimmer.articles[j].imageUrl != null){
-						var tmpImg = new Image();
-						tmpImg.src = skimmer.articles[j].imageUrl;
-						if(tmpImg.width > 0 && tmpImg.height > 0)
+					//	var tmpImg = new Image();
+					//	tmpImg.src = skimmer.articles[j].imageUrl;
+					//	if(tmpImg.width > 0 && tmpImg.height > 0)
 						skimmer.agents[i].imageLinkList.push(skimmer.articles[j].imageUrl);
 						
 					
@@ -631,9 +631,14 @@
 						imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 						ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 						
+						if(imgNews.width > 0)
+						skimmer.agents[i].imageLinkValidation = 1;
+						else
+						skimmer.agents[i].imageLinkValidation = 0;
 						
 					}
 					catch(e){
+						skimmer.agents[i].imageLinkValidation = 0;
 						console.log(imgNews.src);
 						
 					    
@@ -694,7 +699,7 @@
 				
 			//back ground color
 			
-		if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1)	{
+		if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 && agent.imageLinkValidation == 1)	{
 	
 				ctx.save();
 				ctx.beginPath();
