@@ -642,14 +642,14 @@
 				if (skimmer.agents[i].imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 )	{
 					var imgNews = new Image();
 					try{
-						if(++skimmer.agents[i].imageFrequency%150 == 0 && Math.random() < 0.5)
+						if(skimmer.agents[i].imageFrequency++%150 == 0 && Math.random() < 0.5)
 						skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 						
 						imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
+						if(imgNews.width > 0){
 						ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-						
-						if(imgNews.width > 0)
 						skimmer.agents[i].imageLinkValidation = 1;
+						}
 						else
 						skimmer.agents[i].imageLinkValidation = 0;
 						

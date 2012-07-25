@@ -74,6 +74,7 @@ function Agent(){
 	this.imageFrequency = 0;
 	this.imageIndex = 0;
 	this.imageLinkValidation = 0;
+	this.switchPicture = 0;
 
 }
 
