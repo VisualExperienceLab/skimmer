@@ -736,12 +736,14 @@
 						imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 						*/
 						if(skimmer.agents[i].switchPicture == 0){
-							
+						
 							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 	 						
 	 						if(skimmer.agents[i].validImageFlag == 1 && imgNews.width > 0 )
 	 							{
-	 								skimmer.agents[i].validImageFlag = 0; skimmer.agents[i].validImage.src = imgNews.src;
+	 								skimmer.agents[i].validImageFlag = 0; 
+									skimmer.agents[i].validImage = new Image();
+									skimmer.agents[i].validImage.src = imgNews.src;
 	 							}
 	 								
 	 						
@@ -793,7 +795,7 @@
 							
 							skimmer.agents[i].switchPicture ++;
 							ctx.globalAlpha = 1 ;
-						
+							
 							if ( fflag == 2 )
 							//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 							drawAvoidStretch(ctx,skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
@@ -803,7 +805,7 @@
 							drawAvoidStretch(ctx,newImg,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 							
 							
-							
+							newImg=null;
 						}
 						else{
 							skimmer.agents[i].switchPicture = 0 ;	
@@ -843,6 +845,10 @@
 						
 						else
 							skimmer.agents[i].imageLinkValidation = 0;
+							
+							
+							
+							
 						
 					}
 					catch(e){
@@ -851,6 +857,8 @@
 						
 					    
 					}
+					imgNews=null;
+					
 				}
 				ctx.restore();
 			}
