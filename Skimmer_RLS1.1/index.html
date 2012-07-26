@@ -726,7 +726,7 @@
 					try{
 						if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 						
-						if(++skimmer.agents[i].imageFrequency%150 == 0 && Math.random() < 0.5 || skimmer.agents[i].switchPicture > 0){
+						if(++skimmer.agents[i].imageFrequency%100 == 0 && Math.random() < 0.8 || skimmer.agents[i].switchPicture > 0){
 						/*
 						if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 						
@@ -755,7 +755,7 @@
 								skimmer.agents[i].switchPicture ++;
 						}
 						
-						else if(skimmer.agents[i].switchPicture < 11 ){
+						else if(skimmer.agents[i].switchPicture < 21 ){
 							
 							ctx.fillStyle = "#000";
 							ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2), 0, Math.PI * 2, false); 
@@ -763,7 +763,7 @@
 							
 							var inc = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 							var fflag = 0;
-							ctx.globalAlpha = 1 - skimmer.agents[i].switchPicture/ 10.0;
+							ctx.globalAlpha = 1 - skimmer.agents[i].switchPicture/ 20.0;
 							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 	 						
 	 						if ( imgNews.width > 0 )
