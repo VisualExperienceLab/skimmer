@@ -762,6 +762,11 @@ Skimmer.prototype.updateAgents = function(){
 				var curPair = topPairs[j];
 				var curCoCount = this.cooccurrences.get(curPair);
 				
+				// Remove duplication
+				if (pair == curPair) {
+					break;
+				}
+
 				if(coCount >= curCoCount){
 					topPairs = topPairs.add(pair,j);
 					break;
@@ -781,6 +786,11 @@ Skimmer.prototype.updateAgents = function(){
 					var curPair = topPairs[j];
 					var curCoCount = this.cooccurrences.get(curPair);
 					
+					// Remove duplication
+					if (pair == curPair) {
+						break;
+					}
+
 					if(coCount >= curCoCount){
 						topPairs = topPairs.add(pair,j);
 						break;
@@ -2532,6 +2542,11 @@ Skimmer.prototype.updateAgentsAdd = function(){
 				var curPair = topPairs[j];
 				var curCoCount = this.cooccurrences.get(curPair);
 				
+				// Remove duplication
+				if (pair == curPair) {
+					break;
+				}
+				
 				if(coCount >= curCoCount){
 					topPairs = topPairs.add(pair,j);
 					break;
@@ -2551,6 +2566,11 @@ Skimmer.prototype.updateAgentsAdd = function(){
 					var curPair = topPairs[j];
 					var curCoCount = this.cooccurrences.get(curPair);
 					
+					// Remove duplication
+					if (pair == curPair) {
+						break;
+					}
+
 					if(coCount >= curCoCount){
 						topPairs = topPairs.add(pair,j);
 						break;
