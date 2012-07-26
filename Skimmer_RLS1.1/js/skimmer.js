@@ -104,7 +104,10 @@ function Skimmer(canvasOffsetLeft, canvasOffsetTop, canvasWidth, canvasHeight, f
 	this.SMUDGE_FORCE = 500;
 	
 	this.TITLE_WEIGHT = 100;
+	
+	// This value is originally 2, but I set it 1 for more words
 	this.MIN_NUM_OCCURRENCES = 2;
+
 	this.SORTED_OCCURRENCE_LIST_SIZE = 2000;
 	this.MAX_NUM_PAIRS = 200;
 	this.MAX_NUM_AGENTS = 50;
@@ -726,7 +729,7 @@ Skimmer.prototype.updateAgents = function(){
 		}
 		else{
 			var lastWord = topWords[topWords.length - 1];
-			var lastOccurrence = this.occurrences.get(lasWord);
+			var lastOccurrence = this.occurrences.get(lastWord);
 			if(occurrence > lastOccurrence){
 				topWords.pop();
 				for(var j = 0; j < topWords.length; j++){
@@ -2224,7 +2227,6 @@ Skimmer.prototype.UpdateSkimmer = function(feedResult, numEntries){
 	this.SMUDGE_FORCE = 500;
 	
 	this.TITLE_WEIGHT = 100;
-	this.MIN_NUM_OCCURRENCES = 2;
 	this.SORTED_OCCURRENCE_LIST_SIZE = 2000;
 	this.MAX_NUM_PAIRS = 200;
 	this.MAX_NUM_AGENTS = 50;
@@ -2499,7 +2501,7 @@ Skimmer.prototype.updateAgentsAdd = function(){
 		}
 		else{
 			var lastWord = topWords[topWords.length - 1];
-			var lastOccurrence = this.occurrences.get(lasWord);
+			var lastOccurrence = this.occurrences.get(lastWord);
 			if(occurrence > lastOccurrence){
 				topWords.pop();
 				for(var j = 0; j < topWords.length; j++){
@@ -2918,7 +2920,6 @@ Skimmer.prototype.ChangeUsingXMLSource = function(){
 	this.SMUDGE_FORCE = 500;
 	
 	this.TITLE_WEIGHT = 100;
-	this.MIN_NUM_OCCURRENCES = 2;
 	this.SORTED_OCCURRENCE_LIST_SIZE = 2000;
 	this.MAX_NUM_PAIRS = 200;
 	this.MAX_NUM_AGENTS = 50;
