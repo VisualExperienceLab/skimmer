@@ -604,7 +604,7 @@
 	function drawAvoidStretch(ctx, img, dx, dy, dw, dh){
 		
 		var minLength = img.width>img.height?img.height:img.width;
-		if ( minLength * 1.0 / dw > 1 )   
+		if ( minLength * 1.0 / dw > 0.5 )   
 		//center
 		{
 			if(img.width>img.height){
@@ -618,9 +618,10 @@
 		//fade with color
 		{
 			//alert("yes"+img.src);
-			ctx.save();
-			ctx.arc(dx+dw*0.5,dy+dh*0.5,minLength*0.5, 0,Math.PI*2,true);
-			ctx.clip();
+			
+			//ctx.save();
+			//ctx.arc(dx+dw*0.5,dy+dh*0.5,minLength*0.5, 0,Math.PI*2,true);
+			//ctx.clip();
 			//ctx.drawImage(img,dx+dw*0.5-minLength*0.5*2,dy+dh*0.5-minLength*0.5*2, )
 		
 			if(img.width>img.height){
@@ -630,7 +631,7 @@
 				ctx.drawImage(img,0, 0.5*(img.height-img.width),img.width,img.width,dx+dw*0.5-minLength*0.5,dy+dh*0.5-minLength*0.5,minLength,minLength);
 			}
 			
-			ctx.restore();
+			//ctx.restore();
 			
 			
 		
@@ -867,9 +868,6 @@
 						
 						else
 							skimmer.agents[i].imageLinkValidation = 0;
-							
-							
-							
 							
 						
 					}
