@@ -41,8 +41,9 @@
 	var linkFlag = 0;
 	var showImageFlag = 1;
 	var checkImageUrlFlag = 0;
-	//var imgLinkInvalid = 0;
-	
+	var depthOrder = new Array();
+	var depthChangeCount = 0 ;
+	var DEPTHLAYER = 5;
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
 	
@@ -141,17 +142,6 @@
 			// Set the action when the "Enter" button is pressed down
 			document.getElementById("skimmerSearching").click();
 		 }
-	}
-	
-	function convertUrl(oldUrl){
-		
-		var tmpUrl = oldUrl;
-		var tmppat = new RegExp("_m.jpg");
-		if(tmppat.test(tmpUrl)){ 
-			tmpUrl = tmpUrl.replace("_m.jpg","_b.jpg"); //alert(tmpUrl);
-		}
-		return tmpUrl;
-		
 	}
 	
 	
@@ -332,7 +322,7 @@
 	
 
 	function buildAgentLinkList(){
-		//requestImageResource();
+		
 		for(var i = 0; i < skimmer.agents.length; i++){
 			for(var j = 0; j < skimmer.articles.length; j++){
 				if(skimmer.articles[j].words.indexOf(skimmer.agents[i].text) > -1 || skimmer.articles[j].titlewords.indexOf(skimmer.agents[i].text)  > -1 ){
@@ -345,7 +335,15 @@
 				}
 			}		
 		}
-		//checkImageUrlFlag = 0 ;
+		
+		for(var i = 0; i < skimmer.agents.length; i++){
+			depthOrder[i]=new Array();
+			depthOrder[i][0]=depthOrder[i][1]=i;
+		}
+		//alert("skimmer.agents.length  "+skimmer.agents.length)
+		//alert("depthOrder.length "+depthOrder.length);
+		//alert("oj");
+	
 	}
 	
 
@@ -641,8 +639,28 @@
 		
 		// Draw the circles. //
 		if( skimmer.DRAW_CIRCLES ) {
-			for(var i = 0; i < skimmer.agents.length; i++){
+			
+			if(depthOrder.length != 0 && depthOrder.length == skimmer.agents.length){
+			if( depthChangeCount > 100000 ) depthChangeCount = 0 ;
+			
+			
+			if( ++depthChangeCount%20 == 0 ){
+			depthOrder.sort(function(a,b) {return a[1]-b[1]});
+			//alert(depthOrder);
+			
+			}
+			
+			for(var i=0;i<depthOrder.length;i++){ depthOrder[i][1] = (depthOrder[i][1]+1)%DEPTHLAYER; }
+			//alert("inc"+depthOrder);
+			}
+			
 				
+			
+			for(var pi = 0; pi < skimmer.agents.length; pi++){
+				if(depthOrder.length != 0 &&  depthOrder.length == skimmer.agents.length)
+				i = depthOrder[pi][0];
+				else
+				i=pi;
 				//if(skimmer.agents[i].scaleEnable == true){
 				//	skimmer.agents[i].avgPos.x *= 2;
 				//	skimmer.agents[i].scaleEnable  = false ;
