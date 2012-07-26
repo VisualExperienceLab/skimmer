@@ -44,9 +44,17 @@ USER GUIDE:
 	1. You can change the content between the tags <sourceconfig> and </sourceconfig> to set the sources to be displayed in the skimmer
 	2. The content between tags <source> and </source> refers to a source for the simmer
 	3. The content between tags <website> and </website> is some of the websites that can be used to search ketwords from sources
-		Available website tags are
+		Valid website tags are
 			a. ncsu_twitter
 			b. google_news
 			c. flickr
-	4. The content between tags <keyword> and </keyword> defines the keyword to be searched when
+	4. The content between tags <keyword> and </keyword> defines the keyword to be searched when the tags <website> and </website> are used
+	5. The content between tags <color> and </color> refers to the color scheme
+		Valid color schemes are
+			a. random
+			b. dictionary
+			c. emotion
+			default: random
+	6. The content between tags <feed> and </feed> is the accurate URL for the RSS feed when the URL is available
+		ATTENTION: Make sure the URL is valid before it is used as feed
 -->
