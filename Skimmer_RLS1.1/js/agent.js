@@ -75,6 +75,8 @@ function Agent(){
 	this.imageIndex = 0;
 	this.imageLinkValidation = 0;
 	this.switchPicture = 0;
+	this.validImage = new Image();
+	this.validImageFlag = 1;
 
 }
 
