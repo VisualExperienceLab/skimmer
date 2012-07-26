@@ -604,7 +604,9 @@
 	function drawAvoidStretch(ctx, img, dx, dy, dw, dh){
 		
 		var minLength = img.width>img.height?img.height:img.width;
-		if ( minLength * 1.0 / dw > 0.5 )   
+		
+		var stretchFactor = 0.5;
+		if ( minLength * 1.0 / dw > stretchFactor )   
 		//center
 		{
 			if(img.width>img.height){
@@ -620,16 +622,20 @@
 			//alert("yes"+img.src);
 			
 			//ctx.save();
-			//ctx.arc(dx+dw*0.5,dy+dh*0.5,minLength*0.5, 0,Math.PI*2,true);
+			//ctx.arc(dx+dw*0.5,dy+dh*0.5,minLength/ stretchFactor*0.5, 0,Math.PI*2,true);
 			//ctx.clip();
 			//ctx.drawImage(img,dx+dw*0.5-minLength*0.5*2,dy+dh*0.5-minLength*0.5*2, )
-		/*
+		
 			if(img.width>img.height){
-				ctx.drawImage(img,0.5*(img.width-img.height),0,img.height,img.height,dx+dw*0.5-minLength*0.5*2,dy+dh*0.5-minLength*0.5*2,minLength*2,minLength*2 );
+				ctx.drawImage(img,0.5*(img.width-img.height),0,img.height,img.height,dx+dw*0.5-minLength*0.5 / stretchFactor,dy+dh*0.5-minLength*0.5/ stretchFactor,minLength/ stretchFactor,minLength/ stretchFactor );
 			}
 			else{
-				ctx.drawImage(img,0, 0.5*(img.height-img.width),img.width,img.width,dx+dw*0.5-minLength*0.5*2,dy+dh*0.5-minLength*0.5*2,minLength*2,minLength*2);
+				ctx.drawImage(img,0, 0.5*(img.height-img.width),img.width,img.width,dx+dw*0.5-minLength*0.5/ stretchFactor,dy+dh*0.5-minLength*0.5/ stretchFactor,minLength/ stretchFactor,minLength/ stretchFactor);
 			}
+			
+			//ctx.restore();
+		/*	
+		
 			var radgrad = ctx.createRadialGradient(dx+dw*0.5,dy+dh*0.5,0,dx+dw*0.5,dy+dh*0.5,dw);
 			radgrad.addColorStop(0.1,'rgba(255,0,0,0)');
 			radgrad.addColorStop(0.3,'rgba(255,0,0,1)');
@@ -744,7 +750,7 @@
 					try{
 						if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 						
-						if(++skimmer.agents[i].imageFrequency%100 == 0 && Math.random() < 0.8 || skimmer.agents[i].switchPicture > 0){
+						if(++skimmer.agents[i].imageFrequency%20 == 0 && Math.random() < 0.8 || skimmer.agents[i].switchPicture > 0){
 						/*
 						if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 						
@@ -1936,7 +1942,7 @@
 	// Initially set basic mannual mode
 	AdvancedSearchDriver();
 	// Initially set automated mode
-	autoModeDriver();
+	//autoModeDriver();
 	
 
 	// Set the time interval for mouse move checking
