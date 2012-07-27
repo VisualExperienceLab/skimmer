@@ -600,12 +600,15 @@
 	}
 	
 	
-	function drawAvoidStretch(ctx, img, color,dx, dy, dw, dh){
+	function drawAvoidStretch(agent,ctx, img, color,dx, dy, dw, dh){
 		
 		var minLength = img.width>img.height?img.height:img.width;
 		
 		var stretchFactor = 1;
-		if ( minLength * 1.0 / dw > stretchFactor )   
+		if (minLength < LEAST_IMAGE_WIDTH)
+		{
+		}
+		else if ( minLength * 1.0 / dw > stretchFactor )   
 		//center
 		{
 			ctx.save();
@@ -618,16 +621,22 @@
 				//ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius/2),0,Math.PI*2,true);
 				//ctx.closePath();
 				//ctx.clip();
+			
+			
+			
 			if(img.width>img.height){
 				ctx.drawImage(img,0.5*(img.width-img.height),0,img.height,img.height, dx, dy, dw, dh);
 			}
 			else{
 				ctx.drawImage(img,0, 0.5*(img.height-img.width),img.width,img.width, dx, dy, dw, dh);
 			}
+			if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 ))
+			{
+			ctx.fillStyle= 'rgba(100,100,100,0.5)';
+			ctx.fillRect(dx,dy,dw,dh);
+			}
 			ctx.restore();
 		}
-		else if (minLength < LEAST_IMAGE_WIDTH)
-		{}
 		else       
 		//fade with color
 		{
@@ -642,11 +651,19 @@
 			ctx.clip();
 			
 			//ctx.drawImage(img,dx,dy,dw,dh);
+			
+			
+			
 			if(img.width>img.height){
 				ctx.drawImage(img,0.5*(img.width-img.height),0,img.height,img.height,dx+dw*0.5-minLength*0.5 / stretchFactor,dy+dh*0.5-minLength*0.5/ stretchFactor,minLength/ stretchFactor,minLength/ stretchFactor );
 			}
 			else{
 				ctx.drawImage(img,0, 0.5*(img.height-img.width),img.width,img.width,dx+dw*0.5-minLength*0.5/ stretchFactor,dy+dh*0.5-minLength*0.5/ stretchFactor,minLength/ stretchFactor,minLength/ stretchFactor);
+			}
+			if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 ))
+			{
+			ctx.fillStyle= 'rgba(100,100,100,0.5)';
+			ctx.fillRect(dx,dy,dw,dh);
 			}
 			
 			ctx.restore();
@@ -884,10 +901,8 @@ function draw(){
 				i = depthOrder[pi][0];
 			else
 				i = pi;
-
+				
 			var agent = skimmer.agents[i];
-
-
 
 			var alpha = parseFloat( 0.75 * ( parseFloat( agent.TICKS_TILL_FADE - agent.curTicksTillFade ) / agent.TICKS_TILL_FADE ) );
 			if( alpha > 1.0 ) { alpha = 1.0; }
@@ -944,10 +959,10 @@ function draw(){
 
 							if ( imgNews.width > LEAST_IMAGE_WIDTH )
 								//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+								drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 							else if (skimmer.agents[i].validImageFlag == 0)
 								//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+								drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 
 							skimmer.agents[i].switchPicture ++;
 						}
@@ -965,11 +980,11 @@ function draw(){
 
 							if ( imgNews.width > LEAST_IMAGE_WIDTH )
 								//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+								drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 
 							else if (skimmer.agents[i].validImageFlag == 0){
 								//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(ctx,skimmer.agents[i].validImage, agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+								drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage, agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 								fflag++;
 							}
 
@@ -980,11 +995,11 @@ function draw(){
 
 							if ( newImg.width > LEAST_IMAGE_WIDTH )
 								//ctx.drawImage(newImg,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+								drawAvoidStretch(agent,ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 
 							else if (skimmer.agents[i].validImageFlag == 0){
 								//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+								drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 
 								fflag++;
 							}
@@ -994,11 +1009,11 @@ function draw(){
 
 							if ( fflag == 2 )
 								//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+								drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 
 							else if (newImg.src == imgNews.src)
 								//ctx.drawImage(newImg, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+								drawAvoidStretch(agent,ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 
 
 							newImg=null;
@@ -1010,11 +1025,11 @@ function draw(){
 
 							if ( imgNews.width > LEAST_IMAGE_WIDTH )
 								//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+								drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 
 							else if (skimmer.agents[i].validImageFlag == 0)
 								//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(ctx,skimmer.agents[i].validImage,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+								drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 
 
 						}
@@ -1026,11 +1041,11 @@ function draw(){
 						imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 						if ( imgNews.width > LEAST_IMAGE_WIDTH )
 							//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							drawAvoidStretch(ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+							drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 
 						else if (skimmer.agents[i].validImageFlag == 0)
 							//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							drawAvoidStretch(ctx,skimmer.agents[i].validImage,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+							drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 
 					}
 
