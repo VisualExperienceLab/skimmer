@@ -1461,14 +1461,12 @@ function draw(){
 		var heightRatioText = 1.0 / 30;
 		// The ratio of buttons
 		var heightRatioButton = 1.0 / 20;
-		// The ratio of blank between elements
-		var heightRatioBlank = 1.0 / 30;
 		// The ratio of font size
 		var heightRatioFont = 1.0 / 40;
 		
 		
 		// Adjust the blank between two sets of elements
-		tableSel.style.fontSize = Math.round(tableSel.height * heightRatioBlank) + "px";
+		tableSel.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 		
 		// The logo of the project as well as the DGL
 		//skimmerLogo = document.getElementById("skimmerLogo");
@@ -1512,6 +1510,12 @@ function draw(){
 		searchContent.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
 		searchContent.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 
+		
+		chooseEngine = document.getElementById("chooseEngine");
+		chooseEngine.style.width = tableSel.width+"px";	
+		chooseEngine.style.height = Math.round(tableSel.height * heightRatioText)+"px";
+		chooseEngine.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
+		
 
 		advancedSearching = document.getElementById("advancedSearching");
 		advancedSearching.style.width = tableSel.width+"px";
@@ -1575,9 +1579,9 @@ function draw(){
 		var selectVal = selectObj.options[selectIndex].value;
 		
 		switch(selectVal) {
-			case 'ncsu_libpes':
+			case 'ncsu_lib_news':
 				isFlickr = 0;
-				sourceAddress = "http://feeds.feedburner.com/NCSULibrariesPESNews?format=xml";
+				sourceAddress = "http://feeds.feedburner.com/NCSULibrariesNews?format=xml";
 				break;
 			case 'ncsu_events':
 				isFlickr = 0;
@@ -1603,15 +1607,22 @@ function draw(){
 				isFlickr = 1;
 				sourceAddress = "http://api.flickr.com/services/feeds/photos_public.gne?tags=ncsu&lang=en-us&format=rss_200";
 				break;
-			case "lib_newbooks":
+			case "lib_3_m_new":
+				isFlickr = 0;
+				sourceAddress = "http://catalog.lib.ncsu.edu/?service=search&N=206471&output=rss";
+				break;
+			case "lib_1_m_new":
 				isFlickr = 0;
 				sourceAddress = "http://catalog.lib.ncsu.edu/?service=search&N=206470&output=rss";
+				break;
+			case "lib_1_w_new":
+				isFlickr = 0;
+				sourceAddress = "http://catalog.lib.ncsu.edu/?service=search&N=206469&output=rss";
 				break;
 			default:
 				break;
 		}
-	
-	
+		
 		
 		//------------------------------------------- Get the content from the Google Feed Api ----------------------------------------
 		
@@ -1666,40 +1677,31 @@ function draw(){
 	// Search for the content in the skimmer
 	function AdvancedSearching() {
 
-		var selectObj = document.getElementById("chooseSource");
+		// Choose the searching engine from the list
+		var selectObj = document.getElementById("chooseEngine");
 		var selectIndex=selectObj.selectedIndex;
 		var selectVal = selectObj.options[selectIndex].value;
+
+		// Choose the search keyword of the advanced searching mode
+		var inputObj = document.getElementById("searchContent");
+		var inputVal = inputObj.value;
 		
 		switch(selectVal) {
-			case 'ncsu_libpes':
+			case 'ncsu_twitter_search':
 				isFlickr = 0;
-				sourceAddress = "http://feeds.feedburner.com/NCSULibrariesPESNews?format=xml";
-				break;
-			case 'ncsu_events':
-				isFlickr = 0;
-				sourceAddress = "http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&location=&type=N&binary=Y&keywords=";
-				break;
-			case 'ncsu_twitter':
-				isFlickr = 0;
-				var inputObj = document.getElementById("searchContent");
-				var inputVal = inputObj.value;
 				sourceAddress = "http://search.twitter.com/search.rss?q=" + inputVal + "%23ncsu";
-				break;
-			case 'ncsu_facebook':
-				isFlickr = 0;
-				sourceAddress = "http://www.facebook.com/feeds/page.php?format=rss20&id=5983837179";
 				break;
 			case "google_news":
 				isFlickr = 0;
-				var inputObj = document.getElementById("searchContent");
-				var inputVal = inputObj.value;
 				sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=" + inputVal + "&num=100&um=1&ie=UTF-8&output=rss";
 				break;
 			case "flickr_tags":
 				isFlickr = 1;
-				var inputObj = document.getElementById("searchContent");
-				var inputVal = inputObj.value;
 				sourceAddress = "http://api.flickr.com/services/feeds/photos_public.gne?tags=" + inputVal + "&lang=en-us&format=rss_200";
+				break;
+			case "lib_search":
+				isFlickr = 0;
+				sourceAddress = "http://catalog.lib.ncsu.edu/?Nty=1&Ntk=Keyword&service=search&N=0&output=rss&Ntt=" + inputVal;
 				break;
 			default:
 				break;
@@ -1753,8 +1755,8 @@ function draw(){
 	
 	
 	
+	// The driver of he advanced searching mode
 	var advancedFlag = 0;
-
 	function AdvancedSearchDriver() {
 	
 		if (advancedFlag == 0) {
@@ -1796,7 +1798,7 @@ function draw(){
 	var sourceNodes;
 	
 	
-	//
+	// The function used for the automated mode
 	function autoModeFunc()
 	{
 
@@ -1994,17 +1996,22 @@ function draw(){
 									<font color = "white" face = "Arial">Source</font>
 								</td>
 							</tr>
+							
+							<!-- This is used for the basic interactive mode -->
+							<!-- This selection box select the source of the data from a given list of xml feeds -->
 							<tr>
 								<td>
-									<select id="chooseSource">
+									<select id="chooseSource" name="chooseSource">
 										<option value = "ncsu_events">NCSU Events</option>
-										<option value = "ncsu_libpes">NCSU Library</option>
-										<option value = "ncsu_twitter_search">twitter search</option>
-										<option value = "ncsu_twitter_account">twitter account</option>
-										<option value = "ncsu_facebook">NCSU facebook</option>
-										<option value = "google_news">Google News</option>
-										<option value = "flickr_tags">Flickr Images</option>
-										<option value = "lib_newbooks">Library New Books</option>
+										<option value = "ncsu_lib_news">NCSU Library News</option>
+										<option value = "ncsu_twitter_search">Twitter #NCSU</option>
+										<option value = "ncsu_twitter_account">NC State Tweets</option>
+										<option value = "ncsu_facebook">NCSU Facebook Wall</option>
+										<option value = "google_news">NCSU - Google News</option>
+										<option value = "flickr_tags">Flickr NCSU Tag</option>
+										<option value = "lib_3_m_new">New in Last 3 Months</option>
+										<option value = "lib_1_m_new">New in Last Month</option>
+										<option value = "lib_1_w_new">New in Last Week</option>
 									</select>
 								</td>
 							</tr>
@@ -2042,6 +2049,23 @@ function draw(){
 						<table id = "advancedMode" border = "0" cellpadding = "0">
 				
 							<!-- These are used as the Advanced interactive mode -->
+
+							<tr>
+								<td>
+									<font color = "white" face = "Arial">Search Engine</font>
+								</td>
+							</tr>
+							<!-- This selection box select the source of the search engines from a given list of xml feeds -->
+							<tr>
+								<td>
+									<select id="chooseEngine" name="chooseEngine">
+										<option value = "ncsu_twitter_search">twitter search</option>
+										<option value = "google_news">Google News</option>
+										<option value = "flickr_tags">Flickr Images</option>
+										<option value = "lib_search">Library Search</option>
+									</select>
+								</td>
+							</tr>
 							<tr>
 								<td>
 									<font color = "white" face = "Arial">Keyword</font>
