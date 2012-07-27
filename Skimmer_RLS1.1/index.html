@@ -44,6 +44,7 @@
 	var depthOrder = new Array();
 	var depthChangeCount = 0 ;
 	var DEPTHLAYER = 5;
+	var LEAST_IMAGE_WIDTH = 10;
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
 	
@@ -324,6 +325,7 @@
 	function buildAgentLinkList(){
 		
 		for(var i = 0; i < skimmer.agents.length; i++){
+		console.log(i+" "+skimmer.agents[i].text);
 			for(var j = 0; j < skimmer.articles.length; j++){
 				if(skimmer.articles[j].words.indexOf(skimmer.agents[i].text) > -1 || skimmer.articles[j].titlewords.indexOf(skimmer.agents[i].text)  > -1 ){
 					if(skimmer.articles[j].imageUrl != null){
@@ -601,17 +603,24 @@
 	}
 	
 	
-	function drawAvoidStretch(ctx, img, dx, dy, dw, dh){
+	function drawAvoidStretch(ctx, img, color,dx, dy, dw, dh){
 		
 		var minLength = img.width>img.height?img.height:img.width;
 		
 		var stretchFactor = 1;
-		if ( minLength * 1.0 / dw > stretchFactor  ||true)   
+		if ( minLength * 1.0 / dw > stretchFactor )   
 		//center
 		{
 			ctx.save();
-			//ctx.arc(dx+dw*0.5,dy+dh*0.5,dw*0.5,0,2*Math.PI,true);
+			ctx.beginPath();
+			ctx.arc(dx+dw*0.5,dy+dh*0.5,dw*0.5,0,2*Math.PI,true);
+			ctx.closePath();
 			ctx.clip();
+			//ctx.save();
+				//ctx.beginPath();
+				//ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius/2),0,Math.PI*2,true);
+				//ctx.closePath();
+				//ctx.clip();
 			if(img.width>img.height){
 				ctx.drawImage(img,0.5*(img.width-img.height),0,img.height,img.height, dx, dy, dw, dh);
 			}
@@ -620,18 +629,20 @@
 			}
 			ctx.restore();
 		}
+		else if (minLength < LEAST_IMAGE_WIDTH)
+		{}
 		else       
 		//fade with color
 		{
 			//var x=ctx.globalAlpha;
 			
-			//ctx.save();
+			ctx.save();
 			//ctx.globalAlpha = x;
-			
-			//ctx.arc(dx+dw*0.5,dy+dh*0.5,minLength/ stretchFactor*0.5, 0,Math.PI*2,true);
+			ctx.beginPath();
+			ctx.arc(dx+dw*0.5,dy+dh*0.5,minLength/ stretchFactor*0.5, 0,Math.PI*2,true);
 			//ctx.arc(dx+dw*0.5,dy+dh*0.5,dw, 0,Math.PI*2,true);
-			
-			//ctx.clip();
+			ctx.closePath();
+			ctx.clip();
 			
 			//ctx.drawImage(img,dx,dy,dw,dh);
 			if(img.width>img.height){
@@ -641,15 +652,25 @@
 				ctx.drawImage(img,0, 0.5*(img.height-img.width),img.width,img.width,dx+dw*0.5-minLength*0.5/ stretchFactor,dy+dh*0.5-minLength*0.5/ stretchFactor,minLength/ stretchFactor,minLength/ stretchFactor);
 			}
 			
-			//ctx.restore();
-		/*	
-		
-			var radgrad = ctx.createRadialGradient(dx+dw*0.5,dy+dh*0.5,0,dx+dw*0.5,dy+dh*0.5,dw);
-			radgrad.addColorStop(0.1,'rgba(255,0,0,0)');
-			radgrad.addColorStop(0.3,'rgba(255,0,0,1)');
+			ctx.restore();
+			
+		ctx.save();
+			ctx.beginPath();
+			ctx.arc(dx+dw*0.5,dy+dh*0.5,dw*0.5,0,2*Math.PI,true);
+			ctx.closePath();
+			ctx.clip();
+			var radgrad = ctx.createRadialGradient(dx+dw*0.5,dy+dh*0.5,minLength/stretchFactor*0.5*0.7,dx+dw*0.5,dy+dh*0.5,dw);
+			var tmpAlpha = color.alpha;
+			color.alpha = 0;
+			radgrad.addColorStop(0,color);
+			color.alpha = tmpAlpha;
+			radgrad.addColorStop((minLength/stretchFactor*0.5*0.3/(dw-minLength/stretchFactor*0.5*0.7)),color);
+			ctx.fillStyle = radgrad;
 			ctx.fillRect(dx,dy,dw,dh);
-			//ctx.restore();
-			*/
+			ctx.restore();
+			
+			
+			
 		} 
 		
 	}
@@ -726,6 +747,8 @@
 				
 				var agent = skimmer.agents[i];
 
+				
+				
 				var alpha = parseFloat( 0.75 * ( parseFloat( agent.TICKS_TILL_FADE - agent.curTicksTillFade ) / agent.TICKS_TILL_FADE ) );
 				if( alpha > 1.0 ) { alpha = 1.0; }
 				if( alpha < 0.0 ) { alpha = 0.0; }
@@ -758,7 +781,7 @@
 					try{
 						if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 						
-						if(++skimmer.agents[i].imageFrequency%50 == 0 && Math.random() < 1 || skimmer.agents[i].switchPicture > 0){
+						if(++skimmer.agents[i].imageFrequency%100 == 0 && Math.random() < 1 || skimmer.agents[i].switchPicture > 0){
 						/*
 						if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 						
@@ -771,7 +794,7 @@
 						
 							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 	 						
-	 						if(skimmer.agents[i].validImageFlag == 1 && imgNews.width > 0 )
+	 						if(skimmer.agents[i].validImageFlag == 1 && imgNews.width > LEAST_IMAGE_WIDTH )
 	 							{
 	 								skimmer.agents[i].validImageFlag = 0; 
 									skimmer.agents[i].validImage = new Image();
@@ -779,12 +802,12 @@
 	 							}
 	 								
 	 						
-	 						if ( imgNews.width > 0 )
+	 						if ( imgNews.width > LEAST_IMAGE_WIDTH )
 	 							//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(ctx,imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+								drawAvoidStretch(ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 							else if (skimmer.agents[i].validImageFlag == 0)
 								//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(ctx,skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+								drawAvoidStretch(ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 							
 								skimmer.agents[i].switchPicture ++;
 						}
@@ -800,13 +823,13 @@
 							ctx.globalAlpha = 1 - skimmer.agents[i].switchPicture/ 20.0;
 							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 	 						
-	 						if ( imgNews.width > 0 )
+	 						if ( imgNews.width > LEAST_IMAGE_WIDTH )
 	 						//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							drawAvoidStretch(ctx,imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+							drawAvoidStretch(ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 							
 							else if (skimmer.agents[i].validImageFlag == 0){
 							//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							drawAvoidStretch(ctx,skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+							drawAvoidStretch(ctx,skimmer.agents[i].validImage, agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 							fflag++;
 	 						}
 							
@@ -815,13 +838,13 @@
 							newImg.src = skimmer.agents[i].imageLinkList[inc];
 	 						
 	 						
-	 						if ( newImg.width > 0 )
+	 						if ( newImg.width > LEAST_IMAGE_WIDTH )
 	 						//ctx.drawImage(newImg,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							drawAvoidStretch(ctx,newImg,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+							drawAvoidStretch(ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 							
 							else if (skimmer.agents[i].validImageFlag == 0){
 							//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							drawAvoidStretch(ctx,skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+							drawAvoidStretch(ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 						
 							fflag++;
 							}
@@ -831,11 +854,11 @@
 							
 							if ( fflag == 2 )
 							//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							drawAvoidStretch(ctx,skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+							drawAvoidStretch(ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 						
 							else if (newImg.src == imgNews.src)
 							//ctx.drawImage(newImg, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							drawAvoidStretch(ctx,newImg,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+							drawAvoidStretch(ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 							
 							
 							newImg=null;
@@ -845,13 +868,13 @@
 							skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 	 					
-	 						if ( imgNews.width > 0 )
+	 						if ( imgNews.width > LEAST_IMAGE_WIDTH )
 	 						//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							drawAvoidStretch(ctx,imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+							drawAvoidStretch(ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 							
 							else if (skimmer.agents[i].validImageFlag == 0)
 							//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							drawAvoidStretch(ctx,skimmer.agents[i].validImage,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+							drawAvoidStretch(ctx,skimmer.agents[i].validImage,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 							
 	 						
 							}
@@ -861,13 +884,13 @@
 							
 	 	 				//skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
-	 						if ( imgNews.width > 0 )
+	 						if ( imgNews.width > LEAST_IMAGE_WIDTH )
 	 						//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							drawAvoidStretch(ctx,imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+							drawAvoidStretch(ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 							
 							else if (skimmer.agents[i].validImageFlag == 0)
 							//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							drawAvoidStretch(ctx,skimmer.agents[i].validImage,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+							drawAvoidStretch(ctx,skimmer.agents[i].validImage,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 							
 						}
 						
@@ -1877,6 +1900,11 @@
 							<tr>
 								<td>
 									<button type = "button" name = "AdvancedSearchBtn" id = "AdvancedSearchBtn" onclick = AdvancedSearchDriver()>Advanced</button>
+								</td>
+							</tr>	
+							<tr>
+								<td>
+									<input type="range" min="0" max="50" value="0" step="5" />
 								</td>
 							</tr>							
 						</table>
