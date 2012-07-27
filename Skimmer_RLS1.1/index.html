@@ -1593,6 +1593,10 @@ function draw(){
 				isFlickr = 1;
 				sourceAddress = "http://api.flickr.com/services/feeds/photos_public.gne?tags=ncsu&lang=en-us&format=rss_200";
 				break;
+			case "lib_newbooks":
+				isFlickr = 0;
+				sourceAddress = "http://catalog.lib.ncsu.edu/?service=search&N=206470&output=rss";
+				break;
 			default:
 				break;
 		}
@@ -1990,6 +1994,7 @@ function draw(){
 										<option value = "ncsu_facebook">NCSU facebook</option>
 										<option value = "google_news">Google News</option>
 										<option value = "flickr_tags">Flickr Images</option>
+										<option value = "lib_newbooks">Library New Books</option>
 									</select>
 								</td>
 							</tr>
