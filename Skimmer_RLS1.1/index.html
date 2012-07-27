@@ -98,11 +98,11 @@
 				skimmer.colorType = selectVal;
 				skimmer.updateAgentColor();
 
-				feedFinished = 1;
-				
 				// Hide the progress bar when feeding is done
-				
 			}
+
+			feedFinished = 1;
+
 		});
 	}
 	google.setOnLoadCallback(initialize);
@@ -1447,9 +1447,10 @@
 				skimmer.extractAgentMinMax();
 				buildAgentLinkList();
 
-				feedFinished = 1;
-
 			}
+
+			feedFinished = 1;
+
 		});
 
 		google.setOnLoadCallback(initialize);
@@ -1714,14 +1715,14 @@
 
 					skimmer.colorType = selectVal;
 					skimmer.updateAgentColor();
-
-					feedFinished = 1;
 				}
 				else {
 					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
 				}
-
 			}
+			
+			feedFinished = 1;
+
 		});
 
 		google.setOnLoadCallback(initialize);
@@ -1801,14 +1802,14 @@
 
 					skimmer.colorType = selectVal;
 					skimmer.updateAgentColor();
-
-					feedFinished = 1;
 				}
 				else {
 					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
 				}
-
 			}
+
+			feedFinished = 1;
+
 		});
 
 		google.setOnLoadCallback(initialize);
@@ -1961,14 +1962,14 @@
 
 					skimmer.colorType = colorscheme;
 					skimmer.updateAgentColor();
-
-					feedFinished = 1;
-
 				}
 				else {
 					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
 				}
 			}
+
+			feedFinished = 1;
+
 		});
 
 		google.setOnLoadCallback(initialize);
