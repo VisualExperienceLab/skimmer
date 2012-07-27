@@ -53,7 +53,7 @@
 	google.load("feeds", "1");
 	// Define the callback function
 	function initialize() {
-	
+
 		// Reset the feeding flag
 		feedFinished = 0;
 		
@@ -112,6 +112,8 @@
 	// Set the event when a key is pressed
 	function keyDown(event){
 		 var keyCode = ('which' in event) ? event.which : event.keyCode;
+		 
+		 /*
 		 if(keyCode == 27){
 			 if(skimmer.agentArticle != null){
 				 skimmer.agentArticle.remove = true;
@@ -142,8 +144,15 @@
 			 skimmer.updateAgentColor();
 		 }else if(keyCode == 13){
 			// Set the action when the "Enter" button is pressed down
-			document.getElementById("skimmerSearching").click();
+			skimmerSearching();
 		 }
+		 */
+		
+		
+		// When enter the pressed under the advanced mode, advanced searching starts
+		if ((keyCode == 13) && (advancedFlag == 0)) {
+			AdvancedSearching();
+		}
 	}
 	
 	
@@ -184,6 +193,10 @@
 		}
 	}
 	
+	function globalKeyFunc() {
+		mouseMoveFlag = 0;
+	}
+	
 	function hideControlPanel(status) {
 		if (status == "hide") {
 			// Hide the control panel
@@ -197,6 +210,13 @@
 
 			tableSel = document.getElementById("selectFrame");
 			tableSel.hidden = true;
+			
+			
+			
+			tblautoSubFrame = document.getElementById("autoSubFrame");
+			tblautoSubFrame.hidden = true;
+			
+			
 			
 			canvas = document.getElementById("canvas");
 			canvas.width = table.width;
@@ -227,6 +247,11 @@
 
 			tableSel = document.getElementById("selectFrame");
 			tableSel.hidden = false;
+
+
+			tblautoSubFrame = document.getElementById("autoSubFrame");
+			tblautoSubFrame.hidden = false;
+
 			
 			canvas = document.getElementById("canvas");
 			canvas.width = Math.round(table.width * 8.0 / 9);
@@ -309,6 +334,18 @@
 		
 		}
 	}
+
+	
+	function requestImageResource(){
+		ctx.globalAlpha = 0;
+		for(var i=0; i<skimmer.articles.length ; i++){
+				
+				var tmp = new Image();
+				tmp.src = skimmer.articles[j].imageUrl;
+				ctx.drawImage(tmp,0,0);
+		}
+		ctx.globalAlpha = 1;
+	}
 	
 
 	function buildAgentLinkList(){
@@ -337,7 +374,7 @@
 	
 	}
 	
-
+	
 	function mouseClick(event){
 		var cursor = new Vector2();
 		cursor.set(event.clientX - skimmer.left - (skimmer.width / 2), event.clientY - skimmer.top - (skimmer.height / 2 ));
@@ -591,6 +628,7 @@
 		}
 	}
 	
+
 	
 	function drawAvoidStretch(agent,ctx, img, color,dx, dy, dw, dh){
 		
@@ -600,7 +638,7 @@
 		if (minLength < LEAST_IMAGE_WIDTH)
 		{
 		}
-		else if ( minLength * 1.0 / dw > stretchFactor )   
+		else if ( minLength * 1.0 / dw > stretchFactor ||true)   
 		//center
 		{
 			ctx.save();
@@ -632,9 +670,10 @@
 		else       
 		//fade with color
 		{
+			//var x=ctx.globalAlpha;
 			
 			ctx.save();
-			
+			//ctx.globalAlpha = x;
 			ctx.beginPath();
 			ctx.arc(dx+dw*0.5,dy+dh*0.5,minLength/ stretchFactor*0.5, 0,Math.PI*2,true);
 			//ctx.arc(dx+dw*0.5,dy+dh*0.5,dw, 0,Math.PI*2,true);
@@ -665,7 +704,6 @@
 			ctx.closePath();
 			ctx.clip();
 			var radgrad = ctx.createRadialGradient(dx+dw*0.5,dy+dh*0.5,minLength/stretchFactor*0.5*0.7,dx+dw*0.5,dy+dh*0.5,dw);
-			//var radgrad = ctx.createRadialGradient(dx+dw*0.5,dy+dh*0.5,0,dx+dw*0.5,dy+dh*0.5,dw);
 			var tmpAlpha = color.alpha;
 			color.alpha = 0;
 			radgrad.addColorStop(0,color);
@@ -742,6 +780,7 @@
 		//alert(canvas.height);
 
 	}
+	
 	
 	function draw(){
 
@@ -1442,7 +1481,7 @@
 		isFlickr = 0;
 		
 		// Reset the feeding flag
-		feedFinished = 0;
+		//feedFinished = 0;
 		
 		// Construct the news search address with the help of the google news api
 		// THe Source address of the RSS source is kept untouched because when we are to update the RSS feed, there is no need for us to change the RSS source
@@ -1469,7 +1508,7 @@
 
 			}
 
-			feedFinished = 1;
+			//feedFinished = 1;
 
 		});
 
@@ -1515,7 +1554,13 @@
 
 		tableSel = document.getElementById("selectFrame");
 		tableSel.width = Math.round(table.width * 1.0 / 9);
-		tableSel.height = table.height;
+		tableSel.height = table.height * 9 / 10;
+
+
+		tableAutoSubFrame = document.getElementById("autoSubFrame");
+		tableAutoSubFrame.width = Math.round(table.width * 1.0 / 9);
+		tableAutoSubFrame.height = table.height * 1 / 10;
+
 		
 		canvas = document.getElementById("canvas");
 		canvas.width = Math.round(table.width * 8.0 / 9);
@@ -1546,6 +1591,10 @@
 		
 		// Adjust the blank between two sets of elements
 		tableSel.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
+				
+		// Adjust the blank between two sets of elements
+		tableAutoSubFrame.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
+
 		
 		// The logo of the project as well as the DGL
 		//skimmerLogo = document.getElementById("skimmerLogo");
@@ -1566,23 +1615,19 @@
 		chooseSource.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 
 
+		/*
 		academicSearching = document.getElementById("skimmerSearching");
 		academicSearching.style.width = tableSel.width+"px";	
 		academicSearching.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
 		academicSearching.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
-			
+		*/
 
-		addData = document.getElementById("addData");
-		addData.style.width = tableSel.width+"px";
-		addData.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
-		addData.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
-
-
+		/*
 		autoMode = document.getElementById("autoMode");
 		autoMode.style.width = tableSel.width+"px";
 		autoMode.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
 		autoMode.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
-
+		*/
 
 		searchContent = document.getElementById("searchContent");
 		searchContent.style.width = tableSel.width+"px";
@@ -1595,18 +1640,19 @@
 		chooseEngine.style.height = Math.round(tableSel.height * heightRatioText)+"px";
 		chooseEngine.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 		
-
+		/*
 		advancedSearching = document.getElementById("advancedSearching");
 		advancedSearching.style.width = tableSel.width+"px";
 		advancedSearching.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
 		advancedSearching.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
-		
-		
+		*/
+
+		/*
 		AdvancedSearchBtn = document.getElementById("AdvancedSearchBtn");
 		AdvancedSearchBtn.style.width = tableSel.width+"px";
 		AdvancedSearchBtn.style.height = Math.round(tableSel.height * heightRatioButton)+"px";
 		AdvancedSearchBtn.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
-		
+		*/
 		
 	}
 
@@ -1842,6 +1888,7 @@
 	
 	// The driver of he advanced searching mode
 	var advancedFlag = 0;
+	/*
 	function AdvancedSearchDriver() {
 	
 		if (advancedFlag == 0) {
@@ -1864,7 +1911,7 @@
 		}
 		
 	}
-
+	*/
 	
 	
 	//-----------------------------------------------------------------------------------------------------------	
@@ -1886,8 +1933,6 @@
 	// The function used for the automated mode
 	function autoModeFunc()
 	{
-
-
 		// Get the source address from the xml file
 
 		websiteNodes = sourceNodes[sourceSelectOrder].getElementsByTagName("website");
@@ -1966,7 +2011,7 @@
 							case 'random':
 								colorscheme = 0;
 								break;
-							case 'dictionary':
+							case 'grammar':
 								colorscheme = 1;
 								break;
 							case 'emotion':
@@ -1979,9 +2024,13 @@
 
 					}
 
-
+					// Set the color scheme for skimmer
 					skimmer.colorType = colorscheme;
 					skimmer.updateAgentColor();
+					
+					// Set the text in the selecting box
+					var selectObj = document.getElementById("selectColor");
+					selectObj.selectedIndex = colorscheme;
 				}
 				else {
 					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
@@ -2015,12 +2064,14 @@
 			autoIntervalID = setInterval(autoModeFunc, timeInterval);
 			autoFlag = 1;
 
-			autoMode = document.getElementById("autoMode");
-			autoMode.textContent = "Manual";
+			//autoMode = document.getElementById("autoMode");
+			//autoMode.textContent = "Manual";
 
 			// Hide the basic manual mode
+			/*
 			AdvancedSearchBtn = document.getElementById("AdvancedSearchBtn");
 			AdvancedSearchBtn.textContent = "Advanced";
+			*/
 
 			basicModeTbl = document.getElementById("basicMode");
 			basicModeTbl.hidden = true;
@@ -2030,14 +2081,17 @@
 			
 			advancedFlag = 1;
 
+			var advanceRadioBtn = document.getElementsByName("advanceRadioBtn");
+			advanceRadioBtn[0].checked = false;
+			advanceRadioBtn[1].checked = true;
 
 		}
 		else{
 			clearInterval(autoIntervalID);
 			autoFlag = 0;
 
-			autoMode = document.getElementById("autoMode");
-			autoMode.textContent = "AutoMode";
+			//autoMode = document.getElementById("autoMode");
+			//autoMode.textContent = "AutoMode";
 
 			// Show the basic manual mode
 			basicModeTbl = document.getElementById("basicMode");
@@ -2047,155 +2101,270 @@
 	}
 	
 
+	// Set the event function for the boxes
+	// A flag is used to decide whether it is the first time the selection box is clicked
+	var firstClickFlag = 0;
+
+	function resetSourceSelect() {
+		if (firstClickFlag == 0) {
+			var selectObj = document.getElementById("chooseSource");
+			selectObj.selectedIndex = -1;
+			firstClickFlag = 1;
+		} else if (firstClickFlag == 2) {
+			firstClickFlag = 0;
+		}
+	}
+
+	function onChangeSourceSelect() {
+		skimmerSearching();
+		// Set the firstClickFlag 2 because there are now two clicks
+		firstClickFlag = 2;
+	}	
+	
+
+	
+	// Radio button for advanced searching mode
+	function clickAdvancedRadioBtn() {
+		var advanceRadioBtn = document.getElementsByName("advanceRadioBtn");
+		if (advanceRadioBtn[1].checked == true) {
+			advancedModeTbl = document.getElementById("advancedMode");
+			advancedModeTbl.hidden = true;
+			
+			advancedFlag = 1;
+		}
+		else {
+			advancedModeTbl = document.getElementById("advancedMode");
+			advancedModeTbl.hidden = false;
+			
+			advancedFlag = 0;
+		}
+	}
+
+
+
+	// Radio button for auotomated mode
+	function clickAutomatedRadioBtn() {
+		var advanceRadioBtn = document.getElementsByName("automatedRadioBtn");
+		if (advanceRadioBtn[0].checked == true) {
+			// The automated mode
+			autoFlag = 0;
+			autoModeDriver();
+		}
+		else {
+			// The manual mode
+			autoFlag = 1;
+			autoModeDriver();
+		}
+	}
+
+	
 	
 </script>
 
 </head>
-<body onload = "init();" style="overflow:hidden" onmousedown="mouseClick(event);" onmousemove="mouseMove(event);" onresize="resizeWindow()" bgcolor="black">
+<body onload = "init();" style="overflow:hidden" onkeydown="globalKeyFunc()" onmousedown="mouseClick(event);" onmousemove="mouseMove(event);" onresize="resizeWindow()" bgcolor="black">
 <table id = "overallFrame" border = "0" cellpadding = "0" cellspacing = "0" bgcolor="black">
 	<tr>
 		<td>
-			<table id = "selectFrame" border = "0" cellpadding = "0">
-		
-				
-				
+			<table>
 				<tr>
 					<td>
-					
-						<table id = "basicMode" border = "0" cellpadding = "0">
+						<table id = "selectFrame" border = "0" cellpadding = "0">
+							<tr>
+								<td>
+								
+									<table id = "basicMode" border = "0" cellpadding = "0"">
 
-							<!-- Basic manual mode-->
+										<!-- Basic manual mode-->
+										<tr>
+											<td>
+												<font color = "white" face = "Arial">Color</font>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<select id="selectColor" onChange = SelectColor()>
+													<option value = 0>Random</option>
+													<option value = 1>Grammar</option>
+													<option value = 3>Emotion</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<br/>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<font color = "white" face = "Arial">Source</font>
+											</td>
+										</tr>
+										<!-- This selection box select the source of the data from a given list of xml feeds -->
+										<tr>
+											<td>
+												<select id="chooseSource" name="chooseSource" onclick="resetSourceSelect()" onchange="onChangeSourceSelect()">
+													<option value = "ncsu_events">NCSU Events</option>
+													<option value = "ncsu_lib_news">NCSU Library News</option>
+													<option value = "ncsu_twitter_search">Twitter #NCSU</option>
+													<option value = "ncsu_twitter_account">NC State Tweets</option>
+													<option value = "ncsu_facebook">NCSU Facebook Wall</option>
+													<option value = "google_news">NCSU - Google News</option>
+													<option value = "flickr_tags">Flickr NCSU Tag</option>
+													<option value = "lib_3_m_new">New in Last 3 Months</option>
+													<option value = "lib_1_m_new">New in Last Month</option>
+													<option value = "lib_1_w_new">New in Last Week</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<br/>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<font color = "white" face = "Arial">Picture</font>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<input type="radio" id="radio1" name="showImage" value="1" checked="true"> <font color = "white" face = "Arial">Yes</font>
+												<input type="radio" id="radio2" name="showImage" value="2"> <font color = "white" face = "Arial">No</font>
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												<font color = "white" face = "Arial">Advanced</font>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<input type="radio" id="radio1" name="advanceRadioBtn" value="1" onclick="clickAdvancedRadioBtn()"> <font color = "white" face = "Arial">Yes</font>
+												<input type="radio" id="radio2" name="advanceRadioBtn" value="2" checked="true" onclick="clickAdvancedRadioBtn()"> <font color = "white" face = "Arial">No</font>
+											</td>
+										</tr>
+
+										
+										<!-- The searching button is removed for simplicity of interaction -->
+										<!--
+										<tr>
+											<td>
+												<button type = "button" name = "skimmerSearching" id = "skimmerSearching" onclick = skimmerSearching()>Search</button>
+											</td>
+										</tr>
+										-->
+										<!--
+										<tr>
+											<td>
+												<button type = "button" name = "AdvancedSearchBtn" id = "AdvancedSearchBtn" onclick = AdvancedSearchDriver()>Advanced</button>
+											</td>
+										</tr>	
+										-->
+									</table>
+								
+								</td>
+
+							</tr>
+
 							<tr>
 								<td>
-									<font color = "white" face = "Arial">Color</font>
+									<br/>
 								</td>
 							</tr>
+
 							<tr>
 								<td>
-									<select id="selectColor" onChange = SelectColor()>
-										<option value = 0>Random</option>
-										<option value = 1>Dictionary</option>
-										<option value = 3>Emotion</option>
-									</select>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<font color = "white" face = "Arial">Source</font>
-								</td>
-							</tr>
+									<table id = "advancedMode" border = "0" cellpadding = "0">
 							
-							<!-- This is used for the basic interactive mode -->
-							<!-- This selection box select the source of the data from a given list of xml feeds -->
-							<tr>
-								<td>
-									<select id="chooseSource" name="chooseSource">
-										<option value = "ncsu_events">NCSU Events</option>
-										<option value = "ncsu_lib_news">NCSU Library News</option>
-										<option value = "ncsu_twitter_search">Twitter #NCSU</option>
-										<option value = "ncsu_twitter_account">NC State Tweets</option>
-										<option value = "ncsu_facebook">NCSU Facebook Wall</option>
-										<option value = "google_news">NCSU - Google News</option>
-										<option value = "flickr_tags">Flickr NCSU Tag</option>
-										<option value = "lib_3_m_new">New in Last 3 Months</option>
-										<option value = "lib_1_m_new">New in Last Month</option>
-										<option value = "lib_1_w_new">New in Last Week</option>
-									</select>
+										<!-- These are used as the Advanced interactive mode -->
+
+										<tr>
+											<td>
+												<font color = "white" face = "Arial">Search Engine</font>
+											</td>
+										</tr>
+										<!-- This selection box select the source of the search engines from a given list of xml feeds -->
+										<tr>
+											<td>
+												<select id="chooseEngine" name="chooseEngine">
+													<option value = "ncsu_twitter_search">twitter search</option>
+													<option value = "google_news">Google News</option>
+													<option value = "flickr_tags">Flickr Images</option>
+													<option value = "lib_search">Library Search</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<br/>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<font color = "white" face = "Arial">Keyword</font>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<input type = "text" id = "searchContent" name = "searchContent" onkeydown="keyDown(event);" />
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<br/>
+											</td>
+										</tr>
+										
+										<!-- The advanced searching button is replaced by keyboard event -->
+										<!--
+										<tr>
+											<td>
+												<button type = "button" name = "advancedSearching" id = "advancedSearching" onclick = "AdvancedSearching();">AdvancedSearch</button>
+											</td>
+										</tr>
+										-->
+										
+									</table>
 								</td>
 							</tr>
+
+
+							<!-- The button is now replaced by radio button-->
+							<!--
 							<tr>
 								<td>
-									<font color = "white" face = "Arial">Picture</font>
+									<button type = "button" name = "autoMode" id = "autoMode" onclick = "autoModeDriver();">AutoMode</button>
 								</td>
 							</tr>
-							<tr>
-								<td>
-									<input type="radio" id="radio1" name="showImage" value="1" checked="true"> <font color = "white" face = "Arial">Yes</font>
-									<input type="radio" id="radio2" name="showImage" value="2"> <font color = "white" face = "Arial">No</font>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<button type = "button" name = "skimmerSearching" id = "skimmerSearching" onclick = skimmerSearching()>Search</button>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<button type = "button" name = "AdvancedSearchBtn" id = "AdvancedSearchBtn" onclick = AdvancedSearchDriver()>Advanced</button>
-								</td>
-							</tr>	
-												
+							-->
+
+
 						</table>
-					
 					</td>
-
 				</tr>
-
-
 				<tr>
 					<td>
-						<table id = "advancedMode" border = "0" cellpadding = "0">
-				
-							<!-- These are used as the Advanced interactive mode -->
-
+						<table id = "autoSubFrame" border = "0" cellpadding = "0">
+							<!-- This button is used for switching between the manual mode and the automated mode -->
 							<tr>
 								<td>
-									<font color = "white" face = "Arial">Search Engine</font>
-								</td>
-							</tr>
-							<!-- This selection box select the source of the search engines from a given list of xml feeds -->
-							<tr>
-								<td>
-									<select id="chooseEngine" name="chooseEngine">
-										<option value = "ncsu_twitter_search">twitter search</option>
-										<option value = "google_news">Google News</option>
-										<option value = "flickr_tags">Flickr Images</option>
-										<option value = "lib_search">Library Search</option>
-									</select>
+									<font color = "white" face = "Arial">Automated</font>
 								</td>
 							</tr>
 							<tr>
 								<td>
-									<font color = "white" face = "Arial">Keyword</font>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<input type = "text" id = "searchContent" name = "searchContent"/>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<button type = "button" name = "advancedSearching" id = "advancedSearching" onclick = "AdvancedSearching();">AdvancedSearch</button>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<button type = "button" name = "addData" id = "addData" onclick = "AddNewData();">Refresh</button>
+									<input type="radio" id="radio1" name="automatedRadioBtn" value="1" onclick="clickAutomatedRadioBtn()"> <font color = "white" face = "Arial">Yes</font>
+									<input type="radio" id="radio2" name="automatedRadioBtn" value="2" checked="true" onclick="clickAutomatedRadioBtn()"> <font color = "white" face = "Arial">No</font>
 								</td>
 							</tr>
 
 						</table>
 					</td>
 				</tr>
-
-
-				<!-- This button is used for switching between the manual mode and the automated mode -->
-				<tr>
-					<td>
-						<button type = "button" name = "autoMode" id = "autoMode" onclick = "autoModeDriver();">AutoMode</button>
-					</td>
-				</tr>
-				
-				
-
-				
-				
-				
-				
 			</table>
 		</td>
-
 
 		<td>
 			<canvas id = "canvas"></canvas>
@@ -2205,11 +2374,15 @@
 </table>
 
 <script type="text/javascript">
-
 	// Initially set basic manual mode
-	AdvancedSearchDriver();
+	//AdvancedSearchDriver();
+	clickAdvancedRadioBtn();
 	// Initially set automated mode
 	//autoModeDriver();
+	var automatedRadioBtn = document.getElementsByName("automatedRadioBtn");
+	automatedRadioBtn[0].checked = false;
+	automatedRadioBtn[1].checked = true;
+
 	
 
 	// Set the time interval for mouse move checking
