@@ -1201,10 +1201,17 @@
 
 			}
 
-
+			
+			
 			ctx.fillStyle='rgba(250,250,250,0.8)';
+			if(metrics.width < agent.radius*2)
 			ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
-
+			else{
+			ctx.fillText(agent.text.slice(0,Math.round(agent.text.length*(agent.radius*2.0/metrics.width))).toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
+			//console.log(metrics.width+" "+agent.radius);
+			//console.log(agent.text.length*(agent.radius*2.0/metrics.width)+" "+agent.text);
+			}
+			
 		}
 
 
