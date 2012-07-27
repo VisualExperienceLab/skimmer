@@ -309,18 +309,6 @@
 		
 		}
 	}
-
-	
-	function requestImageResource(){
-		ctx.globalAlpha = 0;
-		for(var i=0; i<skimmer.articles.length ; i++){
-				
-				var tmp = new Image();
-				tmp.src = skimmer.articles[j].imageUrl;
-				ctx.drawImage(tmp,0,0);
-		}
-		ctx.globalAlpha = 1;
-	}
 	
 
 	function buildAgentLinkList(){
@@ -644,10 +632,9 @@
 		else       
 		//fade with color
 		{
-			//var x=ctx.globalAlpha;
 			
 			ctx.save();
-			//ctx.globalAlpha = x;
+			
 			ctx.beginPath();
 			ctx.arc(dx+dw*0.5,dy+dh*0.5,minLength/ stretchFactor*0.5, 0,Math.PI*2,true);
 			//ctx.arc(dx+dw*0.5,dy+dh*0.5,dw, 0,Math.PI*2,true);
@@ -946,12 +933,9 @@
 
 				if( ++depthChangeCount%20 == 0 ){
 					depthOrder.sort(function(a,b) {return a[1]-b[1]});
-					//alert(depthOrder);
-
 				}
 
 				for(var i=0;i<depthOrder.length;i++){ depthOrder[i][1] = (depthOrder[i][1]+1)%DEPTHLAYER; }
-				//alert("inc"+depthOrder);
 			}
 
 

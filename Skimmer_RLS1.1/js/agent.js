@@ -79,6 +79,7 @@ function Agent(){
 	this.validImageFlag = 1;
 	this.clickPriority = 1;
 	this.removeCount = 0;
+	this.switchAlpha = 1;
 
 }
 
