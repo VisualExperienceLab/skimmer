@@ -672,10 +672,6 @@
 		
 	}
 	
-	
-	
-	
-	
 	// Added as the driver of the draw funcion
 	function drawDriver(){
 		if (feedFinished == 1) {
@@ -887,11 +883,7 @@ function draw(){
 			if(depthOrder.length != 0 &&  depthOrder.length == skimmer.agents.length)
 				i = depthOrder[pi][0];
 			else
-				i=pi;
-			//if(skimmer.agents[i].scaleEnable == true){
-			//	skimmer.agents[i].avgPos.x *= 2;
-			//	skimmer.agents[i].scaleEnable  = false ;
-			//}
+				i = pi;
 
 			var agent = skimmer.agents[i];
 
@@ -1075,21 +1067,25 @@ function draw(){
 		if(skimmer.selectedWords.indexOf(agent) > -1){
 			ctx.fillStyle = agent.shapeColor.toString();
 			var agentBounds = agent.getBoundingBox();
+			
+			ctx.save();
 			ctx.beginPath();
-
-			//ctx.fillStyle = "#f00";
-			ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x * scaleNow / scaleOld),
-					Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
-					Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
-					Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
-			var colorOut = agent.shapeColor.brighter();
-			ctx.fillStyle = colorOut.toString();
-			//shapeColor -> brighter
-			ctx.strokeRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x* scaleNow / scaleOld),
-					Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
-					Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
-					Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
+			ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(agent.radius)-1,0,Math.PI*2,true);
 			ctx.closePath();
+			ctx.clip();
+			
+			//ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x * scaleNow / scaleOld),
+			//		Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
+			//		Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
+			//		Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
+			
+			ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x),
+					Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y * scaleNow / scaleOld),
+					Math.round(agentBounds.extents.x * 2),
+					Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
+			
+			ctx.restore();
+		
 		}
 	}
 
@@ -1109,7 +1105,7 @@ function draw(){
 			ctx.font = 'bold ' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
 		}
 		metrics = ctx.measureText(agent.text);
-		skimmer.agents[i].bounds.extents.set( metrics.width / 2.0 , 10 );
+		skimmer.agents[i].bounds.extents.set( metrics.width / 2.0 +5 , 10 );
 		if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 )){
 			var colorUnselected = agent.textColor.darker().darker();
 			ctx.fillStyle = colorUnselected.toString();
@@ -1117,14 +1113,13 @@ function draw(){
 
 		//back ground color
 
-		if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 && agent.imageLinkValidation == 1)	{
+		if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 && agent.imageLinkValidation == 1 && skimmer.selectedWords.indexOf(agent) < 0 )	{
 
 			ctx.save();
 			ctx.beginPath();
-			ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius/2),0,Math.PI*2,true);
+			ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(agent.radius)-1,0,Math.PI*2,true);
 			ctx.closePath();
 			ctx.clip();
-
 
 			ctx.fillStyle = 'rgba(50,50,50,0.8)';
 			var agentBounds = agent.getBoundingBox();
@@ -1145,7 +1140,7 @@ function draw(){
 
 
 	// Draw other user agent if it exists. //
-	if( skimmer.agentUser != null ) {
+	if( false ) {
 
 		if( skimmer.DRAW_CIRCLES ) {
 			ctx.fillStyle = 'rgba(255,255,255,0.8)';
