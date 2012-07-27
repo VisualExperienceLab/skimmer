@@ -678,6 +678,7 @@
 			ctx.closePath();
 			ctx.clip();
 			var radgrad = ctx.createRadialGradient(dx+dw*0.5,dy+dh*0.5,minLength/stretchFactor*0.5*0.7,dx+dw*0.5,dy+dh*0.5,dw);
+			//var radgrad = ctx.createRadialGradient(dx+dw*0.5,dy+dh*0.5,0,dx+dw*0.5,dy+dh*0.5,dw);
 			var tmpAlpha = color.alpha;
 			color.alpha = 0;
 			radgrad.addColorStop(0,color);
@@ -826,38 +827,38 @@
 
 					// ADJECTIVE
 					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-					ctx.textAlign = "left";
+					ctx.textAlign = "center";
 					ctx.textBaseline = "top";
 					ctx.fillStyle = 'rgba(0, 0, 100, 1.0)';
-					ctx.fillText("ADJECTIVE", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 1 / 6 - 8 * scaleNow / scaleOld);
+					ctx.fillText("ADJECTIVE", ColorKeyStartX + ColorKeyWidth / 2, ColorKeyStartY + ColorKeyHeight * 1 / 6 - 8 * scaleNow / scaleOld);
 
 					// VERB
 					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-					ctx.textAlign = "left";
+					ctx.textAlign = "center";
 					ctx.textBaseline = "top";
 					ctx.fillStyle = 'rgba(0, 100, 0, 1.0)';
-					ctx.fillText("VERB", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 2 / 6 - 8 * scaleNow / scaleOld);
+					ctx.fillText("VERB", ColorKeyStartX + ColorKeyWidth / 2, ColorKeyStartY + ColorKeyHeight * 2 / 6 - 8 * scaleNow / scaleOld);
 
 					// ADVERB
 					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-					ctx.textAlign = "left";
+					ctx.textAlign = "center";
 					ctx.textBaseline = "top";
 					ctx.fillStyle = 'rgba(100, 100, 0, 1.0)';
-					ctx.fillText("ADVERB", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 3 / 6 - 8 * scaleNow / scaleOld);
+					ctx.fillText("ADVERB", ColorKeyStartX + ColorKeyWidth / 2, ColorKeyStartY + ColorKeyHeight * 3 / 6 - 8 * scaleNow / scaleOld);
 
 					// INTERJECTION
 					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-					ctx.textAlign = "left";
+					ctx.textAlign = "center";
 					ctx.textBaseline = "top";
 					ctx.fillStyle = 'rgba(100, 0, 0, 1.0)';
-					ctx.fillText("INTERJECTION", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 4 / 6 - 8 * scaleNow / scaleOld);
+					ctx.fillText("INTERJECTION", ColorKeyStartX + ColorKeyWidth / 2, ColorKeyStartY + ColorKeyHeight * 4 / 6 - 8 * scaleNow / scaleOld);
 
 					// NOUN
 					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-					ctx.textAlign = "left";
+					ctx.textAlign = "center";
 					ctx.textBaseline = "top";
 					ctx.fillStyle = 'rgba(100, 0, 100, 1.0)';
-					ctx.fillText("NOUN", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 5 / 6 - 8 * scaleNow / scaleOld);
+					ctx.fillText("NOUN", ColorKeyStartX + ColorKeyWidth / 2, ColorKeyStartY + ColorKeyHeight * 5 / 6 - 8 * scaleNow / scaleOld);
 
 					break;
 				case "3":
@@ -871,7 +872,7 @@
 
 					// Set the boundings of the gradient area
 					var GradientOffset = 36 * scaleNow / scaleOld
-						var GradientX = ColorKeyStartX + Border + GradientOffset / 2;
+					var GradientX = ColorKeyStartX + Border + GradientOffset / 2;
 					var GradientY = ColorKeyStartY + Border + GradientOffset;
 					var GradientWidth  = ColorKeyWidth - GradientOffset - 2 * Border;
 					var GradientHeight = ColorKeyHeight - 2 * GradientOffset - 2 * Border;
@@ -885,17 +886,17 @@
 
 					// HAPPY
 					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-					ctx.textAlign = "left";
+					ctx.textAlign = "center";
 					ctx.textBaseline = "top";
 					ctx.fillStyle = 'rgba(100, 100, 0, 1.0)';
-					ctx.fillText("HAPPY", ColorKeyStartX + ColorKeyWidth / 3, ColorKeyStartY + 16 * scaleNow / scaleOld);
+					ctx.fillText("HAPPY", ColorKeyStartX + ColorKeyWidth / 2, ColorKeyStartY + 16 * scaleNow / scaleOld);
 
 					// SAD
 					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-					ctx.textAlign = "left";
+					ctx.textAlign = "center";
 					ctx.textBaseline = "top";
 					ctx.fillStyle = 'rgba(0, 0, 100, 1.0)';
-					ctx.fillText("SAD", ColorKeyStartX + ColorKeyWidth / 3 , ColorKeyStartY + ColorKeyHeight * 13 / 16);
+					ctx.fillText("SAD", ColorKeyStartX + ColorKeyWidth / 2 , ColorKeyStartY + ColorKeyHeight * 13 / 16);
 
 					break;
 
