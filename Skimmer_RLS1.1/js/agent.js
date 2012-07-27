@@ -77,6 +77,8 @@ function Agent(){
 	this.switchPicture = 0;
 	this.validImage = null;
 	this.validImageFlag = 1;
+	this.clickPriority = 1;
+	this.removeCount = 0;
 
 }
 

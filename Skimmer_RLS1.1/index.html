@@ -45,6 +45,7 @@
 	var depthChangeCount = 0 ;
 	var DEPTHLAYER = 5;
 	var LEAST_IMAGE_WIDTH = 10;
+	var AGENT_REMOVE_LIMIT = 50;
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
 	
@@ -497,7 +498,7 @@
 		else if(event.button == 0 && event.shiftKey == false && event.ctrlKey == true && event.altKey == false){
 			var clickedAgent = skimmer.getAgentClickedAt(cursor);
 			//console.log(cursor.toString());
-			if(clickedAgent != null){
+			if(clickedAgent != null && clickedAgent.clickPriority == 1){
 				// Build a collection of the top ranked words for entry
 				var newWords = new Array();
 				var clickedWord = clickedAgent.stem;
@@ -582,7 +583,7 @@
 					tmpAgent.textColor = skimmer.colorAgentWordText;
 					
 					//color
-					
+					tmpAgent.clickPriority = 2;
 					skimmer.agents.push(tmpAgent);
 					skimmer.zoomedAgents.push(tmpAgent);
 				}
@@ -747,8 +748,10 @@
 
 		
 		ctx.fillStyle = "#fff";
-		ctx.fillText("Skimmer, by Design Graphics Lab", canvas.width / 3, canvas.height - 20 * scaleNow / scaleOld);  //bottom
-
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.fillText("Skimmer, by Design Graphics Lab", canvas.width / 2, canvas.height - 20 *scaleNow / scaleOld);  //bottom
+		//alert(canvas.height);
 
 	}
 	
@@ -757,7 +760,7 @@
 		// Set the global attributes of the canvas
 		// These lines of code should always be placed first
 		var origin = new Vector2();
-
+		
 		origin.set(skimmer.width/2, skimmer.height/2);
 		ctx.fillStyle = 'rgba(0,0,0,1.0)';
 		ctx.fillRect(0,0,skimmer.width,skimmer.height);
@@ -924,7 +927,7 @@
 		ctx.fillStyle = "#fff";
 		ctx.fillText("Skimmer, by Design Graphics Lab", origin.x + skimmer.agentTitle.pos.x, skimmer.height - 20 * scaleNow / scaleOld);  //bottom
 		////////////////////////////////////////////
-
+		
 		
 		var showImage = document.getElementsByName("showImage");
 		if(showImage[0].checked == true)
@@ -1169,12 +1172,22 @@
 			ctx.fillStyle = agent.textColor.toString();
 			ctx.textBaseline = 'middle';
 			ctx.textAlign = 'center';
+			/*
 			if(skimmer.zoomedAgents.indexOf(agent) > -1){
 				ctx.font = 'bold' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
 			}
 			else{
 				ctx.font = 'bold ' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
 			}
+			*/
+			
+			if(agent.clickPriority == 1){
+				ctx.font = 'bold ' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
+			}
+			else{
+				ctx.font = 'italic bold ' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
+			}
+			
 			metrics = ctx.measureText(agent.text);
 			skimmer.agents[i].bounds.extents.set( metrics.width / 2.0 +5 , 10 );
 			if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 )){
@@ -1408,6 +1421,21 @@
 				skimmer.selectedArticleRanking.clear();
 			}
 		}
+		
+		for(var i = 0; i < skimmer.agents.length; i++){
+	
+			if(skimmer.agentArticle != null) break;
+		
+			if(skimmer.agents[i].clickPriority == 2 && skimmer.agents[i].removeCount > AGENT_REMOVE_LIMIT && Math.random() < 0.1 ){
+				var curIndex = skimmer.agents.indexOf(skimmer.agents[i]);
+				skimmer.agents[curIndex].remove = true;
+			}
+			else if(skimmer.agents[i].clickPriority == 2){
+				skimmer.agents[i].removeCount++;
+			}
+		
+		}
+	
 		skimmer.update(0.05, 1024.0, 768.0, scaleNow , scaleOld);
 
 	}	
