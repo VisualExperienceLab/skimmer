@@ -25,7 +25,7 @@
 	var ctx;
 	var intervalID;
 
-	var feedFinished = 0;		// A flag used in busy waiting, this should be replaced in the future
+	var feedFinished = 0;		// A flag used to denote the end of feeding and is initially set zero
 	var feedResult;				// The result of using google feed API
 
 	var numEntries = 20;		// The number of entries to be obtained in the feed result
@@ -52,6 +52,9 @@
 	google.load("feeds", "1");
 	// Define the callback function
 	function initialize() {
+	
+		// Reset the feeding flag
+		feedFinished = 0;
 		
 		// Set the URL for the google feed API
 		var feed = new google.feeds.Feed(sourceAddress);
@@ -694,335 +697,404 @@
 		if (feedFinished == 1) {
 			draw();
 		}
-	}
-	
-function draw(){
-
-	// Set the global attributes of the canvas
-	// These lines of code should always be placed first
-	var origin = new Vector2();
-
-	origin.set(skimmer.width/2, skimmer.height/2);
-	ctx.fillStyle = 'rgba(0,0,0,1.0)';
-	ctx.fillRect(0,0,skimmer.width,skimmer.height);
-
-	// To scale the drawing result according to the screen
-	scaleNow = 0;		// The scale for the rescaled screen
-	scaleOld = 0;		// The scale for the 1024 * 768 screen
-	if (skimmer.width <= skimmer.height) {
-		scaleNow = skimmer.width;
-		scaleOld = 1024;
-	}
-	else {
-		scaleNow = skimmer.height;
-		scaleOld = 768;
-	}
-
-
-	//-----------------------------------------------------------------------------------------------
-	// The code above is too messy to read, The function is to draw the elements on the canvas
-	//-----------------------------------------------------------------------------------------------
-
-	// The color key box of the canvas
-
-	// Set the starting point and the size of the color key box
-	var OffSet = 30;
-	var ColorKeyStartX = skimmer.width - 180 * scaleNow / scaleOld - OffSet * scaleNow / scaleOld;
-	var ColorKeyStartY = skimmer.height - 180 * scaleNow / scaleOld - OffSet * scaleNow / scaleOld;
-	var ColorKeyWidth  = 180 * scaleNow / scaleOld;
-	var ColorKeyHeight = 180 * scaleNow / scaleOld;
-
-	// Set the border width of the color key box
-	var Border = 4;
-
-
-	// To confirm the existance of the skimmer object
-	if (skimmer != undefined) {
-		// Show the color key according to the color mapping scheme
-		switch (skimmer.colorType) {
-			case "0":
-				// random
-				// There is no color key for a random color mapping scheme
-				/*
-				// Draw the box and the border
-				ctx.fillStyle = 'rgba(200, 200, 200, 0.3)';
-				ctx.fillRect(ColorKeyStartX, ColorKeyStartY, ColorKeyWidth, ColorKeyHeight);
-				ctx.fillStyle = 'rgba(150, 150, 150, 0.6)';
-				ctx.fillRect(ColorKeyStartX + Border, ColorKeyStartY + Border, ColorKeyWidth - 2 * Border, ColorKeyHeight - 2 * Border);
-
-				ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-				ctx.textAlign = "left";
-				ctx.textBaseline = "top";
-				ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
-				ctx.fillText("RANDOM", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight / 2 - 16 * scaleNow / scaleOld);
-				 */
-				break;
-			case "1":
-				// grammar
-				// Draw the box and the border
-				ctx.fillStyle = 'rgba(200, 200, 200, 0.3)';
-				ctx.fillRect(ColorKeyStartX, ColorKeyStartY, ColorKeyWidth, ColorKeyHeight);
-				ctx.fillStyle = 'rgba(150, 150, 150, 0.6)';
-				ctx.fillRect(ColorKeyStartX + Border, ColorKeyStartY + Border, ColorKeyWidth - 2 * Border, ColorKeyHeight - 2 * Border);
-
-				// ADJECTIVE
-				ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-				ctx.textAlign = "left";
-				ctx.textBaseline = "top";
-				ctx.fillStyle = 'rgba(0, 0, 100, 1.0)';
-				ctx.fillText("ADJECTIVE", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 1 / 6 - 8 * scaleNow / scaleOld);
-
-				// VERB
-				ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-				ctx.textAlign = "left";
-				ctx.textBaseline = "top";
-				ctx.fillStyle = 'rgba(0, 100, 0, 1.0)';
-				ctx.fillText("VERB", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 2 / 6 - 8 * scaleNow / scaleOld);
-
-				// ADVERB
-				ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-				ctx.textAlign = "left";
-				ctx.textBaseline = "top";
-				ctx.fillStyle = 'rgba(100, 100, 0, 1.0)';
-				ctx.fillText("ADVERB", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 3 / 6 - 8 * scaleNow / scaleOld);
-
-				// INTERJECTION
-				ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-				ctx.textAlign = "left";
-				ctx.textBaseline = "top";
-				ctx.fillStyle = 'rgba(100, 0, 0, 1.0)';
-				ctx.fillText("INTERJECTION", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 4 / 6 - 8 * scaleNow / scaleOld);
-
-				// NOUN
-				ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-				ctx.textAlign = "left";
-				ctx.textBaseline = "top";
-				ctx.fillStyle = 'rgba(100, 0, 100, 1.0)';
-				ctx.fillText("NOUN", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 5 / 6 - 8 * scaleNow / scaleOld);
-
-				break;
-			case "3":
-				// emotioin
-				// Draw the box and the border
-				ctx.fillStyle = 'rgba(200, 200, 200, 0.3)';
-				ctx.fillRect(ColorKeyStartX, ColorKeyStartY, ColorKeyWidth, ColorKeyHeight);
-				ctx.fillStyle = 'rgba(150, 150, 150, 0.6)';
-				ctx.fillRect(ColorKeyStartX + Border, ColorKeyStartY + Border, ColorKeyWidth - 2 * Border, ColorKeyHeight - 2 * Border);
-
-
-				// Set the boundings of the gradient area
-				var GradientOffset = 36 * scaleNow / scaleOld
-					var GradientX = ColorKeyStartX + Border + GradientOffset / 2;
-				var GradientY = ColorKeyStartY + Border + GradientOffset;
-				var GradientWidth  = ColorKeyWidth - GradientOffset - 2 * Border;
-				var GradientHeight = ColorKeyHeight - 2 * GradientOffset - 2 * Border;
-
-				// Draw the gradient color key
-				var colorkey_gradient = ctx.createLinearGradient(GradientX, GradientY, GradientX, GradientY + GradientHeight);
-				colorkey_gradient.addColorStop(0, 'rgba(255, 255, 0, 0.5)');
-				colorkey_gradient.addColorStop(1, 'rgba(0, 0, 255, 0.5)');
-				ctx.fillStyle = colorkey_gradient;
-				ctx.fillRect(GradientX, GradientY, GradientWidth, GradientHeight);
-
-				// HAPPY
-				ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-				ctx.textAlign = "left";
-				ctx.textBaseline = "top";
-				ctx.fillStyle = 'rgba(100, 100, 0, 1.0)';
-				ctx.fillText("HAPPY", ColorKeyStartX + ColorKeyWidth / 3, ColorKeyStartY + 16 * scaleNow / scaleOld);
-
-				// SAD
-				ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
-				ctx.textAlign = "left";
-				ctx.textBaseline = "top";
-				ctx.fillStyle = 'rgba(0, 0, 100, 1.0)';
-				ctx.fillText("SAD", ColorKeyStartX + ColorKeyWidth / 3 , ColorKeyStartY + ColorKeyHeight * 13 / 16);
-
-				break;
-
-			default: 
-				break;
+		else {
+			drawDialog();
 		}
 	}
-	////////////////////////////////////////////BOTTOM TITLE
 	
-	var skimmerTextWidth = ctx.measureText("Skimmer, by Design Graphics Lab").width;
+	
+	function drawDialog() {
+
+		// Set the origin of the canvas
+		var origin = new Vector2();
+		origin.set(skimmer.width/2, skimmer.height/2);
+		
+		// Fill the background
+		ctx.fillStyle = 'rgba(0,0,0,1.0)';
+		ctx.fillRect(0,0,canvas.width,canvas.height);
+		
+		// To scale the drawing result according to the screen
+		scaleNow = 0;		// The scale for the rescaled screen
+		scaleOld = 0;		// The scale for the 1024 * 768 screen
+		if (canvas.width <= canvas.height) {
+			scaleNow = canvas.width;
+			scaleOld = 1024;
+		}
+		else {
+			scaleNow = canvas.height;
+			scaleOld = 768;
+		}
+		
+		// Set the starting point and the size of the color key box
+		var OffSet = 30;
+		var DialogX = canvas.width * 1 / 3;
+		var DialogY = canvas.height * 3 / 7;
+		var DialogWidth  = canvas.width * 1 / 3;
+		var DialogHeight = canvas.height * 1 / 7;
 
 
-	if( origin.x + skimmer.agentTitle.pos.x - skimmerTextWidth / 2.0 < currentCursor.x && currentCursor.x < origin.x + skimmer.agentTitle.pos.x + skimmerTextWidth / 2.0 )
-	{
+		// Draw the dialog out
+		ctx.fillStyle = 'rgba(200, 200, 200, 0.5)';
+		ctx.fillRect(DialogX, DialogY, DialogWidth, DialogHeight);
+		
+		
+		// ADJECTIVE
+		ctx.font = 'bold '+Math.round(30 * scaleNow / scaleOld)+'px Arial';
+		ctx.textAlign = "left";
+		ctx.textBaseline = "top";
+		ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
+		ctx.fillText("LOADING DATA...", DialogX + DialogWidth / 6, DialogY + DialogHeight / 2 - 30 / 2 * scaleNow / scaleOld);
 
-		if	( skimmer.height - 2*20 * scaleNow / scaleOld < currentCursor.y && currentCursor.y < skimmer.height - 20 * scaleNow / scaleOld )
+		
+		ctx.fillStyle = "#fff";
+		ctx.fillText("Skimmer, by Design Graphics Lab", canvas.width / 3, canvas.height - 20 * scaleNow / scaleOld);  //bottom
+
+
+	}
+	
+	function draw(){
+
+		// Set the global attributes of the canvas
+		// These lines of code should always be placed first
+		var origin = new Vector2();
+
+		origin.set(skimmer.width/2, skimmer.height/2);
+		ctx.fillStyle = 'rgba(0,0,0,1.0)';
+		ctx.fillRect(0,0,skimmer.width,skimmer.height);
+
+		// To scale the drawing result according to the screen
+		scaleNow = 0;		// The scale for the rescaled screen
+		scaleOld = 0;		// The scale for the 1024 * 768 screen
+		if (skimmer.width <= skimmer.height) {
+			scaleNow = skimmer.width;
+			scaleOld = 1024;
+		}
+		else {
+			scaleNow = skimmer.height;
+			scaleOld = 768;
+		}
+
+
+		//-----------------------------------------------------------------------------------------------
+		// The code above is too messy to read, The function is to draw the elements on the canvas
+		//-----------------------------------------------------------------------------------------------
+
+		// The color key box of the canvas
+
+		// Set the starting point and the size of the color key box
+		var OffSet = 30;
+		var ColorKeyStartX = skimmer.width - 180 * scaleNow / scaleOld - OffSet * scaleNow / scaleOld;
+		var ColorKeyStartY = skimmer.height - 180 * scaleNow / scaleOld - OffSet * scaleNow / scaleOld;
+		var ColorKeyWidth  = 180 * scaleNow / scaleOld;
+		var ColorKeyHeight = 180 * scaleNow / scaleOld;
+
+		// Set the border width of the color key box
+		var Border = 4;
+
+
+		// To confirm the existance of the skimmer object
+		if (skimmer != undefined) {
+			// Show the color key according to the color mapping scheme
+			switch (skimmer.colorType) {
+				case "0":
+					// random
+					// There is no color key for a random color mapping scheme
+					/*
+					// Draw the box and the border
+					ctx.fillStyle = 'rgba(200, 200, 200, 0.3)';
+					ctx.fillRect(ColorKeyStartX, ColorKeyStartY, ColorKeyWidth, ColorKeyHeight);
+					ctx.fillStyle = 'rgba(150, 150, 150, 0.6)';
+					ctx.fillRect(ColorKeyStartX + Border, ColorKeyStartY + Border, ColorKeyWidth - 2 * Border, ColorKeyHeight - 2 * Border);
+
+					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
+					ctx.textAlign = "left";
+					ctx.textBaseline = "top";
+					ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
+					ctx.fillText("RANDOM", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight / 2 - 16 * scaleNow / scaleOld);
+					 */
+					break;
+				case "1":
+					// grammar
+					// Draw the box and the border
+					ctx.fillStyle = 'rgba(200, 200, 200, 0.3)';
+					ctx.fillRect(ColorKeyStartX, ColorKeyStartY, ColorKeyWidth, ColorKeyHeight);
+					ctx.fillStyle = 'rgba(150, 150, 150, 0.6)';
+					ctx.fillRect(ColorKeyStartX + Border, ColorKeyStartY + Border, ColorKeyWidth - 2 * Border, ColorKeyHeight - 2 * Border);
+
+					// ADJECTIVE
+					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
+					ctx.textAlign = "left";
+					ctx.textBaseline = "top";
+					ctx.fillStyle = 'rgba(0, 0, 100, 1.0)';
+					ctx.fillText("ADJECTIVE", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 1 / 6 - 8 * scaleNow / scaleOld);
+
+					// VERB
+					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
+					ctx.textAlign = "left";
+					ctx.textBaseline = "top";
+					ctx.fillStyle = 'rgba(0, 100, 0, 1.0)';
+					ctx.fillText("VERB", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 2 / 6 - 8 * scaleNow / scaleOld);
+
+					// ADVERB
+					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
+					ctx.textAlign = "left";
+					ctx.textBaseline = "top";
+					ctx.fillStyle = 'rgba(100, 100, 0, 1.0)';
+					ctx.fillText("ADVERB", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 3 / 6 - 8 * scaleNow / scaleOld);
+
+					// INTERJECTION
+					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
+					ctx.textAlign = "left";
+					ctx.textBaseline = "top";
+					ctx.fillStyle = 'rgba(100, 0, 0, 1.0)';
+					ctx.fillText("INTERJECTION", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 4 / 6 - 8 * scaleNow / scaleOld);
+
+					// NOUN
+					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
+					ctx.textAlign = "left";
+					ctx.textBaseline = "top";
+					ctx.fillStyle = 'rgba(100, 0, 100, 1.0)';
+					ctx.fillText("NOUN", ColorKeyStartX + Border + 3, ColorKeyStartY + ColorKeyHeight * 5 / 6 - 8 * scaleNow / scaleOld);
+
+					break;
+				case "3":
+					// emotioin
+					// Draw the box and the border
+					ctx.fillStyle = 'rgba(200, 200, 200, 0.3)';
+					ctx.fillRect(ColorKeyStartX, ColorKeyStartY, ColorKeyWidth, ColorKeyHeight);
+					ctx.fillStyle = 'rgba(150, 150, 150, 0.6)';
+					ctx.fillRect(ColorKeyStartX + Border, ColorKeyStartY + Border, ColorKeyWidth - 2 * Border, ColorKeyHeight - 2 * Border);
+
+
+					// Set the boundings of the gradient area
+					var GradientOffset = 36 * scaleNow / scaleOld
+						var GradientX = ColorKeyStartX + Border + GradientOffset / 2;
+					var GradientY = ColorKeyStartY + Border + GradientOffset;
+					var GradientWidth  = ColorKeyWidth - GradientOffset - 2 * Border;
+					var GradientHeight = ColorKeyHeight - 2 * GradientOffset - 2 * Border;
+
+					// Draw the gradient color key
+					var colorkey_gradient = ctx.createLinearGradient(GradientX, GradientY, GradientX, GradientY + GradientHeight);
+					colorkey_gradient.addColorStop(0, 'rgba(255, 255, 0, 0.5)');
+					colorkey_gradient.addColorStop(1, 'rgba(0, 0, 255, 0.5)');
+					ctx.fillStyle = colorkey_gradient;
+					ctx.fillRect(GradientX, GradientY, GradientWidth, GradientHeight);
+
+					// HAPPY
+					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
+					ctx.textAlign = "left";
+					ctx.textBaseline = "top";
+					ctx.fillStyle = 'rgba(100, 100, 0, 1.0)';
+					ctx.fillText("HAPPY", ColorKeyStartX + ColorKeyWidth / 3, ColorKeyStartY + 16 * scaleNow / scaleOld);
+
+					// SAD
+					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
+					ctx.textAlign = "left";
+					ctx.textBaseline = "top";
+					ctx.fillStyle = 'rgba(0, 0, 100, 1.0)';
+					ctx.fillText("SAD", ColorKeyStartX + ColorKeyWidth / 3 , ColorKeyStartY + ColorKeyHeight * 13 / 16);
+
+					break;
+
+				default: 
+					break;
+			}
+		}
+		////////////////////////////////////////////BOTTOM TITLE
+		
+		var skimmerTextWidth = ctx.measureText("Skimmer, by Design Graphics Lab").width;
+
+
+		if( origin.x + skimmer.agentTitle.pos.x - skimmerTextWidth / 2.0 < currentCursor.x && currentCursor.x < origin.x + skimmer.agentTitle.pos.x + skimmerTextWidth / 2.0 )
 		{
-			//alert("oh");
-			ctx.fillStyle = "#333";
-			if(origin.x + skimmer.agentTitle.pos.x - skimmerTextWidth / 6.0 < currentCursor.x )
-				linkFlag = 3;
-			else
-				linkFlag = 2;
-		}
+
+			if	( skimmer.height - 2*20 * scaleNow / scaleOld < currentCursor.y && currentCursor.y < skimmer.height - 20 * scaleNow / scaleOld )
+			{
+				//alert("oh");
+				ctx.fillStyle = "#333";
+				if(origin.x + skimmer.agentTitle.pos.x - skimmerTextWidth / 6.0 < currentCursor.x )
+					linkFlag = 3;
+				else
+					linkFlag = 2;
+			}
+			else{linkFlag = 0;}
+		}	
 		else{linkFlag = 0;}
-	}	
-	else{linkFlag = 0;}
 
-	ctx.fillStyle = "#fff";
-	ctx.fillText("Skimmer, by Design Graphics Lab", origin.x + skimmer.agentTitle.pos.x, skimmer.height - 20 * scaleNow / scaleOld);  //bottom
-	////////////////////////////////////////////
+		ctx.fillStyle = "#fff";
+		ctx.fillText("Skimmer, by Design Graphics Lab", origin.x + skimmer.agentTitle.pos.x, skimmer.height - 20 * scaleNow / scaleOld);  //bottom
+		////////////////////////////////////////////
 
-	
-	var showImage = document.getElementsByName("showImage");
-	if(showImage[0].checked == true)
-		showImageFlag = 1;
-	else
-		showImageFlag = 0;
+		
+		var showImage = document.getElementsByName("showImage");
+		if(showImage[0].checked == true)
+			showImageFlag = 1;
+		else
+			showImageFlag = 0;
 
 
-	// Draw the circles. //
-	if( skimmer.DRAW_CIRCLES ) {
+		// Draw the circles. //
+		if( skimmer.DRAW_CIRCLES ) {
 
-		if(depthOrder.length != 0 && depthOrder.length == skimmer.agents.length){
-			if( depthChangeCount > 100000 ) depthChangeCount = 0 ;
+			if(depthOrder.length != 0 && depthOrder.length == skimmer.agents.length){
+				if( depthChangeCount > 100000 ) depthChangeCount = 0 ;
 
 
-			if( ++depthChangeCount%20 == 0 ){
-				depthOrder.sort(function(a,b) {return a[1]-b[1]});
-				//alert(depthOrder);
+				if( ++depthChangeCount%20 == 0 ){
+					depthOrder.sort(function(a,b) {return a[1]-b[1]});
+					//alert(depthOrder);
 
+				}
+
+				for(var i=0;i<depthOrder.length;i++){ depthOrder[i][1] = (depthOrder[i][1]+1)%DEPTHLAYER; }
+				//alert("inc"+depthOrder);
 			}
 
-			for(var i=0;i<depthOrder.length;i++){ depthOrder[i][1] = (depthOrder[i][1]+1)%DEPTHLAYER; }
-			//alert("inc"+depthOrder);
-		}
 
 
+			for(var pi = 0; pi < skimmer.agents.length; pi++){
+				if(depthOrder.length != 0 &&  depthOrder.length == skimmer.agents.length)
+					i = depthOrder[pi][0];
+				else
+					i = pi;
+					
+				var agent = skimmer.agents[i];
 
-		for(var pi = 0; pi < skimmer.agents.length; pi++){
-			if(depthOrder.length != 0 &&  depthOrder.length == skimmer.agents.length)
-				i = depthOrder[pi][0];
-			else
-				i = pi;
-				
-			var agent = skimmer.agents[i];
+				var alpha = parseFloat( 0.75 * ( parseFloat( agent.TICKS_TILL_FADE - agent.curTicksTillFade ) / agent.TICKS_TILL_FADE ) );
+				if( alpha > 1.0 ) { alpha = 1.0; }
+				if( alpha < 0.0 ) { alpha = 0.0; }
+				skimmer.agents[i].shapeColor.alpha = alpha;
+				ctx.fillStyle = agent.shapeColor.toString();
+				if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 )){
+					var colorUnselected = agent.shapeColor.darker();
+					ctx.fillStyle = colorUnselected.toString();
+				}
 
-			var alpha = parseFloat( 0.75 * ( parseFloat( agent.TICKS_TILL_FADE - agent.curTicksTillFade ) / agent.TICKS_TILL_FADE ) );
-			if( alpha > 1.0 ) { alpha = 1.0; }
-			if( alpha < 0.0 ) { alpha = 0.0; }
-			skimmer.agents[i].shapeColor.alpha = alpha;
-			ctx.fillStyle = agent.shapeColor.toString();
-			if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 )){
-				var colorUnselected = agent.shapeColor.darker();
-				ctx.fillStyle = colorUnselected.toString();
-			}
+				var radius = parseInt(Math.round( ( skimmer.minRadius + ( agent.occurrences /  skimmer.maxOccurrence )
+								* ( skimmer.minRadius ) ) * 2.0 * scaleNow / scaleOld));
 
-			var radius = parseInt(Math.round( ( skimmer.minRadius + ( agent.occurrences /  skimmer.maxOccurrence )
-							* ( skimmer.minRadius ) ) * 2.0 * scaleNow / scaleOld));
+				// updates the radius value
+				skimmer.agents[i].radius = radius / 2;
+				ctx.beginPath();
+				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2)-1, 0, Math.PI * 2, false); 
+				ctx.fill();  
+				ctx.closePath();  
 
-			// updates the radius value
-			skimmer.agents[i].radius = radius / 2;
-			ctx.beginPath();
-			ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2)-1, 0, Math.PI * 2, false); 
-			ctx.fill();  
-			ctx.closePath();  
-
-			//ctx.save();
-			//ctx.beginPath();
-			//ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius/2),0,Math.PI*2,true);
-			//ctx.closePath();
-			//ctx.clip();
+				//ctx.save();
+				//ctx.beginPath();
+				//ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius/2),0,Math.PI*2,true);
+				//ctx.closePath();
+				//ctx.clip();
 
 
-			if (skimmer.agents[i].imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 )	{
-				var imgNews = new Image();
-				try{
-					if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
+				if (skimmer.agents[i].imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 )	{
+					var imgNews = new Image();
+					try{
+						if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 
-					if(++skimmer.agents[i].imageFrequency%100 == 0 && Math.random() < 1 || skimmer.agents[i].switchPicture > 0){
-						/*
-						   if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
+						if(++skimmer.agents[i].imageFrequency%100 == 0 && Math.random() < 1 || skimmer.agents[i].switchPicture > 0){
+							/*
+							   if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 
-						   if(skimmer.agents[i].imageFrequency++%150 == 0 && Math.random() < 0.5 || skimmer.agents[i].switchPicture > 0)
-						   skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
+							   if(skimmer.agents[i].imageFrequency++%150 == 0 && Math.random() < 0.5 || skimmer.agents[i].switchPicture > 0)
+							   skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 
-						   imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
-						 */
-						if(skimmer.agents[i].switchPicture == 0){
+							   imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
+							 */
+							if(skimmer.agents[i].switchPicture == 0){
 
-							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
+								imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 
-							if(skimmer.agents[i].validImageFlag == 1 && imgNews.width > LEAST_IMAGE_WIDTH )
-							{
-								skimmer.agents[i].validImageFlag = 0; 
-								skimmer.agents[i].validImage = new Image();
-								skimmer.agents[i].validImage.src = imgNews.src;
+								if(skimmer.agents[i].validImageFlag == 1 && imgNews.width > LEAST_IMAGE_WIDTH )
+								{
+									skimmer.agents[i].validImageFlag = 0; 
+									skimmer.agents[i].validImage = new Image();
+									skimmer.agents[i].validImage.src = imgNews.src;
+								}
+
+
+								if ( imgNews.width > LEAST_IMAGE_WIDTH )
+									//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+									drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+								else if (skimmer.agents[i].validImageFlag == 0)
+									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+									drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+
+								skimmer.agents[i].switchPicture ++;
 							}
 
+							else if(skimmer.agents[i].switchPicture < 21 ){
 
-							if ( imgNews.width > LEAST_IMAGE_WIDTH )
-								//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							else if (skimmer.agents[i].validImageFlag == 0)
-								//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+								//ctx.fillStyle = "#000";
+								//ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2), 0, Math.PI * 2, false); 
 
-							skimmer.agents[i].switchPicture ++;
+
+								var inc = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
+								var fflag = 0;
+								ctx.globalAlpha = 1 - skimmer.agents[i].switchPicture/ 20.0;
+								imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
+
+								if ( imgNews.width > LEAST_IMAGE_WIDTH )
+									//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+									drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+
+								else if (skimmer.agents[i].validImageFlag == 0){
+									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+									drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage, agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+									fflag++;
+								}
+
+								ctx.globalAlpha = 1-ctx.globalAlpha;
+								var newImg = new Image();
+								newImg.src = skimmer.agents[i].imageLinkList[inc];
+
+
+								if ( newImg.width > LEAST_IMAGE_WIDTH )
+									//ctx.drawImage(newImg,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+									drawAvoidStretch(agent,ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+
+								else if (skimmer.agents[i].validImageFlag == 0){
+									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+									drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+
+									fflag++;
+								}
+
+								skimmer.agents[i].switchPicture ++;
+								ctx.globalAlpha = 1 ;
+
+								if ( fflag == 2 )
+									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+									drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+
+								else if (newImg.src == imgNews.src)
+									//ctx.drawImage(newImg, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+									drawAvoidStretch(agent,ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+
+
+								newImg=null;
+							}
+							else{
+								skimmer.agents[i].switchPicture = 0 ;	
+								skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
+								imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
+
+								if ( imgNews.width > LEAST_IMAGE_WIDTH )
+									//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+									drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+
+								else if (skimmer.agents[i].validImageFlag == 0)
+									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+									drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+
+
+							}
 						}
 
-						else if(skimmer.agents[i].switchPicture < 21 ){
-
-							//ctx.fillStyle = "#000";
-							//ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2), 0, Math.PI * 2, false); 
-
-
-							var inc = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
-							var fflag = 0;
-							ctx.globalAlpha = 1 - skimmer.agents[i].switchPicture/ 20.0;
-							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
-
-							if ( imgNews.width > LEAST_IMAGE_WIDTH )
-								//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-
-							else if (skimmer.agents[i].validImageFlag == 0){
-								//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage, agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								fflag++;
-							}
-
-							ctx.globalAlpha = 1-ctx.globalAlpha;
-							var newImg = new Image();
-							newImg.src = skimmer.agents[i].imageLinkList[inc];
-
-
-							if ( newImg.width > LEAST_IMAGE_WIDTH )
-								//ctx.drawImage(newImg,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(agent,ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-
-							else if (skimmer.agents[i].validImageFlag == 0){
-								//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-
-								fflag++;
-							}
-
-							skimmer.agents[i].switchPicture ++;
-							ctx.globalAlpha = 1 ;
-
-							if ( fflag == 2 )
-								//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-
-							else if (newImg.src == imgNews.src)
-								//ctx.drawImage(newImg, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								drawAvoidStretch(agent,ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-
-
-							newImg=null;
-						}
 						else{
-							skimmer.agents[i].switchPicture = 0 ;	
-							skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
-							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 
+							//skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
+							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 							if ( imgNews.width > LEAST_IMAGE_WIDTH )
 								//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 								drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
@@ -1031,334 +1103,316 @@ function draw(){
 								//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 								drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 
-
 						}
-					}
 
-					else{
 
-						//skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
-						imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
-						if ( imgNews.width > LEAST_IMAGE_WIDTH )
+						if(imgNews.width > 0 || skimmer.agents[i].validImageFlag == 0 ){
 							//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+							skimmer.agents[i].imageLinkValidation = 1;
+						}
 
-						else if (skimmer.agents[i].validImageFlag == 0)
-							//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-							drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+						else
+							skimmer.agents[i].imageLinkValidation = 0;
+
 
 					}
-
-
-					if(imgNews.width > 0 || skimmer.agents[i].validImageFlag == 0 ){
-						//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-						skimmer.agents[i].imageLinkValidation = 1;
-					}
-
-					else
+					catch(e){
 						skimmer.agents[i].imageLinkValidation = 0;
+						console.log(imgNews.src);
 
 
-				}
-				catch(e){
-					skimmer.agents[i].imageLinkValidation = 0;
-					console.log(imgNews.src);
-
-
-				}
-				imgNews=null;
-
-			}
-			//ctx.restore();
-		}
-	}
-
-	// Draw outline boxes for selected agents. //
-	for(var i = 0; i < skimmer.agents.length; i++){
-		var agent = skimmer.agents[i];
-		var alpha = parseFloat(parseFloat(agent.TICKS_TILL_FADE - agent.curTicksTillFade) / agent.TICKS_TILL_FADE);
-		if( alpha > 1.0 ) { alpha = 1.0; }
-		if( alpha < 0.0 ) { alpha = 0.0; }
-		if(skimmer.selectedWords.indexOf(agent) > -1){
-			ctx.fillStyle = agent.shapeColor.toString();
-			var agentBounds = agent.getBoundingBox();
-			
-			ctx.save();
-			ctx.beginPath();
-			ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(agent.radius)-1,0,Math.PI*2,true);
-			ctx.closePath();
-			ctx.clip();
-			
-			//ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x * scaleNow / scaleOld),
-			//		Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
-			//		Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
-			//		Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
-			
-			ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x),
-					Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y * scaleNow / scaleOld),
-					Math.round(agentBounds.extents.x * 2),
-					Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
-			
-			ctx.restore();
-		
-		}
-	}
-
-	// Draw all of the text and set the agent's bounding box. //
-	for(var i = 0; i < skimmer.agents.length; i++){
-		var agent = skimmer.agents[i];
-		var alpha = parseFloat( (  agent.TICKS_TILL_FADE - agent.curTicksTillFade ) / agent.TICKS_TILL_FADE ) ;
-		if( alpha > 1.0 ) { alpha = 1.0; }
-		if( alpha < 0.0 ) { alpha = 0.0; }
-		ctx.fillStyle = agent.textColor.toString();
-		ctx.textBaseline = 'middle';
-		ctx.textAlign = 'center';
-		if(skimmer.zoomedAgents.indexOf(agent) > -1){
-			ctx.font = 'bold' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
-		}
-		else{
-			ctx.font = 'bold ' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
-		}
-		metrics = ctx.measureText(agent.text);
-		skimmer.agents[i].bounds.extents.set( metrics.width / 2.0 +5 , 10 );
-		if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 )){
-			var colorUnselected = agent.textColor.darker().darker();
-			ctx.fillStyle = colorUnselected.toString();
-		}		
-
-		//back ground color
-
-		if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 && agent.imageLinkValidation == 1 && skimmer.selectedWords.indexOf(agent) < 0 )	{
-
-			ctx.save();
-			ctx.beginPath();
-			ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(agent.radius)-1,0,Math.PI*2,true);
-			ctx.closePath();
-			ctx.clip();
-
-			ctx.fillStyle = 'rgba(50,50,50,0.8)';
-			var agentBounds = agent.getBoundingBox();
-			ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x),
-					Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y * scaleNow / scaleOld),
-					Math.round(agentBounds.extents.x * 2),
-					Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
-
-			ctx.restore();	
-
-		}
-
-
-		ctx.fillStyle='rgba(250,250,250,0.8)';
-		ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
-
-	}
-
-
-	// Draw other user agent if it exists. //
-	if( false ) {
-
-		if( skimmer.DRAW_CIRCLES ) {
-			ctx.fillStyle = 'rgba(255,255,255,0.8)';
-
-			ctx.beginPath();
-			ctx.arc(Math.round( origin.x + skimmer.agentUser.avgPos.x), Math.round( origin.y + skimmer.agentUser.avgPos.y), skimmer.agentUser.radius* scaleNow / scaleOld, 0, Math.PI * 2, false );
-
-			ctx.fill();  
-			ctx.closePath();
-		}
-	}
-
-	// Draw the title agent if it exists. //
-	if( skimmer.agentTitle != null ) {
-		ctx.fillStyle = 'rgba(150,150,150,0.6)';
-		ctx.textBaseline = 'middle';
-		ctx.textAlign = 'center';
-		ctx.font = 'bold ' + Math.round(30 * scaleNow / scaleOld) + 'px Arial';
-
-		//gradientPaint
-		ctx.beginPath();
-		//ctx.fillRect(origin.x + skimmer.agentTitle.pos.x - (skimmer.agentTitle.text.length * 8 + 8) *  scaleNow / scaleOld, 0, (skimmer.agentTitle.text.length * 16 + 16) * scaleNow / scaleOld, 40 * scaleNow / scaleOld);
-		ctx.fillStyle = 'rgba(255,255,255,255.8)';
-		ctx.fillText(skimmer.agentTitle.text, origin.x + skimmer.agentTitle.pos.x, 20 * scaleNow / scaleOld); //top
-
-
-
-	}
-
-	if(skimmer.agentArticle != null){
-		// Clip the title to fit within the assigned width
-		var displayedTitle = "";
-		ctx.font = 'bold '+Math.round(20* scaleNow / scaleOld)+'px Arial';
-
-		var droppedChars = false;
-		for(var i = 0; i < skimmer.agentArticle.title.length; i++){
-			if(ctx.measureText(displayedTitle).width > skimmer.agentArticle.width * 0.75 ){
-				droppedChars = true;
-				break;
-			}	
-			displayedTitle += skimmer.agentArticle.title.charAt(i);
-		}
-		if(droppedChars){
-			displayedTitle += "...";
-		}
-
-		ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
-		var displayedSource = "";
-
-		var droppedChars1 = false;
-		for(var i = 0; i < skimmer.agentArticle.source.length; i++){
-			if(ctx.measureText(displayedSource).width > skimmer.agentArticle.width * 0.75 ){
-				droppedChars1 = true;
-				break;
-			}
-			displayedSource += skimmer.agentArticle.source.charAt(i);
-		}
-		if(droppedChars1){
-			displayedSource += "...";
-		}
-
-		// Reset Max Height to original height
-		skimmer.agentArticle.height = skimmer.agentArticle.originalHeight;
-
-		// Extract the lines from the body text and match vertical height to this property
-		if(skimmer.agentArticle.text != ""){
-			// Extract meaningful measurements and adjust vertical height if necessary
-
-			var requiredTextHeight = 20;
-
-			//deal with text
-			var dealString = skimmer.agentArticle.text;
-			var dealWords = dealString.split(" ");
-			var dealedLines = new Array();
-			var j = 0;
-			dealedLines.push(new String(""));
-			ctx.font = 'bold ' + Math.round(16*scaleNow / scaleOld)+'px Arial';
-			dealedLines[0] += dealWords[0];
-			var textWidth = 0;
-			var lineWidth = 0;
-			for(var i = 1; i < dealWords.length; i++){
-
-				if(ctx.measureText(dealedLines[j] + " " + dealWords[i]).width <= (skimmer.agentArticle.width * 0.9 )){
-
-					dealedLines[j] += " ";
-					dealedLines[j] += dealWords[i];
-				}
-				else{
-					if(ctx.measureText(dealedLines[j]).width > textWidth){
-						textWidth = ctx.measureText(dealedLines[j]).width;
 					}
-					dealedLines.push(new String(""));
-					j += 1;
-					dealedLines[j] += dealWords[i];
+					imgNews=null;
+
 				}
+				//ctx.restore();
 			}
-			if(ctx.measureText(dealedLines[j]).width > textWidth){
-				textWidth = ctx.measureText(dealedLines[j]).width;
+		}
+
+		// Draw outline boxes for selected agents. //
+		for(var i = 0; i < skimmer.agents.length; i++){
+			var agent = skimmer.agents[i];
+			var alpha = parseFloat(parseFloat(agent.TICKS_TILL_FADE - agent.curTicksTillFade) / agent.TICKS_TILL_FADE);
+			if( alpha > 1.0 ) { alpha = 1.0; }
+			if( alpha < 0.0 ) { alpha = 0.0; }
+			if(skimmer.selectedWords.indexOf(agent) > -1){
+				ctx.fillStyle = agent.shapeColor.toString();
+				var agentBounds = agent.getBoundingBox();
+				
+				ctx.save();
+				ctx.beginPath();
+				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(agent.radius)-1,0,Math.PI*2,true);
+				ctx.closePath();
+				ctx.clip();
+				
+				//ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x * scaleNow / scaleOld),
+				//		Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
+				//		Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
+				//		Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
+				
+				ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x),
+						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y * scaleNow / scaleOld),
+						Math.round(agentBounds.extents.x * 2),
+						Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
+				
+				ctx.restore();
+			
+			}
+		}
+
+		// Draw all of the text and set the agent's bounding box. //
+		for(var i = 0; i < skimmer.agents.length; i++){
+			var agent = skimmer.agents[i];
+			var alpha = parseFloat( (  agent.TICKS_TILL_FADE - agent.curTicksTillFade ) / agent.TICKS_TILL_FADE ) ;
+			if( alpha > 1.0 ) { alpha = 1.0; }
+			if( alpha < 0.0 ) { alpha = 0.0; }
+			ctx.fillStyle = agent.textColor.toString();
+			ctx.textBaseline = 'middle';
+			ctx.textAlign = 'center';
+			if(skimmer.zoomedAgents.indexOf(agent) > -1){
+				ctx.font = 'bold' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
+			}
+			else{
+				ctx.font = 'bold ' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
+			}
+			metrics = ctx.measureText(agent.text);
+			skimmer.agents[i].bounds.extents.set( metrics.width / 2.0 +5 , 10 );
+			if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 )){
+				var colorUnselected = agent.textColor.darker().darker();
+				ctx.fillStyle = colorUnselected.toString();
+			}		
+
+			//back ground color
+
+			if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 && agent.imageLinkValidation == 1 && skimmer.selectedWords.indexOf(agent) < 0 )	{
+
+				ctx.save();
+				ctx.beginPath();
+				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(agent.radius)-1,0,Math.PI*2,true);
+				ctx.closePath();
+				ctx.clip();
+
+				ctx.fillStyle = 'rgba(50,50,50,0.8)';
+				var agentBounds = agent.getBoundingBox();
+				ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x),
+						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y * scaleNow / scaleOld),
+						Math.round(agentBounds.extents.x * 2),
+						Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
+
+				ctx.restore();	
+
 			}
 
-			// Font height
-			requiredTextHeight += dealedLines.length * 15 *scaleNow / scaleOld;
-			ctx.font = 'bold 20px Arial';
-			var titleWidth = ctx.measureText(displayedTitle).width;
-			var titleHeight = 24*scaleNow/scaleOld;
 
-			ctx.font = 'bold 16px Arial';
-			var sourceWidth = ctx.measureText(skimmer.agentArticle.source).width;
-			var sourceHeight = 20*scaleNow/scaleOld;
+			ctx.fillStyle='rgba(250,250,250,0.8)';
+			ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
 
-			skimmer.agentArticle.height = requiredTextHeight + titleHeight + sourceHeight;
-			var titleOffsetY = parseInt(Math.round(20 * 1.75));
-			var sourceOffsetY;
-
-			var textBackgroundHeight = skimmer.agentArticle.height - titleHeight - sourceHeight;
-			//alert("titleHeight"+titleHeight+"sourceHeight"+sourceHeight+"skimmer.agentArticle.height"+skimmer.agentArticle.height);
-
-			var titleOrigin = new Vector2();
-			titleOrigin.set(origin.x + skimmer.agentArticle.pos.x - skimmer.agentArticle.width / 2.0,
-					origin.y + skimmer.agentArticle.pos.y - skimmer.agentArticle.height / 2.0);
-			var textOrigin = new Vector2();
-			textOrigin.set(titleOrigin.x, titleOrigin.y + titleHeight);
-			var sourceOrigin = new Vector2();
-			sourceOrigin.set(textOrigin.x, textOrigin.y + textBackgroundHeight);
-
-			ctx.lineWidth = "1";
-			ctx.fillStyle = 'rgba(140,140,140,0.9)';
-			ctx.strokeStyle = 'rgba(150,150,150,0.9)';
+		}
 
 
-			ctx.fillRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
-			ctx.strokeRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
+		// Draw other user agent if it exists. //
+		if( false ) {
 
-			ctx.fillRect(sourceOrigin.x, sourceOrigin.y, skimmer.agentArticle.width, sourceHeight);
-			ctx.strokeRect(sourceOrigin.x, sourceOrigin.y, skimmer.agentArticle.width, sourceHeight);
+			if( skimmer.DRAW_CIRCLES ) {
+				ctx.fillStyle = 'rgba(255,255,255,0.8)';
 
-			ctx.strokeStyle = 'rgba(180,180,180,0.9)';
-			ctx.strokeRect(textOrigin.x, textOrigin.y, skimmer.agentArticle.width, textBackgroundHeight);
-			ctx.fillStyle = 'rgba(240,240,240,0.9)';
-			ctx.fillRect(textOrigin.x, textOrigin.y, skimmer.agentArticle.width, textBackgroundHeight);
+				ctx.beginPath();
+				ctx.arc(Math.round( origin.x + skimmer.agentUser.avgPos.x), Math.round( origin.y + skimmer.agentUser.avgPos.y), skimmer.agentUser.radius* scaleNow / scaleOld, 0, Math.PI * 2, false );
 
-			////////////////////////////////////////////////////////////////////////////////////
+				ctx.fill();  
+				ctx.closePath();
+			}
+		}
+
+		// Draw the title agent if it exists. //
+		if( skimmer.agentTitle != null ) {
+			ctx.fillStyle = 'rgba(150,150,150,0.6)';
+			ctx.textBaseline = 'middle';
+			ctx.textAlign = 'center';
+			ctx.font = 'bold ' + Math.round(30 * scaleNow / scaleOld) + 'px Arial';
+
+			//gradientPaint
+			ctx.beginPath();
+			//ctx.fillRect(origin.x + skimmer.agentTitle.pos.x - (skimmer.agentTitle.text.length * 8 + 8) *  scaleNow / scaleOld, 0, (skimmer.agentTitle.text.length * 16 + 16) * scaleNow / scaleOld, 40 * scaleNow / scaleOld);
+			ctx.fillStyle = 'rgba(255,255,255,255.8)';
+			ctx.fillText(skimmer.agentTitle.text, origin.x + skimmer.agentTitle.pos.x, 20 * scaleNow / scaleOld); //top
+
+
+
+		}
+
+		if(skimmer.agentArticle != null){
+			// Clip the title to fit within the assigned width
+			var displayedTitle = "";
+			ctx.font = 'bold '+Math.round(20* scaleNow / scaleOld)+'px Arial';
+
+			var droppedChars = false;
+			for(var i = 0; i < skimmer.agentArticle.title.length; i++){
+				if(ctx.measureText(displayedTitle).width > skimmer.agentArticle.width * 0.75 ){
+					droppedChars = true;
+					break;
+				}	
+				displayedTitle += skimmer.agentArticle.title.charAt(i);
+			}
+			if(droppedChars){
+				displayedTitle += "...";
+			}
+
 			ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
-			ctx.textAlign = "left";
-			ctx.textBaseline = "top";
-			ctx.fillStyle = 'rgba(50,50,50,0.9)';
-			var lineOrigin = textOrigin.y + 10* scaleNow / scaleOld;
-			for(var i = 0; i < dealedLines.length; i++){
-				//ctx.fillText(dealedLines[i],textOrigin.x + (skimmer.agentArticle.width / 2.0 - textWidth / 2.0+5), lineOrigin);
-				ctx.fillText(dealedLines[i],textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), lineOrigin);
+			var displayedSource = "";
+
+			var droppedChars1 = false;
+			for(var i = 0; i < skimmer.agentArticle.source.length; i++){
+				if(ctx.measureText(displayedSource).width > skimmer.agentArticle.width * 0.75 ){
+					droppedChars1 = true;
+					break;
+				}
+				displayedSource += skimmer.agentArticle.source.charAt(i);
+			}
+			if(droppedChars1){
+				displayedSource += "...";
+			}
+
+			// Reset Max Height to original height
+			skimmer.agentArticle.height = skimmer.agentArticle.originalHeight;
+
+			// Extract the lines from the body text and match vertical height to this property
+			if(skimmer.agentArticle.text != ""){
+				// Extract meaningful measurements and adjust vertical height if necessary
+
+				var requiredTextHeight = 20;
+
+				//deal with text
+				var dealString = skimmer.agentArticle.text;
+				var dealWords = dealString.split(" ");
+				var dealedLines = new Array();
+				var j = 0;
+				dealedLines.push(new String(""));
+				ctx.font = 'bold ' + Math.round(16*scaleNow / scaleOld)+'px Arial';
+				dealedLines[0] += dealWords[0];
+				var textWidth = 0;
+				var lineWidth = 0;
+				for(var i = 1; i < dealWords.length; i++){
+
+					if(ctx.measureText(dealedLines[j] + " " + dealWords[i]).width <= (skimmer.agentArticle.width * 0.9 )){
+
+						dealedLines[j] += " ";
+						dealedLines[j] += dealWords[i];
+					}
+					else{
+						if(ctx.measureText(dealedLines[j]).width > textWidth){
+							textWidth = ctx.measureText(dealedLines[j]).width;
+						}
+						dealedLines.push(new String(""));
+						j += 1;
+						dealedLines[j] += dealWords[i];
+					}
+				}
+				if(ctx.measureText(dealedLines[j]).width > textWidth){
+					textWidth = ctx.measureText(dealedLines[j]).width;
+				}
+
+				// Font height
+				requiredTextHeight += dealedLines.length * 15 *scaleNow / scaleOld;
+				ctx.font = 'bold 20px Arial';
+				var titleWidth = ctx.measureText(displayedTitle).width;
+				var titleHeight = 24*scaleNow/scaleOld;
+
+				ctx.font = 'bold 16px Arial';
+				var sourceWidth = ctx.measureText(skimmer.agentArticle.source).width;
+				var sourceHeight = 20*scaleNow/scaleOld;
+
+				skimmer.agentArticle.height = requiredTextHeight + titleHeight + sourceHeight;
+				var titleOffsetY = parseInt(Math.round(20 * 1.75));
+				var sourceOffsetY;
+
+				var textBackgroundHeight = skimmer.agentArticle.height - titleHeight - sourceHeight;
+				//alert("titleHeight"+titleHeight+"sourceHeight"+sourceHeight+"skimmer.agentArticle.height"+skimmer.agentArticle.height);
+
+				var titleOrigin = new Vector2();
+				titleOrigin.set(origin.x + skimmer.agentArticle.pos.x - skimmer.agentArticle.width / 2.0,
+						origin.y + skimmer.agentArticle.pos.y - skimmer.agentArticle.height / 2.0);
+				var textOrigin = new Vector2();
+				textOrigin.set(titleOrigin.x, titleOrigin.y + titleHeight);
+				var sourceOrigin = new Vector2();
+				sourceOrigin.set(textOrigin.x, textOrigin.y + textBackgroundHeight);
+
+				ctx.lineWidth = "1";
+				ctx.fillStyle = 'rgba(140,140,140,0.9)';
+				ctx.strokeStyle = 'rgba(150,150,150,0.9)';
+
+
+				ctx.fillRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
+				ctx.strokeRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
+
+				ctx.fillRect(sourceOrigin.x, sourceOrigin.y, skimmer.agentArticle.width, sourceHeight);
+				ctx.strokeRect(sourceOrigin.x, sourceOrigin.y, skimmer.agentArticle.width, sourceHeight);
+
+				ctx.strokeStyle = 'rgba(180,180,180,0.9)';
+				ctx.strokeRect(textOrigin.x, textOrigin.y, skimmer.agentArticle.width, textBackgroundHeight);
+				ctx.fillStyle = 'rgba(240,240,240,0.9)';
+				ctx.fillRect(textOrigin.x, textOrigin.y, skimmer.agentArticle.width, textBackgroundHeight);
+
+				////////////////////////////////////////////////////////////////////////////////////
+				ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
+				ctx.textAlign = "left";
+				ctx.textBaseline = "top";
+				ctx.fillStyle = 'rgba(50,50,50,0.9)';
+				var lineOrigin = textOrigin.y + 10* scaleNow / scaleOld;
+				for(var i = 0; i < dealedLines.length; i++){
+					//ctx.fillText(dealedLines[i],textOrigin.x + (skimmer.agentArticle.width / 2.0 - textWidth / 2.0+5), lineOrigin);
+					ctx.fillText(dealedLines[i],textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), lineOrigin);
+					/*
+					 * real content
+					 * 
+					 * */
+					lineOrigin += 15* scaleNow / scaleOld;
+
+				}
+
+				ctx.font = 'bold '+Math.round(20* scaleNow / scaleOld)+'px Arial';
+				ctx.fillText( displayedTitle, textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), titleOrigin.y );
 				/*
-				 * real content
+				 * real title
 				 * 
 				 * */
-				lineOrigin += 15* scaleNow / scaleOld;
-
-			}
-
-			ctx.font = 'bold '+Math.round(20* scaleNow / scaleOld)+'px Arial';
-			ctx.fillText( displayedTitle, textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), titleOrigin.y );
-			/*
-			 * real title
-			 * 
-			 * */
 
 
-			ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
+				ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
 
-			if( sourceOrigin.x < currentCursor.x && currentCursor.x < sourceOrigin.x + skimmer.agentArticle.width )
-			{
-				//alert("oh");
-				if	( sourceOrigin.y < currentCursor.y && currentCursor.y < sourceOrigin.y + sourceHeight )
+				if( sourceOrigin.x < currentCursor.x && currentCursor.x < sourceOrigin.x + skimmer.agentArticle.width )
 				{
 					//alert("oh");
-					ctx.fillStyle = "#33f";
-					linkFlag = 1;
-				}
+					if	( sourceOrigin.y < currentCursor.y && currentCursor.y < sourceOrigin.y + sourceHeight )
+					{
+						//alert("oh");
+						ctx.fillStyle = "#33f";
+						linkFlag = 1;
+					}
+					else{linkFlag = 0;}
+				}	
 				else{linkFlag = 0;}
-			}	
-			else{linkFlag = 0;}
-			ctx.fillText( displayedSource, textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), sourceOrigin.y + 2 );
+				ctx.fillText( displayedSource, textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), sourceOrigin.y + 2 );
 
-			/*
-			 * real link
-			 * 
-			 * */
+				/*
+				 * real link
+				 * 
+				 * */
 
-			skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 + 10, skimmer.agentArticle.height / 2 + 10);
+				skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 + 10, skimmer.agentArticle.height / 2 + 10);
+			}
+			else{
+				skimmer.agentArticle.remove = true;
+				skimmer.selectedWords.length = 0;
+				skimmer.selectedArticles.length = 0;
+				skimmer.selectedArticleRanking.clear();
+			}
 		}
-		else{
-			skimmer.agentArticle.remove = true;
-			skimmer.selectedWords.length = 0;
-			skimmer.selectedArticles.length = 0;
-			skimmer.selectedArticleRanking.clear();
-		}
-	}
-	skimmer.update(0.05, 1024.0, 768.0, scaleNow , scaleOld);
+		skimmer.update(0.05, 1024.0, 768.0, scaleNow , scaleOld);
 
+	}	
 
-
-}	
-
-	
+		
 	
 	// This function is used to get the canvas filling the screen when the size of the screen is changed
 	
@@ -1366,6 +1420,10 @@ function draw(){
 	// The result here is got from the Google news because this website will provide me with RSS data source
 	function AddNewData() {
 		isFlickr = 0;
+		
+		// Reset the feeding flag
+		feedFinished = 0;
+		
 		// Construct the news search address with the help of the google news api
 		// THe Source address of the RSS source is kept untouched because when we are to update the RSS feed, there is no need for us to change the RSS source
 		
@@ -1626,6 +1684,9 @@ function draw(){
 		
 		//------------------------------------------- Get the content from the Google Feed Api ----------------------------------------
 		
+		// Reset the feeding flag
+		feedFinished = 0;
+		
 		// Set the URL for the google feed API
 		var feed = new google.feeds.Feed(sourceAddress);
 		// Set the number of entries to be read from the RSS online
@@ -1709,6 +1770,9 @@ function draw(){
 	
 	
 		//------------------------------------------- Get the content from the Google Feed Api ----------------------------------------
+		
+		// Reset the feeding flag
+		feedFinished = 0;
 		
 		// Set the URL for the google feed API
 		var feed = new google.feeds.Feed(sourceAddress);
@@ -1848,6 +1912,9 @@ function draw(){
 	
 		//------------------------------------------- Get the content from the Google Feed Api ----------------------------------------
 
+		// Reset the feeding flag
+		feedFinished = 0;
+		
 		// Set the URL for the google feed API
 		var feed = new google.feeds.Feed(sourceAddress);
 		// Set the number of entries to be read from the RSS online
