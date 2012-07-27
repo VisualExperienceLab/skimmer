@@ -651,7 +651,7 @@
 			
 			ctx.restore();
 			
-		ctx.save();
+			ctx.save();
 			ctx.beginPath();
 			ctx.arc(dx+dw*0.5,dy+dh*0.5,dw*0.5,0,2*Math.PI,true);
 			ctx.closePath();
@@ -832,6 +832,7 @@ function draw(){
 		}
 	}
 	////////////////////////////////////////////BOTTOM TITLE
+	
 	var skimmerTextWidth = ctx.measureText("Skimmer, by Design Graphics Lab").width;
 
 
@@ -851,7 +852,7 @@ function draw(){
 	}	
 	else{linkFlag = 0;}
 
-
+	ctx.fillStyle = "#fff";
 	ctx.fillText("Skimmer, by Design Graphics Lab", origin.x + skimmer.agentTitle.pos.x, skimmer.height - 20 * scaleNow / scaleOld);  //bottom
 	////////////////////////////////////////////
 
