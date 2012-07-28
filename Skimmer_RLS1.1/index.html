@@ -48,6 +48,7 @@
 	var AGENT_REMOVE_LIMIT = 50;
 	var DEPTH_COUNT_LIMIT = 20;
 	var MAX_LINE = 10;
+	var OVERLAP_DETECTION = 100;
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
 
@@ -1072,7 +1073,7 @@
 				ctx.globalAlpha = agent.localAlpha;
 				skimmer.agents[i].radius = radius / 2;
 				ctx.beginPath();
-				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2)-1, 0, Math.PI * 2, false); 
+				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2)-2, 0, Math.PI * 2, false); 
 				ctx.fill();  
 				ctx.closePath();  
 				ctx.globalAlpha = 1;
