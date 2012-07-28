@@ -79,7 +79,11 @@ function Agent(){
 	this.validImageFlag = 1;
 	this.clickPriority = 1;
 	this.removeCount = 0;
-	this.switchAlpha = 1;
+	
+	//for depth switch smooth
+	this.switchDepthEnable = 0;
+	this.switchDepthCount = 0;
+	this.localAlpha = 1;
 
 }
 
