@@ -105,7 +105,7 @@ function Skimmer(canvasOffsetLeft, canvasOffsetTop, canvasWidth, canvasHeight, f
 	
 	this.TITLE_WEIGHT = 100;
 	
-	// This value is originally 2, but I set it 1 for more words
+	// This value is originally 2
 	this.MIN_NUM_OCCURRENCES = 2;
 
 	this.SORTED_OCCURRENCE_LIST_SIZE = 2000;
@@ -352,11 +352,30 @@ Skimmer.prototype.addNewArticles = function(){
 					var titleword = this.newArticles[i].titlewords[j];
 					if(this.words.indexOf(titleword) < 0){
 						this.words.push(titleword);
-						this.occurrences.put(titleword,this.TITLE_WEIGHT);
+						
+						// Check whether pure number is taken as the input or whether a digit is used as the begining of the words, which is impossible for a word
+						if (isNaN(parseInt(titleword))) {
+							// We take it as legal words
+							this.occurrences.put(titleword,this.TITLE_WEIGHT);
+						}
+						else {
+							// Words strating with a digit may be nonsense words, so set the weight 1
+							this.occurrences.put(titleword,1);
+						}
+
 					}
 					else{
 						var count;
-						count = this.occurrences.get(titleword) + this.TITLE_WEIGHT;
+						// Check whether pure number is taken as the input or whether a digit is used as the begining of the words, which is impossible for a word
+						if (isNaN(parseInt(titleword))) {
+							// We take it as legal words
+							count = this.occurrences.get(titleword) + this.TITLE_WEIGHT;
+						}
+						else {
+							// Words strating with a digit may be nonsense words, so set the weight 1
+							this.occurrences.put(titleword,1);
+						}
+
 						this.occurrences.put(titleword,count);
 						if(count > this.maxOccurrence){
 							this.maxOccurrence = count;
@@ -2236,7 +2255,6 @@ Skimmer.prototype.UpdateSkimmer = function(feedResult, numEntries){
 	this.CENTER_FORCE = 100;
 	this.SMUDGE_FORCE = 500;
 	
-	this.TITLE_WEIGHT = 100;
 	this.SORTED_OCCURRENCE_LIST_SIZE = 2000;
 	this.MAX_NUM_PAIRS = 200;
 	this.MAX_NUM_AGENTS = 50;
@@ -2939,7 +2957,6 @@ Skimmer.prototype.ChangeUsingXMLSource = function(){
 	this.CENTER_FORCE = 100;
 	this.SMUDGE_FORCE = 500;
 	
-	this.TITLE_WEIGHT = 100;
 	this.SORTED_OCCURRENCE_LIST_SIZE = 2000;
 	this.MAX_NUM_PAIRS = 200;
 	this.MAX_NUM_AGENTS = 50;
