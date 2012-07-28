@@ -84,6 +84,7 @@ function Agent(){
 	this.switchDepthEnable = 0;
 	this.switchDepthCount = 0;
 	this.localAlpha = 1;
+	this.shiftMode = 1;
 
 }
 

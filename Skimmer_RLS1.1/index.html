@@ -388,7 +388,23 @@
 	}
 	
 	
+	function mouseDoubleClick(event){
+		//alert("hello");
+		var cursor = new Vector2();
+		cursor.set(event.clientX - skimmer.left - (skimmer.width / 2), event.clientY - skimmer.top - (skimmer.height / 2 ));
+		
+		if(skimmer.agentArticle!=null){
+			var agentArticleBounds = skimmer.agentArticle.getBoundingBox();
+			if(agentArticleBounds.contains(cursor)){
+				skimmer.agentArticle.shiftMode = 3 - skimmer.agentArticle.shiftMode;
+			}
+		}
+		
+	}
+	
 	function mouseClick(event){
+		//alert(event.clickcount);
+		
 		var cursor = new Vector2();
 		cursor.set(event.clientX - skimmer.left - (skimmer.width / 2), event.clientY - skimmer.top - (skimmer.height / 2 ));
 		
@@ -405,6 +421,10 @@
 		if(skimmer.agentArticle!=null){
 			var agentArticleBounds = skimmer.agentArticle.getBoundingBox();
 			if(agentArticleBounds.contains(cursor)){
+				if(event.button == 2){
+						skimmer.agentArticle.shiftMode = 3 - skimmer.agentArticle.shiftMode;
+				}
+				else{
 				var curIndex = skimmer.selectedArticles.indexOf(skimmer.selectedArticle);
 				if(curIndex >= 0){
 					if(event.button == 0){
@@ -432,10 +452,9 @@
 					skimmer.agentArticle.title = skimmer.selectedArticle.title;
 					skimmer.agentArticle.text = skimmer.selectedArticle.summary;
 					skimmer.agentArticle.source = skimmer.selectedArticle.source;
-					//if( isFlickr == 1 )
-					//skimmer.agentArticle.imageUrl = convertUrl(skimmer.selectedArticle.imageUrl);
-					//else
 					skimmer.agentArticle.imageUrl = skimmer.selectedArticle.imageUrl;
+				}
+				
 				}
 			}
 			else{
@@ -1368,7 +1387,12 @@
 				var requiredTextHeight = 20;
 
 				//deal with text
-				var dealString = skimmer.agentArticle.text;
+				var dealString = "";
+				if(skimmer.agentArticle.shiftMode == 1)
+				dealString = skimmer.agentArticle.title;
+				else
+				dealString = skimmer.agentArticle.text;
+				
 				var dealWords = dealString.split(" ");
 				var dealedLines = new Array();
 				var j = 0;
@@ -1399,15 +1423,20 @@
 
 				// Font height
 				requiredTextHeight += (dealedLines.length>MAX_LINE?MAX_LINE:dealedLines.length)* 15 *scaleNow / scaleOld;
-				ctx.font = 'bold 20px Arial';
+				ctx.font = 'bold 16px Arial';
 				var titleWidth = ctx.measureText(displayedTitle).width;
-				var titleHeight = 24*scaleNow/scaleOld;
+				var titleHeight = 20*scaleNow/scaleOld;
 
 				ctx.font = 'bold 16px Arial';
 				var sourceWidth = ctx.measureText(skimmer.agentArticle.source).width;
 				var sourceHeight = 20*scaleNow/scaleOld;
 
-				skimmer.agentArticle.height = requiredTextHeight + titleHeight + sourceHeight;
+			//	if(skimmer.agentArticle.shiftMode == 1)
+			//		skimmer.agentArticle.height = requiredTextHeight;
+			//	else
+					skimmer.agentArticle.height = requiredTextHeight + titleHeight + sourceHeight;
+				
+				
 				var titleOffsetY = parseInt(Math.round(20 * 1.75));
 				var sourceOffsetY;
 
@@ -1426,13 +1455,14 @@
 				ctx.fillStyle = 'rgba(140,140,140,0.9)';
 				ctx.strokeStyle = 'rgba(150,150,150,0.9)';
 
+				if(skimmer.agentArticle.shiftMode == 2){
+					ctx.fillRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
+					ctx.strokeRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
 
-				ctx.fillRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
-				ctx.strokeRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
-
-				ctx.fillRect(sourceOrigin.x, sourceOrigin.y, skimmer.agentArticle.width, sourceHeight);
-				ctx.strokeRect(sourceOrigin.x, sourceOrigin.y, skimmer.agentArticle.width, sourceHeight);
-
+					ctx.fillRect(sourceOrigin.x, sourceOrigin.y, skimmer.agentArticle.width, sourceHeight);	
+					ctx.strokeRect(sourceOrigin.x, sourceOrigin.y, skimmer.agentArticle.width, sourceHeight);
+				}
+				
 				ctx.strokeStyle = 'rgba(180,180,180,0.9)';
 				ctx.strokeRect(textOrigin.x, textOrigin.y, skimmer.agentArticle.width, textBackgroundHeight);
 				ctx.fillStyle = 'rgba(240,240,240,0.9)';
@@ -1449,24 +1479,17 @@
 					break;
 					//ctx.fillText(dealedLines[i],textOrigin.x + (skimmer.agentArticle.width / 2.0 - textWidth / 2.0+5), lineOrigin);
 					ctx.fillText(dealedLines[i],textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), lineOrigin);
-					/*
-					 * real content
-					 * 
-					 * */
+		
 					lineOrigin += 15* scaleNow / scaleOld;
 
 				}
 
+				if(skimmer.agentArticle.shiftMode == 2){
 				ctx.font = 'bold '+Math.round(20* scaleNow / scaleOld)+'px Arial';
 				ctx.fillText( displayedTitle, textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), titleOrigin.y );
-				/*
-				 * real title
-				 * 
-				 * */
-
-
+				
 				ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
-
+				
 				if( sourceOrigin.x < currentCursor.x && currentCursor.x < sourceOrigin.x + skimmer.agentArticle.width )
 				{
 					//alert("oh");
@@ -1480,13 +1503,12 @@
 				}	
 				else{linkFlag = 0;}
 				ctx.fillText( displayedSource, textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), sourceOrigin.y + 2 );
-
-				/*
-				 * real link
-				 * 
-				 * */
-
-				skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 + 10, skimmer.agentArticle.height / 2 + 10);
+				}
+				
+				if(skimmer.agentArticle.shiftMode == 1)
+				skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 + 10, skimmer.agentArticle.height / 2 + 10);					
+				else
+					skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 + 10, skimmer.agentArticle.height / 2 + 10);
 			}
 			else{
 				skimmer.agentArticle.remove = true;
