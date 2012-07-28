@@ -47,6 +47,7 @@
 	var LEAST_IMAGE_WIDTH = 10;
 	var AGENT_REMOVE_LIMIT = 50;
 	var DEPTH_COUNT_LIMIT = 20;
+	var MAX_LINE = 10;
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
 	
@@ -1387,7 +1388,7 @@
 				}
 
 				// Font height
-				requiredTextHeight += dealedLines.length * 15 *scaleNow / scaleOld;
+				requiredTextHeight += (dealedLines.length>MAX_LINE?MAX_LINE:dealedLines.length)* 15 *scaleNow / scaleOld;
 				ctx.font = 'bold 20px Arial';
 				var titleWidth = ctx.measureText(displayedTitle).width;
 				var titleHeight = 24*scaleNow/scaleOld;
@@ -1434,6 +1435,8 @@
 				ctx.fillStyle = 'rgba(50,50,50,0.9)';
 				var lineOrigin = textOrigin.y + 10* scaleNow / scaleOld;
 				for(var i = 0; i < dealedLines.length; i++){
+					if(i >= MAX_LINE)
+					break;
 					//ctx.fillText(dealedLines[i],textOrigin.x + (skimmer.agentArticle.width / 2.0 - textWidth / 2.0+5), lineOrigin);
 					ctx.fillText(dealedLines[i],textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), lineOrigin);
 					/*
