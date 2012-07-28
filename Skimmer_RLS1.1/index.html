@@ -50,6 +50,12 @@
 	var MAX_LINE = 10;
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
+
+	
+	// Record the title of the skimmer
+	var titleRecord = "";
+
+
 	
 	// Read RSS from a website with the help of Google Javascript API Google Feed
 	google.load("feeds", "1");
@@ -90,6 +96,10 @@
 				
 				// Build the skimmer and set the attributes for the skimmer
 				skimmer = new Skimmer(absPosX, absPosY, canvas.width, canvas.height, feedResult, numEntries);
+				
+				// Set the title according to requirements
+				skimmer.agentTitle.text = "NCSU Events";
+				
 				skimmer.addNewArticles();
 				skimmer.extractArticleMinMax();
 				skimmer.checkForAdjacencies();
@@ -1730,41 +1740,55 @@
 		skimmer.updateAgentColor();
 	}
 	
+	
 	// Search for the content in the skimmer
+	// This is used as the basic interactive mode
 	function skimmerSearching() {
 
 		var selectObj = document.getElementById("chooseSource");
 		var selectIndex=selectObj.selectedIndex;
 		var selectVal = selectObj.options[selectIndex].value;
 		
+		
+		// Reset the title record
+		titleRecord = "";
+		
+		// Set the feed URL as well as the title
 		switch(selectVal) {
 			case 'ncsu_lib_news':
 				isFlickr = 0;
 				sourceAddress = "http://feeds.feedburner.com/NCSULibrariesNews?format=xml";
+				titleRecord = "NCSU Library News";
 				break;
 			case 'ncsu_events':
 				isFlickr = 0;
 				sourceAddress = "http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&location=&type=N&binary=Y&keywords=";
+				titleRecord = "NCSU Events";
 				break;
 			case 'ncsu_twitter_search':
 				isFlickr = 0;
 				sourceAddress = "http://search.twitter.com/search.rss?q=%23ncsu";
+				titleRecord = "Twitter #NCSU";
 				break;
 			case 'ncsu_twitter_account':
 				isFlickr = 0;
 				sourceAddress = "http://twitter.ncsu.edu/feed.php";
+				titleRecord = "Twitter @NCSU";
 				break;	
 			case 'ncsu_facebook':
 				isFlickr = 0;
 				sourceAddress = "http://www.facebook.com/feeds/page.php?format=rss20&id=5983837179";
+				titleRecord = "NCSU Facebook";
 				break;
 			case "google_news":
 				isFlickr = 0;
 				sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=ncsu&num=100&um=1&ie=UTF-8&output=rss";
+				titleRecord = "Google News NCSU";
 				break;
 			case "flickr_tags":
 				isFlickr = 1;
 				sourceAddress = "http://api.flickr.com/services/feeds/photos_public.gne?tags=ncsu&lang=en-us&format=rss_200";
+				titleRecord = "Flickr NCSU Tag"
 				break;
 			case "lib_3_m_new":
 				isFlickr = 0;
@@ -1802,6 +1826,12 @@
 				numEntries = feedResult.feed.entries.length;
 				if (numEntries > 0) {
 					skimmer.UpdateSkimmer(feedResult, numEntries);
+					
+					// Set the title of the feed data
+					if (titleRecord != "") {
+						skimmer.agentTitle.text = titleRecord;
+					}
+					
 					skimmer.addNewArticles();
 					skimmer.extractArticleMinMax();
 					skimmer.checkForAdjacencies();
@@ -2239,13 +2269,13 @@
 											<option value = "ncsu_events">NCSU Events</option>
 											<option value = "ncsu_lib_news">NCSU Library News</option>
 											<option value = "ncsu_twitter_search">Twitter #NCSU</option>
-											<option value = "ncsu_twitter_account">NC State Tweets</option>
-											<option value = "ncsu_facebook">NCSU Facebook Wall</option>
-											<option value = "google_news">NCSU - Google News</option>
+											<option value = "ncsu_twitter_account">Twitter @NCSU</option>
+											<option value = "ncsu_facebook">NCSU Facebook</option>
+											<option value = "google_news">Google News NCSU</option>
 											<option value = "flickr_tags">Flickr NCSU Tag</option>
-											<option value = "lib_3_m_new">New in Last 3 Months</option>
-											<option value = "lib_1_m_new">New in Last Month</option>
-											<option value = "lib_1_w_new">New in Last Week</option>
+											<option value = "lib_3_m_new">Library New in Last 3 Months</option>
+											<option value = "lib_1_m_new">Library New in Last Month</option>
+											<option value = "lib_1_w_new">Library New in Last Week</option>
 										</select>
 									</td>
 								</tr>
