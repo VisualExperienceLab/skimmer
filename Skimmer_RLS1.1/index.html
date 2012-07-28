@@ -730,7 +730,7 @@
 
 		// Set the origin of the canvas
 		var origin = new Vector2();
-		origin.set(skimmer.width/2, skimmer.height/2);
+		origin.set(canvas.width/2, canvas.height/2);
 		
 		// Fill the background
 		ctx.fillStyle = 'rgba(0,0,0,1.0)';
@@ -1585,6 +1585,7 @@
 		//table.width = 7000;
 		//table.height = 2000;
 
+			
 		tableSel = document.getElementById("selectFrame");
 		tableSel.width = Math.round(table.width * 1.0 / 9);
 		tableSel.height = table.height * 9 / 10;
@@ -2199,204 +2200,206 @@
 <table id = "overallFrame" border = "0" cellpadding = "0" cellspacing = "0" bgcolor="black">
 	<tr>
 		<td>
-			<table>
-				<tr>
-					<td>
-						<table id = "selectFrame" border = "0" cellpadding = "0">
-							<tr>
-								<td>
+			<div>
+				<table id = "selectFrame" border = "0" cellpadding = "0" style="table-layout:fixed">
+					<tr>
+						<td>
+						
+							<table id = "basicMode" border = "0" cellpadding = "0"">
+
+								<!-- Basic manual mode-->
+								<tr>
+									<td>
+										<font color = "white" face = "Arial">Color</font>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<select id="selectColor" onChange = SelectColor()>
+											<option value = 0>Random</option>
+											<option value = 1>Grammar</option>
+											<option value = 3>Emotion</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<br/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<font color = "white" face = "Arial">Source</font>
+									</td>
+								</tr>
+								<!-- This selection box select the source of the data from a given list of xml feeds -->
+								<tr>
+									<td>
+										<select id="chooseSource" name="chooseSource" onclick="resetSourceSelect()" onchange="onChangeSourceSelect()">
+											<option value = "ncsu_events">NCSU Events</option>
+											<option value = "ncsu_lib_news">NCSU Library News</option>
+											<option value = "ncsu_twitter_search">Twitter #NCSU</option>
+											<option value = "ncsu_twitter_account">NC State Tweets</option>
+											<option value = "ncsu_facebook">NCSU Facebook Wall</option>
+											<option value = "google_news">NCSU - Google News</option>
+											<option value = "flickr_tags">Flickr NCSU Tag</option>
+											<option value = "lib_3_m_new">New in Last 3 Months</option>
+											<option value = "lib_1_m_new">New in Last Month</option>
+											<option value = "lib_1_w_new">New in Last Week</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<br/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<font color = "white" face = "Arial">Picture</font>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<input type="radio" id="radio1" name="showImage" value="1" checked="true"> <font color = "white" face = "Arial">Yes</font>
+										<input type="radio" id="radio2" name="showImage" value="2"> <font color = "white" face = "Arial">No</font>
+									</td>
+								</tr>
 								
-									<table id = "basicMode" border = "0" cellpadding = "0"">
+								<tr>
+									<td>
+										<font color = "white" face = "Arial">Advanced</font>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<input type="radio" id="radio1" name="advanceRadioBtn" value="1" onclick="clickAdvancedRadioBtn()"> <font color = "white" face = "Arial">Yes</font>
+										<input type="radio" id="radio2" name="advanceRadioBtn" value="2" checked="true" onclick="clickAdvancedRadioBtn()"> <font color = "white" face = "Arial">No</font>
+									</td>
+								</tr>
 
-										<!-- Basic manual mode-->
-										<tr>
-											<td>
-												<font color = "white" face = "Arial">Color</font>
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<select id="selectColor" onChange = SelectColor()>
-													<option value = 0>Random</option>
-													<option value = 1>Grammar</option>
-													<option value = 3>Emotion</option>
-												</select>
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<br/>
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<font color = "white" face = "Arial">Source</font>
-											</td>
-										</tr>
-										<!-- This selection box select the source of the data from a given list of xml feeds -->
-										<tr>
-											<td>
-												<select id="chooseSource" name="chooseSource" onclick="resetSourceSelect()" onchange="onChangeSourceSelect()">
-													<option value = "ncsu_events">NCSU Events</option>
-													<option value = "ncsu_lib_news">NCSU Library News</option>
-													<option value = "ncsu_twitter_search">Twitter #NCSU</option>
-													<option value = "ncsu_twitter_account">NC State Tweets</option>
-													<option value = "ncsu_facebook">NCSU Facebook Wall</option>
-													<option value = "google_news">NCSU - Google News</option>
-													<option value = "flickr_tags">Flickr NCSU Tag</option>
-													<option value = "lib_3_m_new">New in Last 3 Months</option>
-													<option value = "lib_1_m_new">New in Last Month</option>
-													<option value = "lib_1_w_new">New in Last Week</option>
-												</select>
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<br/>
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<font color = "white" face = "Arial">Picture</font>
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<input type="radio" id="radio1" name="showImage" value="1" checked="true"> <font color = "white" face = "Arial">Yes</font>
-												<input type="radio" id="radio2" name="showImage" value="2"> <font color = "white" face = "Arial">No</font>
-											</td>
-										</tr>
-										
-										<tr>
-											<td>
-												<font color = "white" face = "Arial">Advanced</font>
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<input type="radio" id="radio1" name="advanceRadioBtn" value="1" onclick="clickAdvancedRadioBtn()"> <font color = "white" face = "Arial">Yes</font>
-												<input type="radio" id="radio2" name="advanceRadioBtn" value="2" checked="true" onclick="clickAdvancedRadioBtn()"> <font color = "white" face = "Arial">No</font>
-											</td>
-										</tr>
-
-										
-										<!-- The searching button is removed for simplicity of interaction -->
-										<!--
-										<tr>
-											<td>
-												<button type = "button" name = "skimmerSearching" id = "skimmerSearching" onclick = skimmerSearching()>Search</button>
-											</td>
-										</tr>
-										-->
-										<!--
-										<tr>
-											<td>
-												<button type = "button" name = "AdvancedSearchBtn" id = "AdvancedSearchBtn" onclick = AdvancedSearchDriver()>Advanced</button>
-											</td>
-										</tr>	
-										-->
-									</table>
 								
-								</td>
+								<!-- The searching button is removed for simplicity of interaction -->
+								<!--
+								<tr>
+									<td>
+										<button type = "button" name = "skimmerSearching" id = "skimmerSearching" onclick = skimmerSearching()>Search</button>
+									</td>
+								</tr>
+								-->
+								<!--
+								<tr>
+									<td>
+										<button type = "button" name = "AdvancedSearchBtn" id = "AdvancedSearchBtn" onclick = AdvancedSearchDriver()>Advanced</button>
+									</td>
+								</tr>	
+								-->
+							</table>
+						
+						</td>
 
-							</tr>
+					</tr>
 
-							<tr>
-								<td>
-									<br/>
-								</td>
-							</tr>
+					<tr>
+						<td>
+							<br/>
+						</td>
+					</tr>
 
-							<tr>
-								<td>
-									<table id = "advancedMode" border = "0" cellpadding = "0">
-							
-										<!-- These are used as the Advanced interactive mode -->
+					<tr>
+						<td>
+							<table id = "advancedMode" border = "0" cellpadding = "0">
+					
+								<!-- These are used as the Advanced interactive mode -->
 
-										<tr>
-											<td>
-												<font color = "white" face = "Arial">Search Engine</font>
-											</td>
-										</tr>
-										<!-- This selection box select the source of the search engines from a given list of xml feeds -->
-										<tr>
-											<td>
-												<select id="chooseEngine" name="chooseEngine">
-													<option value = "ncsu_twitter_search">twitter search</option>
-													<option value = "google_news">Google News</option>
-													<option value = "flickr_tags">Flickr Images</option>
-													<option value = "lib_search">Library Search</option>
-												</select>
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<br/>
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<font color = "white" face = "Arial">Keyword</font>
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<input type = "text" id = "searchContent" name = "searchContent" onkeydown="keyDown(event);" />
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<br/>
-											</td>
-										</tr>
-										
-										<!-- The advanced searching button is replaced by keyboard event -->
-										<!--
-										<tr>
-											<td>
-												<button type = "button" name = "advancedSearching" id = "advancedSearching" onclick = "AdvancedSearching();">AdvancedSearch</button>
-											</td>
-										</tr>
-										-->
-										
-									</table>
-								</td>
-							</tr>
-
-
-							<!-- The button is now replaced by radio button-->
-							<!--
-							<tr>
-								<td>
-									<button type = "button" name = "autoMode" id = "autoMode" onclick = "autoModeDriver();">AutoMode</button>
-								</td>
-							</tr>
-							-->
+								<tr>
+									<td>
+										<font color = "white" face = "Arial">Search Engine</font>
+									</td>
+								</tr>
+								<!-- This selection box select the source of the search engines from a given list of xml feeds -->
+								<tr>
+									<td>
+										<select id="chooseEngine" name="chooseEngine">
+											<option value = "ncsu_twitter_search">twitter search</option>
+											<option value = "google_news">Google News</option>
+											<option value = "flickr_tags">Flickr Images</option>
+											<option value = "lib_search">Library Search</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<br/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<font color = "white" face = "Arial">Keyword</font>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<input type = "text" id = "searchContent" name = "searchContent" onkeydown="keyDown(event);" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<br/>
+									</td>
+								</tr>
+								
+								<!-- The advanced searching button is replaced by keyboard event -->
+								<!--
+								<tr>
+									<td>
+										<button type = "button" name = "advancedSearching" id = "advancedSearching" onclick = "AdvancedSearching();">AdvancedSearch</button>
+									</td>
+								</tr>
+								-->
+								
+							</table>
+						</td>
+					</tr>
 
 
-						</table>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<table id = "autoSubFrame" border = "0" cellpadding = "0">
-							<!-- This button is used for switching between the manual mode and the automated mode -->
-							<tr>
-								<td>
-									<font color = "white" face = "Arial">Automated</font>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<input type="radio" id="radio1" name="automatedRadioBtn" value="1" onclick="clickAutomatedRadioBtn()"> <font color = "white" face = "Arial">Yes</font>
-									<input type="radio" id="radio2" name="automatedRadioBtn" value="2" checked="true" onclick="clickAutomatedRadioBtn()"> <font color = "white" face = "Arial">No</font>
-								</td>
-							</tr>
+					<!-- The button is now replaced by radio button-->
+					<!--
+					<tr>
+						<td>
+							<button type = "button" name = "autoMode" id = "autoMode" onclick = "autoModeDriver();">AutoMode</button>
+						</td>
+					</tr>
+					-->
 
-						</table>
-					</td>
-				</tr>
-			</table>
+
+				</table>
+			</div>
+			<style>
+				.footer{
+				    width:auto;
+				    height:auto;
+				    position:absolute;
+				    bottom:0px;
+				}
+			</style>
+			<div class="footer">
+				<table id = "autoSubFrame" border = "0" cellpadding = "0">
+					<!-- This button is used for switching between the manual mode and the automated mode -->
+					<tr>
+						<td>
+							<font color = "white" face = "Arial">Automated</font>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<input type="radio" id="radio1" name="automatedRadioBtn" value="1" onclick="clickAutomatedRadioBtn()"> <font color = "white" face = "Arial">Yes</font>
+							<input type="radio" id="radio2" name="automatedRadioBtn" value="2" checked="true" onclick="clickAutomatedRadioBtn()"> <font color = "white" face = "Arial">No</font>
+						</td>
+					</tr>
+
+				</table>
+			</div>
 		</td>
 
 		<td>
