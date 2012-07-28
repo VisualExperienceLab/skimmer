@@ -2095,6 +2095,27 @@
 					// Set the text in the selecting box
 					var selectObj = document.getElementById("selectColor");
 					selectObj.selectedIndex = colorscheme;
+
+
+					timeNodes = sourceNodes[sourceSelectOrder].getElementsByTagName("interval");
+					if (timeNodes[0] != undefined) {
+						timeoutIntervalXML = timeNodes[0].childNodes[0].nodeValue;
+
+						// Set the minimum time interval 15 seconds so that the time needed to read data is not likely to have effect on the time control
+						if (timeoutIntervalXML < 15) {
+							timeoutIntervalXML = 15;
+						}
+
+						autoIntervalID = setTimeout(autoModeFunc, timeoutIntervalXML * 1000);
+
+						//alert(timeoutIntervalXML);
+					}
+					else {
+						autoIntervalID = setTimeout(autoModeFunc, timeInterval);
+
+						//alert("Default");
+					}
+					
 				}
 				else {
 					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
@@ -2125,7 +2146,8 @@
 			sourceXmlDoc = loadXmlFile("data/sourceconfig.xml");
 			sourceNodes = sourceXmlDoc.getElementsByTagName("source");
 
-			autoIntervalID = setInterval(autoModeFunc, timeInterval);
+			autoIntervalID = setTimeout(autoModeFunc, timeInterval);
+			//autoIntervalID = setInterval(autoModeFunc, timeInterval);
 			autoFlag = 1;
 
 			//autoMode = document.getElementById("autoMode");
@@ -2151,7 +2173,7 @@
 
 		}
 		else{
-			clearInterval(autoIntervalID);
+			clearTimeout(autoIntervalID);
 			autoFlag = 0;
 
 			//autoMode = document.getElementById("autoMode");

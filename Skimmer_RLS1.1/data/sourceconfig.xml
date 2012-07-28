@@ -3,40 +3,49 @@
 	<source>
 		<feed>http://feeds.feedburner.com/NCSULibrariesPESNews?format=xml</feed>
 		<color>random</color>
+		<interval>15</interval>
 	</source>
 	<source>
 		<feed>http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&amp;location=&amp;type=N&amp;binary=Y&amp;keywords=</feed>
 		<color>dictionary</color>
+		<interval>15</interval>
 	</source>
 	<source>
 		<feed>http://search.twitter.com/search.rss?q=%23ncsu</feed>
 		<color>emotion</color>
+		<interval>15</interval>
 	</source>
 	<source>
 		<website>ncsu_twitter</website>
 		<keyword>ncsu</keyword>
 		<color>random</color>
+		<interval>15</interval>
 	</source>
 	<source>
 		<website>google_news</website>
 		<keyword>football</keyword>
 		<color>random</color>
+		<interval>15</interval>
 	</source>
 	<source>
 		<website>flickr</website>
 		<keyword>dog</keyword>
 		<color>random</color>
+		<interval>15</interval>
 	</source>
 	<source>
 		<feed>http://www.facebook.com/feeds/page.php?format=rss20&amp;id=5983837179</feed>
 		<color>random</color>
+		<interval>15</interval>
 	</source>
 	<source>
 		<feed>http://news.google.com/news?hl=en&amp;gl=us&amp;q=ncsu&amp;num=100&amp;um=1&amp;ie=UTF-8&amp;output=rss</feed>
 		<color>dictionary</color>
+		<interval>15</interval>
 	</source>
 	<source>
 		<feed>http://api.flickr.com/services/feeds/photos_public.gne?tags=ncsu&amp;lang=en-us&amp;format=rss_200</feed>
+		<interval>15</interval>
 	</source>
 </sourceconfig>
 <!--
@@ -57,4 +66,8 @@ USER GUIDE:
 			default: random
 	6. The content between tags <feed> and </feed> is the accurate URL for the RSS feed when the URL is available
 		ATTENTION: Make sure the URL is valid before it is used as feed
+	7. The content between tags <interval> and </interval> is the time interval of a certain feed source
+		The unit is second and 30 second is the time interval by default
+		It is recommended that time interval values be large enough.
+		The minimum interval is set 15 seconds.
 -->
