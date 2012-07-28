@@ -23,6 +23,10 @@
 	var skimmer;
 	var canvas;
 	var ctx;
+	
+	var slidercanvas;
+	var sliderctx;
+	
 	var intervalID;
 
 	var feedFinished = 0;		// A flag used to denote the end of feeding and is initially set zero
@@ -783,8 +787,19 @@
 		
 	}
 	
+	// Draw the slider bar to control the image and text
+	function drawSliderBar() {
+		// Draw the slider bar
+		sliderctx.fillStyle = 'rgba(255,255,0,1.0)';
+		sliderctx.fillRect(0,0,slidercanvas.width,slidercanvas.height);
+		
+	}
+	
 	// Added as the driver of the draw funcion
 	function drawDriver(){
+
+		drawSliderBar();
+
 		if (feedFinished == 1) {
 			draw();
 		}
@@ -1684,6 +1699,7 @@
 		canvas.height = table.height;
 		
 		ctx = canvas.getContext("2d");
+
 		
 		// Get the style ratio of the elements on the webpage
 		if (canvas.width <= canvas.height) {
@@ -1706,6 +1722,14 @@
 		var heightRatioFont = 1.0 / 40;
 		
 		
+
+		// Add the slider bar for image and text control
+		slidercanvas = document.getElementById("slidercanvas");
+		slidercanvas.width = tableSel.width;
+		slidercanvas.height = tableSel.height * heightRatioText;
+		sliderctx = slidercanvas .getContext("2d");;
+
+
 		// Adjust the blank between two sets of elements
 		tableSel.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 				
@@ -2471,6 +2495,19 @@
 								<tr>
 									<td>
 										<br/>
+									</td>
+								</tr>
+
+
+								<tr>
+									<td>
+										<font color = "white" face = "Arial">Image v.s. Text</font>
+									</td>
+								</tr>
+
+								<tr>
+									<td>
+										<canvas id = "slidercanvas"></canvas>
 									</td>
 								</tr>
 								
