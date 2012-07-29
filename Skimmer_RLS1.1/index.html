@@ -1791,6 +1791,11 @@
 						if(ctx.measureText(dealedLines[j]).width > textWidth){
 							textWidth = ctx.measureText(dealedLines[j]).width;
 						}
+						if(ctx.measureText(dealWords[i]).width > (skimmer.agentArticle.width * 0.9 ) )
+						{
+							dealWords[i] = dealWords[i].substring(0, parseInt(dealWords.length*skimmer.agentArticle.width * 0.9 / ctx.measureText(dealWords[i]).width ));
+							
+						}
 						dealedLines.push(new String(""));
 						j += 1;
 						dealedLines[j] += dealWords[i];
