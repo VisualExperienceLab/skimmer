@@ -3,7 +3,7 @@
 	<source>
 		<feed>http://feeds.feedburner.com/NCSULibrariesPESNews?format=xml</feed>
 		<color>random</color>
-		<interval>1500000000</interval>
+		<interval>15</interval>
 	</source>
 	<source>
 		<feed>http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&amp;location=&amp;type=N&amp;binary=Y&amp;keywords=</feed>
