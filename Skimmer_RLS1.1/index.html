@@ -2163,6 +2163,13 @@
 		
 		skimmer.left = absPosX;
 		skimmer.top = absPosY;
+		
+		if(autoFlag == 1){
+		
+			simuCursor.set(0,0);
+			mainDir.normalizePara(initStep*scaleNow/scaleOld);	
+		}
+		
 	}
 	}
 
