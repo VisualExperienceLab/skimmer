@@ -998,7 +998,7 @@
 	// Added as the driver of the draw funcion
 	function drawDriver(){
 
-		drawSliderBar();
+		//drawSliderBar();
 
 		if (feedFinished == 1) {
 			draw();
@@ -2936,10 +2936,12 @@
 
 	mouseMoveIntervalID = setInterval(checkMouseMove, mouseMoveCheckingTimeInterval);
 
+	// Set the draw function for the overall canvas
 	//intervalID = setInterval(draw, 25);
 	intervalID = setInterval(drawDriver, 25);
 
-	
+	// Set the time interval for drawing slider bar
+	intervalSlider = setInterval(drawSliderBar, 5);
 	
 	// Set the time interval for auto refreshing
 	var autoRefreshingTimeInterval = 500000;
