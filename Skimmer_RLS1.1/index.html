@@ -1420,7 +1420,7 @@
 
 				// updates the radius value
 				tAlpha = ctx.globalAlpha;
-				ctx.globalAlpha = agent.localAlpha*(valueSlider/100.0);
+				ctx.globalAlpha = valueSlider > 60 ? (valueSlider/100.0) : agent.localAlpha*(valueSlider/100.0);
 				skimmer.agents[i].radius = radius / 2;
 				ctx.beginPath();
 				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2)-2, 0, Math.PI * 2, false); 
@@ -2944,8 +2944,7 @@
 	//intervalID = setInterval(draw, 25);
 	intervalID = setInterval(drawDriver, 25);
 
-	// Set the time interval for drawing slider bar
-	intervalSlider = setInterval(drawSliderBar, 5);
+	
 	
 	// Set the time interval for auto refreshing
 	var autoRefreshingTimeInterval = 500000;
