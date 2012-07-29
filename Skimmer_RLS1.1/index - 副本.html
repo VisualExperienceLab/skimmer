@@ -65,9 +65,8 @@
 	
 	
 	//for overlaping manipulation
-	
+	var agentDepthSwitchEnable = null;
 	var agentOverlapMark = null;
-	var overlapCheckCount = 0;
 	
 	// Record the title of the skimmer
 	var titleRecord = "";
@@ -394,15 +393,15 @@
 			}		
 		}
 		
-		
+		agentDepthSwitchEnable = new Array(skimmer.agents.length);
 		agentOverlapMark = new Array(skimmer.agents.length);
 		
 		for(var i = 0; i < skimmer.agents.length; i++){
 			depthOrder[i]=new Array();
 			depthOrder[i][0]=i
 			depthOrder[i][1]=i%DEPTHLAYER;
-			
-			agentOverlapMark[i] = -1;
+			agentDepthSwitchEnable[i] = 1;
+			agentOverlapMark[i] = 0;
 		}
 		//alert("skimmer.agents.length  "+skimmer.agents.length)
 		//alert("depthOrder.length "+depthOrder.length);
@@ -826,170 +825,13 @@
 		
 	}
 	
-
-
-	
-	// Set the attributes for the bar
-	var barHeightRatio = 0;
-	var barHeight = 0;
-	var barWidth = 0;
-	
-	// Set the attributes for the dragger
-	var draggerWidth = 0;
-	var draggerMargin = 0;
-	var draggerHeight = 0;
-
-	// The value from the slider bar
-	var valueSlider = 0;
-
-	// A flag denote the pressed down status of the dragger
-	var DraggerDown = 0;
-	
-	// On the event that the mouse is pressed and check whether the dragger is picked
-	function SliderMouseDown(event) {
-
-		// Get the absolute coordinates of the mouse click event
-		var e = slidercanvas;
-		var AbsX = e.offsetLeft;
-		var AbsY = e.offsetTop;
-		
-		while(e=e.offsetParent)
-		{
-			AbsX += e.offsetLeft;
-			AbsY += e.offsetTop;
-	    }
-		
-		//alert("PX: " + AbsX + "PY" + AbsY);
-		//alert("X: " + event.clientX + "Y: " + event.clientY);
-		
-		// Get the related x and y
-		var cursorX = event.clientX - AbsX;
-		var cursorY = event.clientY - AbsY;
-
-		//var d = (valueSlider / 100 * slidercanvas.width + 1 / 2 * draggerWidth);
-		//console.log("Mouse " + cursorX + " Dragger " + d + " W " + draggerWidth);
-		
-		if (Math.abs(cursorX - (valueSlider / 100 * slidercanvas.width - 1 / 2 * draggerWidth)) <= 1 / 2 * draggerWidth) {
-			DraggerDown = 1;
-		}
-	}
-
-
-	// On the event that the mouse is moved
-	function SliderMouseMove(event) {
-
-		if (DraggerDown == 1) {
-			// Get the absolute coordinates of the mouse click event
-			var e = slidercanvas;
-			var AbsX = e.offsetLeft;
-			var AbsY = e.offsetTop;
-			
-			while(e=e.offsetParent)
-			{
-				AbsX += e.offsetLeft;
-				AbsY += e.offsetTop;
-		    }
-			
-			//alert("PX: " + AbsX + "PY" + AbsY);
-			//alert("X: " + event.clientX + "Y: " + event.clientY);
-			
-			// Get the related x and y
-			var cursorX = event.clientX - AbsX;
-			var cursorY = event.clientY - AbsY;
-			
-			if (slidercanvas.width > 0) {
-				if (cursorX <= draggerWidth) {
-					valueSlider = 0
-				}
-				else if (cursorX >= slidercanvas.width - draggerWidth) {
-					valueSlider = 100
-				}
-				else {
-					valueSlider = (cursorX - draggerWidth) / (slidercanvas.width - 2 * draggerWidth) * 100;
-				}
-				//alert(valueSlider);
-			}
-		}
-	}
-
-	
-	// On the event that the mouse is released
-	function SliderMouseUp(event) {
-
-		// Get the absolute coordinates of the mouse click event
-		var e = slidercanvas;
-		var AbsX = e.offsetLeft;
-		var AbsY = e.offsetTop;
-		
-		while(e=e.offsetParent)
-		{
-			AbsX += e.offsetLeft;
-			AbsY += e.offsetTop;
-	    }
-		
-		//alert("PX: " + AbsX + "PY" + AbsY);
-		//alert("X: " + event.clientX + "Y: " + event.clientY);
-		
-		// Get the related x and y
-		var cursorX = event.clientX - AbsX;
-		var cursorY = event.clientY - AbsY;
-		
-		if (slidercanvas.width > 0) {
-			if (cursorX <= draggerWidth) {
-				valueSlider = 0
-			}
-			else if (cursorX >= slidercanvas.width - draggerWidth) {
-				valueSlider = 100
-			}
-			else {
-				valueSlider = (cursorX - draggerWidth) / (slidercanvas.width - 2 * draggerWidth) * 100;
-			}
-			//alert(valueSlider);
-		}
-		
-		DraggerDown = 0;
-	}
-	
-	
-	// The global mouse up function
-	function mouseUp(event) {
-		DraggerDown = 0;
-
-		//alert(valueSlider);
-	}
-	
-	
 	// Draw the slider bar to control the image and text
 	function drawSliderBar() {
 		// Draw the slider bar
-		sliderctx.fillStyle = 'rgba(0, 0, 0, 1.0)';
+		sliderctx.fillStyle = 'rgba(255,255,0,1.0)';
 		sliderctx.fillRect(0,0,slidercanvas.width,slidercanvas.height);
 		
-		// Set the size of the bar
-		barHeightRatio = 1 / 3;
-		//var barWidthMargin = slidercanvas.width * 1 / 20;
-		
-		barHeight = slidercanvas.height * barHeightRatio;
-		barWidth  = slidercanvas.width;
-
-		// Set the size of the dragger
-		draggerWidth = barWidth * 1 / 10;
-		draggerMargin = slidercanvas.height * 1 / 10;
-		draggerHeight = slidercanvas.height - 2 * draggerMargin;
-		
-		// Set the margin for the bar
-		barWidth = barWidth - 2 * draggerWidth;
-		
-		// Draw the bar
-		sliderctx.fillStyle = 'rgba(100, 100, 100, 1.0)';
-		sliderctx.fillRect(draggerWidth / 2, slidercanvas.height * 1 / 3, barWidth, barHeight);
-
-		// Draw the dragger
-		sliderctx.fillStyle = 'rgba(200, 200, 200, 1.0)';
-		sliderctx.fillRect((valueSlider / 100) * barWidth, draggerMargin,  draggerWidth, draggerHeight);
 	}
-	
-	
 	
 	// Added as the driver of the draw funcion
 	function drawDriver(){
@@ -1057,14 +899,10 @@
 	}
 	
 	
-	
+	//var agentDepthSwitchEnable = new Array();
 	//var agentOverlapMark 
 	
 	function checkAgentOverlap(){
-		
-		for(var i=0;i<agentOverlapMark.length; i++)
-			agentOverlapMark[i] = -1;
-			
 		//gogo
 		if(skimmer == undefined || skimmer.agents.length <= 0 ) return ;
 		
@@ -1075,69 +913,29 @@
 			for(var j=i+1; j < skimmer.agents.length; j++){
 				
 				
-				if(skimmer.agents[i].avgPos.dist(skimmer.agents[j].avgPos) <  skimmer.agents[j].radius+skimmer.agents[i].radius ){
+				if(skimmer.agents[i].avgPos.dist(skimmer.agents[j].avgPos) < 2 * skimmer.agents[i].radius ){
 				
-					var iLink, jLink;
-					if(skimmer.agents[i].pictureMode == 0)
-						continue;
-					else if(skimmer.agents[i].pictureMode == 2)
-					iLink = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
-					else if(skimmer.agents[i].pictureMode == 1)
-					iLink = skimmer.agents[i].validImage.src;
+					var iLink = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
+					var jLink = skimmer.agents[j].imageLinkList[skimmer.agents[j].imageIndex];
 				
-					if(skimmer.agents[j].pictureMode == 0)
-						continue;
-					else if(skimmer.agents[j].pictureMode == 2)
-					jLink = skimmer.agents[j].imageLinkList[skimmer.agents[j].imageIndex];
-					else if(skimmer.agents[j].pictureMode == 1)
-					jLink = skimmer.agents[j].validImage.src;
+					if(iLink == jLink){
 						
-						if(iLink == jLink && iLink != null && iLink != "" && iLink != " "){
-						console.log(skimmer.agents[i].text+" "+skimmer.agents[j].text);
-						
-						if( agentOverlapMark[j] != -1){
-							if(agentOverlapMark[i] == -1)	
+						if( agentOverlapMark[j] != 0)
 							agentOverlapMark[i] = agentOverlapMark[j];
-							
-							else if(agentOverlapMark[i] != agentOverlapMark[j]){
-								var tt = agentOverlapMark[i];
-								for(var jj = 0; jj<agentOverlapMark.length; jj++){
-									if(agentOverlapMark[jj] == tt )
-										agentOverlapMark[jj] = agentOverlapMark[j];
-									}
-									
-						          clusterCount--;
-							}
-						}
-						else if(agentOverlapMark[i] != -1)
+						
+						else if(agentOverlapMark[i] != 0)
 							agentOverlapMark[j] = agentOverlapMark[i];
 						
 						else
 							agentOverlapMark[j]=agentOverlapMark[i]=clusterCount++;
-						}
+					}
 				}
-			}
 				
 				
-		}
-		
-		
-		
-		var cFlag = new Array(clusterCount);
-		for(var i =0;i<cFlag.length; i++)
-			cFlag[i]=0;
-		
-		for(var i = 0; i <skimmer.agents.length ; i++){
-			console.log(skimmer.agents[i].text+" "+agentOverlapMark[i]);
-			if( agentOverlapMark[i] > -1 && cFlag[agentOverlapMark[i]] == 0 ){
-				agentOverlapMark[i] = 1;
-				cFlag[agentOverlapMark[i]] = 1;
 			}
-			else if(agentOverlapMark[i] > -1 && cFlag[agentOverlapMark[i]] == 1){
-				agentOverlapMark[i] = 0;
-			}
-		}
+			
 		
+		}
 	}
 	
 	
@@ -1446,16 +1244,13 @@
 
 								ctx.globalAlpha = agent.localAlpha;
 								
-								if ( imgNews.width > LEAST_IMAGE_WIDTH ){
+								if ( imgNews.width > LEAST_IMAGE_WIDTH )
 									//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-									agent.pictureMode = 2;
-								}
-								else if (skimmer.agents[i].validImageFlag == 0){
+								else if (skimmer.agents[i].validImageFlag == 0)
 									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-									agent.pictureMode = 1;
-								}
+
 								skimmer.agents[i].switchPicture ++;
 							}
 							
@@ -1470,15 +1265,13 @@
 								ctx.globalAlpha =( 1 - skimmer.agents[i].switchPicture/ 20.0 )*agent.localAlpha;
 								imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
                                 
-								if ( imgNews.width > LEAST_IMAGE_WIDTH ){
+								if ( imgNews.width > LEAST_IMAGE_WIDTH )
 									//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-									agent.pictureMode = 2;
-								}
+
 								else if (skimmer.agents[i].validImageFlag == 0){
 									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage, agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-									agent.pictureMode = 1;
 									fflag++;
 								}
 
@@ -1487,32 +1280,29 @@
 								newImg.src = skimmer.agents[i].imageLinkList[inc];
 
 
-								if ( newImg.width > LEAST_IMAGE_WIDTH ){
+								if ( newImg.width > LEAST_IMAGE_WIDTH )
 									//ctx.drawImage(newImg,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-									agent.pictureMode = 2;
-								}
+
 								else if (skimmer.agents[i].validImageFlag == 0){
 									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-									agent.pictureMode = 1;
+
 									fflag++;
 								}
 
 								skimmer.agents[i].switchPicture ++;
 								//ctx.globalAlpha = 1 ;
 								ctx.globalAlpha = agent.localAlpha;
-								if ( fflag == 2 ){
+								if ( fflag == 2 )
 									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-									agent.pictureMode = 1;
-								}
-								else if (newImg.src == imgNews.src){
+
+								else if (newImg.src == imgNews.src)
 									//ctx.drawImage(newImg, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 
-									agent.pictureMode = 2;
-								}
+
 								newImg=null;
 							}
 							else{
@@ -1521,17 +1311,14 @@
 								imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 
 								ctx.globalAlpha = agent.localAlpha;
-								if ( imgNews.width > LEAST_IMAGE_WIDTH ){
+								if ( imgNews.width > LEAST_IMAGE_WIDTH )
 									//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-									agent.pictureMode = 2;
-								}
-								else if (skimmer.agents[i].validImageFlag == 0){
+
+								else if (skimmer.agents[i].validImageFlag == 0)
 									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-									agent.pictureMode = 1;
-								}
-								
+
 
 							}
 						}
@@ -1541,18 +1328,14 @@
 							//skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 							ctx.globalAlpha = agent.localAlpha;
-							if ( imgNews.width > LEAST_IMAGE_WIDTH ){
+							if ( imgNews.width > LEAST_IMAGE_WIDTH )
 								//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 								drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								agent.pictureMode = 2;
-							}
-							
-							else if (skimmer.agents[i].validImageFlag == 0){
+
+							else if (skimmer.agents[i].validImageFlag == 0)
 								//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 								drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-								agent.pictureMode = 1;
-							}
-							
+
 						}
 
 
@@ -1896,10 +1679,6 @@
 			
 			//alert(origin.x+" "+origin.y);
 		}
-		
-		if(overlapCheckCount == 100000) overlapCheckCount = 0;
-		
-		if( ++overlapCheckCount % 100 == 0 ){ alert("yes"); checkAgentOverlap();}
 	
 		skimmer.update(0.05, 1024.0, 768.0, scaleNow , scaleOld);
 
@@ -2661,7 +2440,7 @@
 </script>
 
 </head>
-<body onload = "init();" style="overflow:hidden" onkeydown="globalKeyFunc()" onmousedown="mouseClick(event);" onmousemove="mouseMove(event);" onmouseup="mouseUp(event)"; onresize="resizeWindow()" bgcolor="black">
+<body onload = "init();" style="overflow:hidden" onkeydown="globalKeyFunc()" onmousedown="mouseClick(event);" onmousemove="mouseMove(event);" onresize="resizeWindow()" bgcolor="black">
 <table id = "overallFrame" border = "0" cellpadding = "0" cellspacing = "0" bgcolor="black">
 	<tr>
 		<td>
@@ -2817,12 +2596,13 @@
 
 								<tr>
 									<td>
-										<font color = "white" face = "Arial">Image-Text</font>
+										<font color = "white" face = "Arial">Image v.s. Text</font>
 									</td>
 								</tr>
+
 								<tr>
 									<td>
-										<canvas id = "slidercanvas" onmouseup = "SliderMouseUp(event);" onmousedown = "SliderMouseDown(event);" onmousemove = "SliderMouseMove(event);"></canvas>
+										<canvas id = "slidercanvas"></canvas>
 									</td>
 								</tr>
 								
