@@ -397,6 +397,8 @@
 		
 		agentOverlapMark = new Array(skimmer.agents.length);
 		
+		overlapCheckCount = 0;
+		
 		for(var i = 0; i < skimmer.agents.length; i++){
 			depthOrder[i]=new Array();
 			depthOrder[i][0]=i
@@ -1130,8 +1132,8 @@
 		for(var i = 0; i <skimmer.agents.length ; i++){
 			console.log(skimmer.agents[i].text+" "+agentOverlapMark[i]);
 			if( agentOverlapMark[i] > -1 && cFlag[agentOverlapMark[i]] == 0 ){
-				agentOverlapMark[i] = 1;
 				cFlag[agentOverlapMark[i]] = 1;
+				agentOverlapMark[i] = 1;
 			}
 			else if(agentOverlapMark[i] > -1 && cFlag[agentOverlapMark[i]] == 1){
 				agentOverlapMark[i] = 0;
@@ -1379,6 +1381,17 @@
 			    	}
 			    }
 			}
+			
+			//disable depth if clustered
+			for(var pi = 0; pi < skimmer.agents.length; pi++){
+				if(agentOverlapMark[pi] == 1){
+					skimmer.agents[pi].localAlpha = 1;
+				}
+				else if(agentOverlapMark[pi] == 0){
+					skimmer.agents[pi].localAlpha = 0.1;
+				}
+			}
+			
 			
 
 
@@ -1897,9 +1910,9 @@
 			//alert(origin.x+" "+origin.y);
 		}
 		
-		if(overlapCheckCount == 100000) overlapCheckCount = 0;
+		if(overlapCheckCount >= 10000) overlapCheckCount = 500;
 		
-		if( ++overlapCheckCount % 100 == 0 ){ alert("yes"); checkAgentOverlap();}
+		if( ++overlapCheckCount % 200 == 0 && overlapCheckCount > 500 ){ alert("yes"); checkAgentOverlap();}
 	
 		skimmer.update(0.05, 1024.0, 768.0, scaleNow , scaleOld);
 
