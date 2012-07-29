@@ -1422,6 +1422,7 @@
 				// updates the radius value
 				tAlpha = ctx.globalAlpha;
 				ctx.globalAlpha = valueSlider > 60 ? (valueSlider/100.0) : agent.localAlpha*(valueSlider/100.0);
+				if(ctx.globalAlpha <0.1) ctx.globalAlpha = 0.1; 
 				skimmer.agents[i].radius = radius / 2;
 				ctx.beginPath();
 				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2)-2, 0, Math.PI * 2, false); 
