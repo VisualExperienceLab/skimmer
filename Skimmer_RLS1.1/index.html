@@ -201,8 +201,8 @@
 		//mouseMoveFlag = 0;
 		
 		if( skimmer != undefined ) {
-			
-			currentCursor.set(event.clientX - skimmer.left , event.clientY - skimmer.top);
+
+			currentCursor.set(event.clientX - skimmer.left  + document.documentElement.scrollLeft, event.clientY + document.documentElement.scrollTop - skimmer.top);
 			//console.log(currentCursor);
 			
 			
@@ -436,9 +436,9 @@
 		
 		
 		var cursor = new Vector2();
-		
+		//alert(document.documentElement.scrollTop);
 		if(autoFlag == 0){
-		cursor.set(event.clientX - skimmer.left - (skimmer.width / 2), event.clientY - skimmer.top - (skimmer.height / 2 ));
+			cursor.set(event.clientX - skimmer.left + document.documentElement.scrollLeft - (skimmer.width / 2), event.clientY + document.documentElement.scrollTop - skimmer.top - (skimmer.height / 2 ));
 		}
 		else
 		cursor.set(simuCursor.returnX(),simuCursor.returnY());
@@ -867,10 +867,10 @@
 		
 		//alert("PX: " + AbsX + "PY" + AbsY);
 		//alert("X: " + event.clientX + "Y: " + event.clientY);
-		
+
 		// Get the related x and y
-		var cursorX = event.clientX - AbsX;
-		var cursorY = event.clientY - AbsY;
+		var cursorX = event.clientX - AbsX + document.documentElement.scrollLeft;
+		var cursorY = event.clientY - AbsY + document.documentElement.scrollTop;
 
 		//var d = (valueSlider / 100 * slidercanvas.width + 1 / 2 * draggerWidth);
 		//console.log("Mouse " + cursorX + " Dragger " + d + " W " + draggerWidth);
@@ -900,8 +900,10 @@
 			//alert("X: " + event.clientX + "Y: " + event.clientY);
 			
 			// Get the related x and y
-			var cursorX = event.clientX - AbsX;
-			var cursorY = event.clientY - AbsY;
+			//var cursorX = event.clientX - AbsX;
+			//var cursorY = event.clientY - AbsY;
+			var cursorX = event.clientX - AbsX + document.documentElement.scrollLeft;
+			var cursorY = event.clientY - AbsY + document.documentElement.scrollTop;
 			
 			if (slidercanvas.width > 0) {
 				if (cursorX <= draggerWidth) {
@@ -937,8 +939,11 @@
 		//alert("X: " + event.clientX + "Y: " + event.clientY);
 		
 		// Get the related x and y
-		var cursorX = event.clientX - AbsX;
-		var cursorY = event.clientY - AbsY;
+		//var cursorX = event.clientX - AbsX;
+		//var cursorY = event.clientY - AbsY;
+		var cursorX = event.clientX - AbsX + document.documentElement.scrollLeft;
+		var cursorY = event.clientY - AbsY + document.documentElement.scrollTop;
+
 		
 		if (slidercanvas.width > 0) {
 			if (cursorX <= draggerWidth) {
