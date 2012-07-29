@@ -69,6 +69,7 @@
 	var agentOverlapMark = null;
 	var overlapCheckCount = 0;
 	
+	var tAlpha = 0 ;
 	// Record the title of the skimmer
 	var titleRecord = "";
 
@@ -1417,13 +1418,14 @@
 								* ( skimmer.minRadius ) ) * 2.0 * scaleNow / scaleOld));
 
 				// updates the radius value
-				ctx.globalAlpha = agent.localAlpha;
+				tAlpha = ctx.globalAlpha;
+				ctx.globalAlpha = agent.localAlpha*(valueSlider/100.0);
 				skimmer.agents[i].radius = radius / 2;
 				ctx.beginPath();
 				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2)-2, 0, Math.PI * 2, false); 
 				ctx.fill();  
 				ctx.closePath();  
-				ctx.globalAlpha = 1;
+				ctx.globalAlpha = tAlpha;
 
 				//ctx.save();
 				//ctx.beginPath();
@@ -1434,6 +1436,8 @@
 
 				if (skimmer.agents[i].imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 )	{
 					var imgNews = new Image();
+					tAlpha = ctx.globalAlpha ;
+					var ttAlpha = ( 100 - valueSlider ) /100.0;
 					try{
 						if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 
@@ -1457,7 +1461,7 @@
 									skimmer.agents[i].validImage.src = imgNews.src;
 								}
 
-								ctx.globalAlpha = agent.localAlpha;
+								ctx.globalAlpha = agent.localAlpha*ttAlpha;
 								
 								if ( imgNews.width > LEAST_IMAGE_WIDTH ){
 									//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
@@ -1480,7 +1484,7 @@
 
 								var inc = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 								var fflag = 0;
-								ctx.globalAlpha =( 1 - skimmer.agents[i].switchPicture/ 20.0 )*agent.localAlpha;
+								ctx.globalAlpha =( 1 - skimmer.agents[i].switchPicture/ 20.0 )*agent.localAlpha*ttAlpha;
 								imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
                                 
 								if ( imgNews.width > LEAST_IMAGE_WIDTH ){
@@ -1495,7 +1499,7 @@
 									fflag++;
 								}
 
-								ctx.globalAlpha = (1-ctx.globalAlpha)*agent.localAlpha;
+								ctx.globalAlpha = (1-ctx.globalAlpha)*agent.localAlpha*ttAlpha;
 								var newImg = new Image();
 								newImg.src = skimmer.agents[i].imageLinkList[inc];
 
@@ -1514,7 +1518,7 @@
 
 								skimmer.agents[i].switchPicture ++;
 								//ctx.globalAlpha = 1 ;
-								ctx.globalAlpha = agent.localAlpha;
+								ctx.globalAlpha = agent.localAlpha*ttAlpha;
 								if ( fflag == 2 ){
 									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
@@ -1533,7 +1537,7 @@
 								skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 								imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 
-								ctx.globalAlpha = agent.localAlpha;
+								ctx.globalAlpha = agent.localAlpha*ttAlpha;
 								if ( imgNews.width > LEAST_IMAGE_WIDTH ){
 									//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
@@ -1553,7 +1557,7 @@
 
 							//skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
-							ctx.globalAlpha = agent.localAlpha;
+							ctx.globalAlpha = agent.localAlpha*ttAlpha;
 							if ( imgNews.width > LEAST_IMAGE_WIDTH ){
 								//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 								drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
@@ -1577,7 +1581,7 @@
 						else
 							skimmer.agents[i].imageLinkValidation = 0;
 
-						ctx.globalAlpha = 1;
+						
 
 					}
 					catch(e){
@@ -1586,6 +1590,7 @@
 
 
 					}
+					ctx.globalAlpha = tAlpha;
 					imgNews=null;
 
 				}
@@ -1613,12 +1618,13 @@
 				//		Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
 				//		Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
 				//		Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
-				
+				tAlpha = ctx.globalAlpha;
+				ctx.globalAlpha *=( valueSlider <= 50 )? (valueSlider / 50.0 ): ((100 - valueSlider) / 50.0); 
 				ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x),
 						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y * scaleNow / scaleOld),
 						Math.round(agentBounds.extents.x * 2),
 						Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
-				
+				ctx.globalAlpha = tAlpha;
 				ctx.restore();
 			
 			}
@@ -1667,12 +1673,16 @@
 				ctx.clip();
 
 				ctx.fillStyle = 'rgba(50,50,50,0.8)';
-				var agentBounds = agent.getBoundingBox();
+				var agentBounds = agent.getBoundingBox();		
+				
+				tAlpha = ctx.globalAlpha;
+				ctx.globalAlpha *=( valueSlider <= 50 )? (valueSlider / 50.0 ): ((100 - valueSlider) / 50.0); 
+
 				ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x),
 						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y * scaleNow / scaleOld),
 						Math.round(agentBounds.extents.x * 2),
 						Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
-
+				ctx.globalAlpha = tAlpha;
 				ctx.restore();	
 
 			}
@@ -1680,6 +1690,10 @@
 			
 			
 			ctx.fillStyle='rgba(250,250,250,0.8)';
+			
+			tAlpha = ctx.globalAlpha ; 
+			ctx.globalAlpha = valueSlider > 50 ? 1: valueSlider / 50.0;
+			
 			if(metrics.width < agent.radius*2)
 			ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
 			else{
@@ -1687,6 +1701,7 @@
 			//console.log(metrics.width+" "+agent.radius);
 			//console.log(agent.text.length*(agent.radius*2.0/metrics.width)+" "+agent.text);
 			}
+			ctx.globalAlpha = tAlpha;
 			
 		}
 
@@ -1912,7 +1927,7 @@
 		
 		if(overlapCheckCount >= 10000) overlapCheckCount = 500;
 		
-		if( ++overlapCheckCount % 200 == 0 && overlapCheckCount > 500 ){ alert("yes"); checkAgentOverlap();}
+		if( ++overlapCheckCount % 200 == 0 && overlapCheckCount > 500 ){ /*alert("yes");*/ checkAgentOverlap();}
 	
 		skimmer.update(0.05, 1024.0, 768.0, scaleNow , scaleOld);
 
