@@ -1041,15 +1041,15 @@
 
 		// Draw the dialog out
 		ctx.fillStyle = 'rgba(200, 200, 200, 0.5)';
-		ctx.fillRect(DialogX, DialogY, DialogWidth, DialogHeight);
+		//ctx.fillRect(DialogX, DialogY, DialogWidth, DialogHeight);
 		
 		
-		// ADJECTIVE
+		
 		ctx.font = 'bold '+Math.round(30 * scaleNow / scaleOld)+'px Arial';
 		ctx.textAlign = "center";
 		ctx.textBaseline = "top";
 		ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
-		ctx.fillText("LOADING DATA...", DialogX + DialogWidth / 2, DialogY + DialogHeight / 2 - 30 / 2 * scaleNow / scaleOld);
+		ctx.fillText("Loading data...", DialogX + DialogWidth / 2, DialogY + DialogHeight / 2 - 30 / 2 * scaleNow / scaleOld);
 
 		
 		ctx.fillStyle = "#fff";
@@ -1097,7 +1097,7 @@
 					jLink = skimmer.agents[j].validImage.src;
 						
 						if(iLink == jLink && iLink != null && iLink != "" && iLink != " "){
-						console.log(skimmer.agents[i].text+" "+skimmer.agents[j].text);
+						//console.log(skimmer.agents[i].text+" "+skimmer.agents[j].text);
 						
 						if( agentOverlapMark[j] != -1){
 							if(agentOverlapMark[i] == -1)	
@@ -1132,7 +1132,7 @@
 			cFlag[i]=0;
 		
 		for(var i = 0; i <skimmer.agents.length ; i++){
-			console.log(skimmer.agents[i].text+" "+agentOverlapMark[i]);
+			//console.log(skimmer.agents[i].text+" "+agentOverlapMark[i]);
 			if( agentOverlapMark[i] > -1 && cFlag[agentOverlapMark[i]] == 0 ){
 				cFlag[agentOverlapMark[i]] = 1;
 				agentOverlapMark[i] = 1;
@@ -1330,7 +1330,7 @@
 		// Draw the circles. //
 		if( skimmer.DRAW_CIRCLES ) {
 
-			if(depthOrder.length != 0 && depthOrder.length == skimmer.agents.length){
+			if(depthOrder.length != 0 && depthOrder.length == skimmer.agents.length ){
 				if( depthChangeCount > 100000 ) depthChangeCount = 0 ;
 
 
@@ -1399,7 +1399,7 @@
 
 
 			for(var pi = 0; pi < skimmer.agents.length; pi++){
-				if(depthOrder.length != 0 &&  depthOrder.length == skimmer.agents.length)
+				if(depthOrder.length != 0 &&  depthOrder.length == skimmer.agents.length && skimmer.colorType == 0)
 					i = depthOrder[pi][0];
 				else
 					i = pi;
@@ -1423,6 +1423,7 @@
 				tAlpha = ctx.globalAlpha;
 				ctx.globalAlpha = valueSlider > 60 ? (valueSlider/100.0) : agent.localAlpha*(valueSlider/100.0);
 				if(ctx.globalAlpha <0.1) ctx.globalAlpha = 0.1; 
+				if( skimmer.colorType != 0 ) ctx.globalAlpha = 1;
 				skimmer.agents[i].radius = radius / 2;
 				ctx.beginPath();
 				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2)-2, 0, Math.PI * 2, false); 
@@ -1696,7 +1697,7 @@
 			
 			tAlpha = ctx.globalAlpha ; 
 			ctx.globalAlpha = valueSlider > 50 ? 1: valueSlider / 50.0;
-			
+			if (skimmer.colorType != 0) ctx.globalAlpha = 1;
 			if(metrics.width < agent.radius*2)
 			ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
 			else{
@@ -1725,6 +1726,7 @@
 		}
 
 		ctx.save();
+		ctx.globalAlpha = 1;
 			
 		if(skimmer.agentArticle != null){
 			// Clip the title to fit within the assigned width
@@ -1933,14 +1935,14 @@
 			ctx.drawImage(arrow,Math.round(origin.x+simuCursor.returnX()),Math.round(origin.y+simuCursor.returnY()),40* scaleNow / scaleOld ,40* scaleNow / scaleOld );
 			ctx.fill();
 			ctx.closePath();
-			console.log(simuCursor.returnX()+" "+simuCursor.returnY()+" "+mainDir.returnX()+" "+mainDir.returnY());
+			//console.log(simuCursor.returnX()+" "+simuCursor.returnY()+" "+mainDir.returnX()+" "+mainDir.returnY());
 			
 			//alert(origin.x+" "+origin.y);
 		}
 		
-		if(overlapCheckCount >= 10000) overlapCheckCount = 500;
+		if(overlapCheckCount >= 10000) overlapCheckCount = 600;
 		
-		if( ++overlapCheckCount % 200 == 0 && overlapCheckCount > 500 ){ /*alert("yes");*/ checkAgentOverlap();}
+		if( ++overlapCheckCount % 200 == 0 && overlapCheckCount > 600 ){ /*alert("yes");*/ checkAgentOverlap();}
 	
 		skimmer.update(0.05, 1024.0, 768.0, scaleNow , scaleOld);
 
@@ -2560,6 +2562,7 @@
 							timeoutIntervalXML = 15;
 						}
 
+						alert(timeoutIntervalXML);
 						autoIntervalID = setTimeout(autoModeFunc, timeoutIntervalXML * 1000);
 
 						//alert(timeoutIntervalXML);

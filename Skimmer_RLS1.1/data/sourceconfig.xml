@@ -3,12 +3,12 @@
 	<source>
 		<feed>http://feeds.feedburner.com/NCSULibrariesPESNews?format=xml</feed>
 		<color>random</color>
-		<interval>300</interval>
+		<interval>15</interval>
 	</source>
 	<source>
 		<feed>http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&amp;location=&amp;type=N&amp;binary=Y&amp;keywords=</feed>
 		<color>dictionary</color>
-		<interval>15</interval>
+		<interval>30</interval>
 	</source>
 	<source>
 		<feed>http://search.twitter.com/search.rss?q=%23ncsu</feed>
@@ -31,12 +31,12 @@
 		<website>flickr</website>
 		<keyword>dog</keyword>
 		<color>random</color>
-		<interval>15</interval>
+		<interval>30</interval>
 	</source>
 	<source>
 		<feed>http://www.facebook.com/feeds/page.php?format=rss20&amp;id=5983837179</feed>
 		<color>random</color>
-		<interval>15</interval>
+		<interval>30</interval>
 	</source>
 	<source>
 		<feed>http://news.google.com/news?hl=en&amp;gl=us&amp;q=ncsu&amp;num=100&amp;um=1&amp;ie=UTF-8&amp;output=rss</feed>
@@ -70,4 +70,5 @@ USER GUIDE:
 		The unit is second and 30 second is the time interval by default
 		It is recommended that time interval values be large enough.
 		The minimum interval is set 15 seconds.
+		THE VALUE SHOULD NOT BE LARGER THAN 10000 SECONDS
 -->
