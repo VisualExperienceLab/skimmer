@@ -22,7 +22,8 @@ Vector2.prototype = {
     returnY : function() {return this.y; }, 
     divide : function(f) { var invf = 1/f; this.x *= invf; this.y *= invf; },
     dot : function(v) { return this.x * v.x + this.y * v.y; },
-    toString: function() { var output="[ "+this.x+", "+this.y+" ]"; return output;}
+    toString: function() { var output="[ "+this.x+", "+this.y+" ]"; return output;},
+    dist: function(v) { var tx = v.x - this.x ; var ty = v.y - this.y ; return Math.sqrt(tx * tx + ty * ty)  }
 };
 
 

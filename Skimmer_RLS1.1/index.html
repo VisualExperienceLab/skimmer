@@ -62,7 +62,11 @@
 	arrow.src = "data/arrow.png";
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
-
+	
+	
+	//for overlaping manipulation
+	var agentDepthSwitchEnable = null;
+	var agentOverlapMark = null;
 	
 	// Record the title of the skimmer
 	var titleRecord = "";
@@ -389,14 +393,20 @@
 			}		
 		}
 		
+		agentDepthSwitchEnable = new Array(skimmer.agents.length);
+		agentOverlapMark = new Array(skimmer.agents.length);
+		
 		for(var i = 0; i < skimmer.agents.length; i++){
 			depthOrder[i]=new Array();
 			depthOrder[i][0]=i
 			depthOrder[i][1]=i%DEPTHLAYER;
+			agentDepthSwitchEnable[i] = 1;
+			agentOverlapMark[i] = 0;
 		}
 		//alert("skimmer.agents.length  "+skimmer.agents.length)
 		//alert("depthOrder.length "+depthOrder.length);
 		//alert("oj");
+		
 		
 	}
 	
@@ -1046,6 +1056,48 @@
 	}
 	
 	
+	//var agentDepthSwitchEnable = new Array();
+	//var agentOverlapMark 
+	
+	function checkAgentOverlap(){
+		//gogo
+		if(skimmer == undefined || skimmer.agents.length <= 0 ) return ;
+		
+		var clusterCount = 0;
+		
+		for(var i=0; i < skimmer.agents.length ; i++ ){
+			
+			for(var j=i+1; j < skimmer.agents.length; j++){
+				
+				
+				if(skimmer.agents[i].avgPos.dist(skimmer.agents[j].avgPos) < 2 * skimmer.agents[i].radius ){
+				
+					var iLink = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
+					var jLink = skimmer.agents[j].imageLinkList[skimmer.agents[j].imageIndex];
+				
+					if(iLink == jLink){
+						
+						if( agentOverlapMark[j] != 0)
+							agentOverlapMark[i] = agentOverlapMark[j];
+						
+						else if(agentOverlapMark[i] != 0)
+							agentOverlapMark[j] = agentOverlapMark[i];
+						
+						else
+							agentOverlapMark[j]=agentOverlapMark[i]=clusterCount++;
+					}
+				}
+				
+				
+			}
+			
+		
+		}
+	}
+	
+	
+	
+	
 	function draw(){
 
 		// Set the global attributes of the canvas
@@ -1337,7 +1389,7 @@
 							   imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 							 */
 							if(skimmer.agents[i].switchPicture == 0){
-
+//gogo
 								imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 
 								if(skimmer.agents[i].validImageFlag == 1 && imgNews.width > LEAST_IMAGE_WIDTH )
