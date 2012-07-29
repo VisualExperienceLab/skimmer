@@ -456,7 +456,7 @@
 		if(skimmer.agentArticle!=null){
 			var agentArticleBounds = skimmer.agentArticle.getBoundingBox();
 			if(agentArticleBounds.contains(cursor)){
-				if(event.button == 2){
+				if(event.altKey == true){
 						skimmer.agentArticle.shiftMode = 3 - skimmer.agentArticle.shiftMode;
 				}
 				else{
@@ -1298,7 +1298,7 @@
 		
 		var skimmerTextWidth = ctx.measureText("Skimmer, by Design Graphics Lab").width;
 
-
+		ctx.fillStyle = "#fff";
 		if( origin.x + skimmer.agentTitle.pos.x - skimmerTextWidth / 2.0 < currentCursor.x && currentCursor.x < origin.x + skimmer.agentTitle.pos.x + skimmerTextWidth / 2.0 )
 		{
 
@@ -1315,7 +1315,7 @@
 		}	
 		else{linkFlag = 0;}
 
-		ctx.fillStyle = "#fff";
+		
 		ctx.fillText("Skimmer, by Design Graphics Lab", origin.x + skimmer.agentTitle.pos.x, skimmer.height - 20 * scaleNow / scaleOld);  //bottom
 		////////////////////////////////////////////
 		
@@ -1722,8 +1722,6 @@
 			ctx.fillStyle = 'rgba(255,255,255,255.8)';
 			ctx.fillText(skimmer.agentTitle.text, origin.x + skimmer.agentTitle.pos.x, 20 * scaleNow / scaleOld); //top
 
-
-
 		}
 
 		ctx.save();
@@ -1731,7 +1729,7 @@
 		if(skimmer.agentArticle != null){
 			// Clip the title to fit within the assigned width
 			var displayedTitle = "";
-			ctx.font = 'bold '+Math.round(20* scaleNow / scaleOld)+'px Arial';
+			ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
 
 			var droppedChars = false;
 			for(var i = 0; i < skimmer.agentArticle.title.length; i++){
@@ -1767,7 +1765,7 @@
 			if(skimmer.agentArticle.text != ""){
 				// Extract meaningful measurements and adjust vertical height if necessary
 
-				var requiredTextHeight = 20;
+				var requiredTextHeight = 20 * scaleNow / scaleOld;
 
 				//deal with text
 				var dealString = "";
@@ -1810,14 +1808,14 @@
 				}
 
 				// Font height
-				requiredTextHeight += (dealedLines.length>MAX_LINE?MAX_LINE:dealedLines.length)* 15 *scaleNow / scaleOld;
+				requiredTextHeight += (dealedLines.length>MAX_LINE?MAX_LINE:dealedLines.length)* 16 *scaleNow / scaleOld;
 				ctx.font = 'bold 16px Arial';
 				var titleWidth = ctx.measureText(displayedTitle).width;
-				var titleHeight = 20*scaleNow/scaleOld;
+				var titleHeight = 20*scaleNow/scaleOld+10;
 
 				ctx.font = 'bold 16px Arial';
 				var sourceWidth = ctx.measureText(skimmer.agentArticle.source).width;
-				var sourceHeight = 20*scaleNow/scaleOld;
+				var sourceHeight = 20*scaleNow/scaleOld+10;
 
 			//	if(skimmer.agentArticle.shiftMode == 1)
 			//		skimmer.agentArticle.height = requiredTextHeight;
@@ -1841,7 +1839,7 @@
 
 				ctx.lineWidth = "1";
 				ctx.fillStyle = 'rgba(140,140,140,0.9)';
-				ctx.strokeStyle = 'rgba(150,150,150,0.9)';
+				ctx.strokeStyle = 'rgba(200,200,200,0.9)';
 
 				if(skimmer.agentArticle.shiftMode == 2){
 					ctx.fillRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
@@ -1851,7 +1849,7 @@
 					ctx.strokeRect(sourceOrigin.x, sourceOrigin.y, skimmer.agentArticle.width, sourceHeight);
 				}
 				
-				ctx.strokeStyle = 'rgba(180,180,180,0.9)';
+				ctx.strokeStyle = 'rgba(255,255,255,0.9)';
 				ctx.strokeRect(textOrigin.x, textOrigin.y, skimmer.agentArticle.width, textBackgroundHeight);
 				ctx.fillStyle = 'rgba(240,240,240,0.9)';
 				ctx.fillRect(textOrigin.x, textOrigin.y, skimmer.agentArticle.width, textBackgroundHeight);
@@ -1873,8 +1871,10 @@
 				}
 
 				if(skimmer.agentArticle.shiftMode == 2){
-				ctx.font = 'bold '+Math.round(20* scaleNow / scaleOld)+'px Arial';
-				ctx.fillText( displayedTitle, textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), titleOrigin.y );
+				ctx.textAlign = "left";
+				ctx.textBaseline = "middle";
+				ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
+				ctx.fillText( displayedTitle, textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), titleOrigin.y+0.5*titleHeight );
 				
 				ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
 				
@@ -1890,13 +1890,15 @@
 					else{linkFlag = 0;}
 				}	
 				else{linkFlag = 0;}
-				ctx.fillText( displayedSource, textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), sourceOrigin.y + 2 );
+				
+					ctx.fillText( displayedSource, textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), sourceOrigin.y+0.5*sourceHeight );
+				
 				}
 				
 				if(skimmer.agentArticle.shiftMode == 1)
-				skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 + 10, skimmer.agentArticle.height / 2 + 10);					
+				skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 , skimmer.agentArticle.height / 2 );					
 				else
-					skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 + 10, skimmer.agentArticle.height / 2 + 10);
+					skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 , skimmer.agentArticle.height / 2 );
 			}
 			else{
 				skimmer.agentArticle.remove = true;
