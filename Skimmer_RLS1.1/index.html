@@ -36,6 +36,7 @@
 	
 	// Default RSS source address
 	var sourceAddress = "http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&location=&type=N&binary=Y&keywords=";
+	//sourceAddress = "http://api.flickr.com/services/feeds/photos_public.gne?tags=ncsu&lang=en-us&format=rss_200";
 	//var ratioCanvas = 18.0/20;
 	var ratioCanvas = 1;
 	var scaleNow = 0;
@@ -966,6 +967,7 @@
 	// Draw the slider bar to control the image and text
 	function drawSliderBar() {
 		// Draw the slider bar
+		if(sliderctx == undefined ) return;
 		sliderctx.fillStyle = 'rgba(0, 0, 0, 1.0)';
 		sliderctx.fillRect(0,0,slidercanvas.width,slidercanvas.height);
 		
@@ -1011,6 +1013,7 @@
 	
 	function drawDialog() {
 
+		if(canvas == undefined ) return;
 		// Set the origin of the canvas
 		var origin = new Vector2();
 		origin.set(canvas.width/2, canvas.height/2);
@@ -1052,7 +1055,7 @@
 		ctx.fillText("Loading data...", DialogX + DialogWidth / 2, DialogY + DialogHeight / 2 - 30 / 2 * scaleNow / scaleOld);
 
 		
-		ctx.fillStyle = "#fff";
+		
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
 		ctx.fillText("Skimmer, by Design Graphics Lab", canvas.width / 2, canvas.height - 20 *scaleNow / scaleOld);  //bottom
@@ -1331,14 +1334,14 @@
 		if( skimmer.DRAW_CIRCLES ) {
 
 			if(depthOrder.length != 0 && depthOrder.length == skimmer.agents.length ){
-				if( depthChangeCount > 100000 ) depthChangeCount = 0 ;
+				if( depthChangeCount > 10000 ) depthChangeCount = 0 ;
 
 
 				if( ++depthChangeCount%50 == 0 ){
 				//	depthOrder.sort(function(a,b) {return a[1]-b[1]});
 				//}
 				//small -> large
-
+				
 					for(var i=0;i<depthOrder.length;i++){ 
 					//depthOrder[i][1] = (depthOrder[i][1]+1)%DEPTHLAYER; 
 						depthOrder[i][1]++;
@@ -1374,6 +1377,7 @@
 			    	}	
 			    	
 			    	depthOrder.sort(function(a,b) {return a[1]-b[1]});
+					//alert("sort");
 			    	
 			    }
 			    
@@ -1386,14 +1390,14 @@
 			}
 			
 			//disable depth if clustered
-			for(var pi = 0; pi < skimmer.agents.length; pi++){
-				if(agentOverlapMark[pi] == 1){
-					skimmer.agents[pi].localAlpha = 1;
-				}
-				else if(agentOverlapMark[pi] == 0){
-					skimmer.agents[pi].localAlpha = 0.3;
-				}
-			}
+			//for(var pi = 0; pi < skimmer.agents.length; pi++){
+			//	if(agentOverlapMark[pi] == 1){
+			//		skimmer.agents[pi].localAlpha = 1;
+			//	}
+			//	else if(agentOverlapMark[pi] == 0){
+			//		skimmer.agents[pi].localAlpha = 0.3;
+			//	}
+			//}
 			
 			
 
@@ -1442,10 +1446,11 @@
 					var imgNews = new Image();
 					tAlpha = ctx.globalAlpha ;
 					var ttAlpha = ( 100 - valueSlider ) /100.0;
+					
 					try{
 						if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 
-						if(++skimmer.agents[i].imageFrequency%100 == 0 && Math.random() < 1 || skimmer.agents[i].switchPicture > 0){
+						if(++skimmer.agents[i].imageFrequency%100 == 0 && Math.random() < 0.5 || skimmer.agents[i].switchPicture > 0){
 							/*
 							   if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 
@@ -1489,6 +1494,7 @@
 								var inc = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 								var fflag = 0;
 								ctx.globalAlpha =( 1 - skimmer.agents[i].switchPicture/ 20.0 )*agent.localAlpha*ttAlpha;
+								
 								imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
                                 
 								if ( imgNews.width > LEAST_IMAGE_WIDTH ){
@@ -1503,7 +1509,7 @@
 									fflag++;
 								}
 
-								ctx.globalAlpha = (1-ctx.globalAlpha)*agent.localAlpha*ttAlpha;
+								ctx.globalAlpha = (skimmer.agents[i].switchPicture/ 20.0)*agent.localAlpha*ttAlpha;
 								var newImg = new Image();
 								newImg.src = skimmer.agents[i].imageLinkList[inc];
 
@@ -1525,12 +1531,12 @@
 								ctx.globalAlpha = agent.localAlpha*ttAlpha;
 								if ( fflag == 2 ){
 									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-									drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+									//drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									agent.pictureMode = 1;
 								}
 								else if (newImg.src == imgNews.src){
 									//ctx.drawImage(newImg, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-									drawAvoidStretch(agent,ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
+									//drawAvoidStretch(agent,ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 
 									agent.pictureMode = 2;
 								}
