@@ -815,13 +815,170 @@
 		
 	}
 	
+
+
+	
+	// Set the attributes for the bar
+	var barHeightRatio = 0;
+	var barHeight = 0;
+	var barWidth = 0;
+	
+	// Set the attributes for the dragger
+	var draggerWidth = 0;
+	var draggerMargin = 0;
+	var draggerHeight = 0;
+
+	// The value from the slider bar
+	var valueSlider = 0;
+
+	// A flag denote the pressed down status of the dragger
+	var DraggerDown = 0;
+	
+	// On the event that the mouse is pressed and check whether the dragger is picked
+	function SliderMouseDown(event) {
+
+		// Get the absolute coordinates of the mouse click event
+		var e = slidercanvas;
+		var AbsX = e.offsetLeft;
+		var AbsY = e.offsetTop;
+		
+		while(e=e.offsetParent)
+		{
+			AbsX += e.offsetLeft;
+			AbsY += e.offsetTop;
+	    }
+		
+		//alert("PX: " + AbsX + "PY" + AbsY);
+		//alert("X: " + event.clientX + "Y: " + event.clientY);
+		
+		// Get the related x and y
+		var cursorX = event.clientX - AbsX;
+		var cursorY = event.clientY - AbsY;
+
+		//var d = (valueSlider / 100 * slidercanvas.width + 1 / 2 * draggerWidth);
+		//console.log("Mouse " + cursorX + " Dragger " + d + " W " + draggerWidth);
+		
+		if (Math.abs(cursorX - (valueSlider / 100 * slidercanvas.width - 1 / 2 * draggerWidth)) <= 1 / 2 * draggerWidth) {
+			DraggerDown = 1;
+		}
+	}
+
+
+	// On the event that the mouse is moved
+	function SliderMouseMove(event) {
+
+		if (DraggerDown == 1) {
+			// Get the absolute coordinates of the mouse click event
+			var e = slidercanvas;
+			var AbsX = e.offsetLeft;
+			var AbsY = e.offsetTop;
+			
+			while(e=e.offsetParent)
+			{
+				AbsX += e.offsetLeft;
+				AbsY += e.offsetTop;
+		    }
+			
+			//alert("PX: " + AbsX + "PY" + AbsY);
+			//alert("X: " + event.clientX + "Y: " + event.clientY);
+			
+			// Get the related x and y
+			var cursorX = event.clientX - AbsX;
+			var cursorY = event.clientY - AbsY;
+			
+			if (slidercanvas.width > 0) {
+				if (cursorX <= draggerWidth) {
+					valueSlider = 0
+				}
+				else if (cursorX >= slidercanvas.width - draggerWidth) {
+					valueSlider = 100
+				}
+				else {
+					valueSlider = (cursorX - draggerWidth) / (slidercanvas.width - 2 * draggerWidth) * 100;
+				}
+				//alert(valueSlider);
+			}
+		}
+	}
+
+	
+	// On the event that the mouse is released
+	function SliderMouseUp(event) {
+
+		// Get the absolute coordinates of the mouse click event
+		var e = slidercanvas;
+		var AbsX = e.offsetLeft;
+		var AbsY = e.offsetTop;
+		
+		while(e=e.offsetParent)
+		{
+			AbsX += e.offsetLeft;
+			AbsY += e.offsetTop;
+	    }
+		
+		//alert("PX: " + AbsX + "PY" + AbsY);
+		//alert("X: " + event.clientX + "Y: " + event.clientY);
+		
+		// Get the related x and y
+		var cursorX = event.clientX - AbsX;
+		var cursorY = event.clientY - AbsY;
+		
+		if (slidercanvas.width > 0) {
+			if (cursorX <= draggerWidth) {
+				valueSlider = 0
+			}
+			else if (cursorX >= slidercanvas.width - draggerWidth) {
+				valueSlider = 100
+			}
+			else {
+				valueSlider = (cursorX - draggerWidth) / (slidercanvas.width - 2 * draggerWidth) * 100;
+			}
+			//alert(valueSlider);
+		}
+		
+		DraggerDown = 0;
+	}
+	
+	
+	// The global mouse up function
+	function mouseUp(event) {
+		DraggerDown = 0;
+
+		//alert(valueSlider);
+	}
+	
+	
 	// Draw the slider bar to control the image and text
 	function drawSliderBar() {
 		// Draw the slider bar
-		sliderctx.fillStyle = 'rgba(255,255,0,1.0)';
+		sliderctx.fillStyle = 'rgba(0, 0, 0, 1.0)';
 		sliderctx.fillRect(0,0,slidercanvas.width,slidercanvas.height);
 		
+		// Set the size of the bar
+		barHeightRatio = 1 / 3;
+		//var barWidthMargin = slidercanvas.width * 1 / 20;
+		
+		barHeight = slidercanvas.height * barHeightRatio;
+		barWidth  = slidercanvas.width;
+
+		// Set the size of the dragger
+		draggerWidth = barWidth * 1 / 10;
+		draggerMargin = slidercanvas.height * 1 / 10;
+		draggerHeight = slidercanvas.height - 2 * draggerMargin;
+		
+		// Set the margin for the bar
+		barWidth = barWidth - 2 * draggerWidth;
+		
+		// Draw the bar
+		sliderctx.fillStyle = 'rgba(100, 100, 100, 1.0)';
+		sliderctx.fillRect(draggerWidth / 2, slidercanvas.height * 1 / 3, barWidth, barHeight);
+
+		// Draw the dragger
+		sliderctx.fillStyle = 'rgba(200, 200, 200, 1.0)';
+		sliderctx.fillRect((valueSlider / 100) * barWidth, draggerMargin,  draggerWidth, draggerHeight);
 	}
+	
+	
 	
 	// Added as the driver of the draw funcion
 	function drawDriver(){
@@ -2388,7 +2545,7 @@
 </script>
 
 </head>
-<body onload = "init();" style="overflow:hidden" onkeydown="globalKeyFunc()" onmousedown="mouseClick(event);" onmousemove="mouseMove(event);" onresize="resizeWindow()" bgcolor="black">
+<body onload = "init();" style="overflow:hidden" onkeydown="globalKeyFunc()" onmousedown="mouseClick(event);" onmousemove="mouseMove(event);" onmouseup="mouseUp(event)"; onresize="resizeWindow()" bgcolor="black">
 <table id = "overallFrame" border = "0" cellpadding = "0" cellspacing = "0" bgcolor="black">
 	<tr>
 		<td>
@@ -2544,13 +2701,12 @@
 
 								<tr>
 									<td>
-										<font color = "white" face = "Arial">Image v.s. Text</font>
+										<font color = "white" face = "Arial">Image-Text</font>
 									</td>
 								</tr>
-
 								<tr>
 									<td>
-										<canvas id = "slidercanvas"></canvas>
+										<canvas id = "slidercanvas" onmouseup = "SliderMouseUp(event);" onmousedown = "SliderMouseDown(event);" onmousemove = "SliderMouseMove(event);"></canvas>
 									</td>
 								</tr>
 								
