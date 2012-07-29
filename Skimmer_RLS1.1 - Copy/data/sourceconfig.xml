@@ -1,0 +1,74 @@
+<?xml version="1.0" ?>
+<sourceconfig>
+	<source>
+		<feed>http://feeds.feedburner.com/NCSULibrariesPESNews?format=xml</feed>
+		<color>random</color>
+		<interval>40</interval>
+	</source>
+	<source>
+		<feed>http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&amp;location=&amp;type=N&amp;binary=Y&amp;keywords=</feed>
+		<color>grammar</color>
+		<interval>30</interval>
+	</source>
+	<source>
+		<feed>http://search.twitter.com/search.rss?q=%23ncsu</feed>
+		<color>emotion</color>
+		<interval>25</interval>
+	</source>
+	<source>
+		<website>ncsu_twitter</website>
+		<keyword>ncsu</keyword>
+		<color>random</color>
+		<interval>35</interval>
+	</source>
+	<source>
+		<website>google_news</website>
+		<keyword>football</keyword>
+		<color>random</color>
+		<interval>30</interval>
+	</source>
+	<source>
+		<website>flickr</website>
+		<keyword>dog</keyword>
+		<color>random</color>
+		<interval>30</interval>
+	</source>
+	<source>
+		<feed>http://www.facebook.com/feeds/page.php?format=rss20&amp;id=5983837179</feed>
+		<color>random</color>
+		<interval>30</interval>
+	</source>
+	<source>
+		<feed>http://news.google.com/news?hl=en&amp;gl=us&amp;q=ncsu&amp;num=100&amp;um=1&amp;ie=UTF-8&amp;output=rss</feed>
+		<color>grammar</color>
+		<interval>30</interval>
+	</source>
+	<source>
+		<feed>http://api.flickr.com/services/feeds/photos_public.gne?tags=ncsu&amp;lang=en-us&amp;format=rss_200</feed>
+		<interval>30</interval>
+	</source>
+</sourceconfig>
+<!--
+USER GUIDE:
+	1. You can change the content between the tags <sourceconfig> and </sourceconfig> to set the sources to be displayed in the skimmer
+	2. The content between tags <source> and </source> refers to a source for the simmer
+	3. The content between tags <website> and </website> is some of the websites that can be used to search ketwords from sources
+		Valid website tags are
+			a. ncsu_twitter
+			b. google_news
+			c. flickr
+	4. The content between tags <keyword> and </keyword> defines the keyword to be searched when the tags <website> and </website> are used
+	5. The content between tags <color> and </color> refers to the color scheme
+		Valid color schemes are
+			a. random
+			b. grammar
+			c. emotion
+			default: random
+	6. The content between tags <feed> and </feed> is the accurate URL for the RSS feed when the URL is available
+		ATTENTION: Make sure the URL is valid before it is used as feed
+	7. The content between tags <interval> and </interval> is the time interval of a certain feed source
+		The unit is second and 30 second is the time interval by default
+		It is recommended that time interval values be large enough.
+		The minimum interval is set 15 seconds.
+		The maximum interval is 900 seconds, namely 15 minutes
+-->
