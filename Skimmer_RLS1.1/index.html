@@ -1337,7 +1337,7 @@
 
 			if	( skimmer.height - 2*20 * scaleNow / scaleOld < currentCursor.y && currentCursor.y < skimmer.height - 20 * scaleNow / scaleOld )
 			{
-				//alert("oh");
+				
 				ctx.fillStyle = "#333";
 				if(origin.x + skimmer.agentTitle.pos.x - skimmerTextWidth / 6.0 < currentCursor.x )
 					linkFlag = 3;
@@ -1385,7 +1385,7 @@
 					}
 				}
 			}
-			else{alert(depthOrder.length);}
+			else{/*alert(depthOrder.length);*/}
 			
 			for(var pi = 0; pi < skimmer.agents.length; pi++){
 				
@@ -1979,7 +1979,7 @@
 		
 		if(overlapCheckCount >= 10000) overlapCheckCount = 600;
 		
-		if( ++overlapCheckCount % 200 == 0 && overlapCheckCount > 600 && skimmer.colorType == 0){ alert("yes");checkAgentOverlap();}
+		if( ++overlapCheckCount % 210 == 0 && overlapCheckCount > 600 && skimmer.colorType == 0){ alert(checkAgentOverlap();}
 	
 		skimmer.update(0.05, 1024.0, 768.0, scaleNow , scaleOld);
 
@@ -2334,7 +2334,7 @@
 					skimmer.updateAgentColor();
 				}
 				else {
-					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
+					alert("More searching results are needed for visualization.");
 				}
 			}
 			
@@ -2421,7 +2421,7 @@
 					skimmer.updateAgentColor();
 				}
 				else {
-					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
+					alert("More searching results are needed for visualization.");
 				}
 			}
 
@@ -2616,7 +2616,7 @@
 					
 				}
 				else {
-					alert("MORE SEARCHING RESULTS ARE NEEDED FOR VISUALIZATION");
+					alert("More searching results are needed for visualization.");
 				}
 			}
 
