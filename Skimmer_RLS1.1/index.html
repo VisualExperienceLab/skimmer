@@ -43,7 +43,7 @@
 	var isFlickr = 0;
 	var currentCursor = new Vector2();
 	var simuCursor = new Vector2();
-	var lastSimuMotion = new Vector2();
+	var mainDir = new Vector2();
 	var linkFlag = 0;
 	var showImageFlag = 1;
 	var checkImageUrlFlag = 0;
@@ -56,6 +56,7 @@
 	var MAX_LINE = 10;
 	var OVERLAP_DETECTION = 100;
 	var autoFlag = 0;
+	var initStep = 10;
 	var mouseCount = 1;
 	var arrow = new Image();
 	arrow.src = "data/arrow.png";
@@ -116,6 +117,7 @@
 				skimmer.checkForAdjacencies();
 				skimmer.updateAgents();
 				skimmer.extractAgentMinMax();
+				buildAgentLinkList();
 				var selectObj = document.getElementById("selectColor");
 				var selectIndex=selectObj.selectedIndex;
 				var selectVal = selectObj.options[selectIndex].value;
@@ -395,12 +397,7 @@
 		//alert("skimmer.agents.length  "+skimmer.agents.length)
 		//alert("depthOrder.length "+depthOrder.length);
 		//alert("oj");
-		simuCursor.set(0,0);
-		lastSimuMotion.set(0,0);
-		//first direction
-		//lastSimuMotion.set(Math.random(), Math.random());
-		//lastSimuMotion.normalizePara(8*scaleNow/scaleOld);	
-		//alert(lastSimuMotion.x+" "+lastSimuMotion.y);
+		
 	}
 	
 	
@@ -692,25 +689,34 @@
 		
 		var tmpX=simuCursor.returnX();
 		var tmpY=simuCursor.returnY();
-		var initStep = 10;
 		
-		simuCursor.set(simuCursor.returnX()+Math.random()*initStep*scaleNow/scaleOld-initStep*0.5*scaleNow/scaleOld, simuCursor.returnY()+Math.random()*initStep*scaleNow/scaleOld-initStep*0.5*scaleNow/scaleOld);
+		//simuCursor.set(simuCursor.returnX()+Math.random()*initStep*scaleNow/scaleOld-initStep*0.5*scaleNow/scaleOld, simuCursor.returnY()+Math.random()*initStep*scaleNow/scaleOld-initStep*0.5*scaleNow/scaleOld);
 		
+		simuCursor.add(mainDir);
 		//simuCursor.set(simuCursor.returnX()+lastSimuMotion.returnX(), simuCursor.returnY()+lastSimuMotion.returnY());
 		
-		lastSimuMotion.set(simuCursor.returnX()-tmpX,simuCursor.returnY()-tmpY);
+		//lastSimuMotion.set(simuCursor.returnX()-tmpX,simuCursor.returnY()-tmpY);
 		//lastSimuMotion.normalizePara(moveRegion);
 		if(Math.abs(simuCursor.returnX())>=1.0 / 3 *skimmer.width || Math.abs(simuCursor.returnY())>=1.0 / 3 *skimmer.height )
 			{
 				simuCursor.set(tmpX,tmpY);
-				lastSimuMotion.negate();
+				mainDir.negate();
 			}
-		//if(mouseCount % 10 == 0) lastSimuMotion.rotate();
+		if(mouseCount % 15 == 0) 
+		{
+			if(Math.random() < 0.25)
+				mainDir.rotateLeft();
+			else if(Math.random() < 0.33)
+				mainDir.rotateRight();
+			else if(Math.random() < 0.5)
+				mainDir.negate();
+		}
+			
 		
 		var autoEvent = document.createEvent("MouseEvents");
 		//event.initMouseEvent(type, canBubble, cancelable, view, detail, screenX, screenY, clientX, clientY, 
         //ctrlKey, altKey, shiftKey, metaKey, button, relatedTarget);
-  		if(Math.random() < 0.95){;}
+  		if(Math.random() < 0.9){;}
   		
   		else if(Math.random() < 0.8){
   			autoEvent.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
@@ -1617,7 +1623,8 @@
 			ctx.drawImage(arrow,Math.round(origin.x+simuCursor.returnX()),Math.round(origin.y+simuCursor.returnY()),40* scaleNow / scaleOld ,40* scaleNow / scaleOld );
 			ctx.fill();
 			ctx.closePath();
-			console.log(simuCursor.returnX()+" "+simuCursor.returnY());
+			console.log(simuCursor.returnX()+" "+simuCursor.returnY()+" "+mainDir.returnX()+" "+mainDir.returnY());
+			
 			//alert(origin.x+" "+origin.y);
 		}
 	
@@ -2184,6 +2191,12 @@
 					skimmer.updateAgents();
 					skimmer.extractAgentMinMax();
 					buildAgentLinkList();
+					
+					simuCursor.set(0,0);
+		
+					mainDir.set(Math.random()-0.5,Math.random()-0.5);
+					mainDir.normalizePara(initStep*scaleNow/scaleOld);	
+					
 				
 
 					colorscheme = 0;
@@ -2354,11 +2367,18 @@
 		if (advanceRadioBtn[0].checked == true) {
 			// The automated mode
 			autoFlag = 0;
+			
+			mainDir.set(Math.random()-0.5,Math.random()-0.5);
+			mainDir.normalizePara(initStep*scaleNow/scaleOld);
+			
+			
 			autoModeDriver();
 		}
 		else {
 			// The manual mode
 			autoFlag = 1;
+
+			//console.log(mainDir);
 			autoModeDriver();
 		}
 	}
