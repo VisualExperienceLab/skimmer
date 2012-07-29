@@ -1726,6 +1726,8 @@
 
 		}
 
+		ctx.save();
+			
 		if(skimmer.agentArticle != null){
 			// Clip the title to fit within the assigned width
 			var displayedTitle = "";
@@ -1903,6 +1905,7 @@
 				skimmer.selectedArticleRanking.clear();
 			}
 		}
+		ctx.restore();
 		
 		for(var i = 0; i < skimmer.agents.length; i++){
 	
