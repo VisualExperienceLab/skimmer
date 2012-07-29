@@ -1979,7 +1979,7 @@
 		
 		if(overlapCheckCount >= 10000) overlapCheckCount = 600;
 		
-		if( ++overlapCheckCount % 210 == 0 && overlapCheckCount > 600 && skimmer.colorType == 0){ alert(checkAgentOverlap();}
+		if( ++overlapCheckCount % 210 == 0 && overlapCheckCount > 600 && skimmer.colorType == 0){ checkAgentOverlap();}
 	
 		skimmer.update(0.05, 1024.0, 768.0, scaleNow , scaleOld);
 
