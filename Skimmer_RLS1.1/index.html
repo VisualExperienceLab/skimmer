@@ -843,7 +843,8 @@
 	var draggerHeight = 0;
 
 	// The value from the slider bar
-	var valueSlider = 0;
+	// Initially set to the center
+	var valueSlider = 50;
 
 	// A flag denote the pressed down status of the dragger
 	var DraggerDown = 0;
@@ -2915,6 +2916,10 @@
 </table>
 
 <script type="text/javascript">
+
+	var selectObj = document.getElementById("chooseSource");
+	selectObj.selectedIndex = 0;
+
 	// Initially set basic manual mode
 	//AdvancedSearchDriver();
 	clickAdvancedRadioBtn();
