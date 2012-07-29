@@ -2561,8 +2561,12 @@
 						if (timeoutIntervalXML < 15) {
 							timeoutIntervalXML = 15;
 						}
+						if (timeoutIntervalXML > 900) {
+							timeoutIntervalXML = 900;
+						}
+						
 
-						alert(timeoutIntervalXML);
+						//alert(timeoutIntervalXML);
 						autoIntervalID = setTimeout(autoModeFunc, timeoutIntervalXML * 1000);
 
 						//alert(timeoutIntervalXML);
@@ -2580,19 +2584,20 @@
 			}
 
 			feedFinished = 1;
+			
+			// circulate the source address
+			if (sourceSelectOrder >= sourceNodes.length - 1) {
+				sourceSelectOrder = 0
+			}
+			else {
+				sourceSelectOrder = sourceSelectOrder + 1;
+			}
+
+
 
 		});
 
 		google.setOnLoadCallback(initialize);
-
-		// circulate the source address
-		if (sourceSelectOrder >= sourceNodes.length - 1) {
-			sourceSelectOrder = 0
-		}
-		else {
-			sourceSelectOrder = sourceSelectOrder + 1;
-		}
-
 	}
 	
 	// Start or end the auto mode in skimmer
