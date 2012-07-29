@@ -1394,9 +1394,10 @@
 				
 				if(skimmer.agents[pi].switchDepthEnable == 1){
 					
+					if(valueSlider < 80){
 					skimmer.agents[pi].switchDepthCount++;
 					skimmer.agents[pi].localAlpha = Math.cos( skimmer.agents[pi].switchDepthCount *1.0 / DEPTH_COUNT_LIMIT *Math.PI - 0.5*Math.PI ) *(-0.7) + 1;
-			    	
+			    	}
 			    if(skimmer.agents[pi].switchDepthCount == Math.round(DEPTH_COUNT_LIMIT*0.5)){
 			    
 			    	for(var ki=0;ki<depthOrder.length;ki++){
@@ -1407,6 +1408,7 @@
 			    		}
 			    	}	
 			    	
+					
 			    	depthOrder.sort(function(a,b) {return a[1]-b[1]});
 					//alert("sort");
 			    	
@@ -1456,7 +1458,8 @@
 
 				// updates the radius value
 				tAlpha = ctx.globalAlpha;
-				ctx.globalAlpha = valueSlider > 60 ? (valueSlider/100.0) : agent.localAlpha*(valueSlider/100.0);
+				//ctx.globalAlpha = valueSlider > 60 ? (valueSlider/100.0) : agent.localAlpha*(valueSlider/100.0);
+				ctx.globalAlpha = agent.localAlpha*(valueSlider/100.0);
 				if(ctx.globalAlpha <0.1) ctx.globalAlpha = 0.1; 
 				if( skimmer.colorType != 0 ) ctx.globalAlpha = 1;
 				skimmer.agents[i].radius = radius / 2;
@@ -2191,6 +2194,7 @@
 			skimmer.agentArticle.height = skimmer.height / 3 * scaleNow / scaleOld;
 		}
 		
+		/*
 		absPosX = 0;
 		absPosY = 0;
 		
@@ -2204,9 +2208,32 @@
 		
 		absPosX += tempElem.offsetLeft;
 		absPosY += tempElem.offsetTop;
+		*/
+
+
+		// Get the absolute coordinates of the mouse click event
+		var e = canvas;
+		var AbsX = e.offsetLeft;
+		var AbsY = e.offsetTop;
 		
-		skimmer.left = absPosX;
-		skimmer.top = absPosY;
+		while(e=e.offsetParent)
+		{
+			AbsX += e.offsetLeft;
+			AbsY += e.offsetTop;
+	    }
+		
+		//alert("PX: " + AbsX + "PY" + AbsY);
+		//alert("X: " + event.clientX + "Y: " + event.clientY);
+		
+		// Get the related x and y
+		//var cursorX = event.clientX - AbsX;
+		//var cursorY = event.clientY - AbsY;
+		
+		
+		//skimmer.left = absPosX;
+		//skimmer.top = absPosY;
+		skimmer.left = AbsX;
+		skimmer.top = AbsY;
 		
 		if(autoFlag == 1){
 		
