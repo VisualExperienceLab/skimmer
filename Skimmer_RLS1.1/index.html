@@ -1319,12 +1319,15 @@
 			else{linkFlag = 0;}
 		}	
 		else{linkFlag = 0;}
-
+		
+		ctx.font = 'bold '+Math.round(30 * scaleNow / scaleOld)+'px Arial';
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
 		
 		ctx.fillText("Skimmer, by Design Graphics Lab", origin.x + skimmer.agentTitle.pos.x, skimmer.height - 20 * scaleNow / scaleOld);  //bottom
 		////////////////////////////////////////////
-	
-
+		
+		
 		// Draw the circles. //
 		if( skimmer.DRAW_CIRCLES ) {
 
