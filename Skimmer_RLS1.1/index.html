@@ -15,11 +15,11 @@
 		<script type="text/javascript" src="js/map.js"></script>
 		<script type="text/javascript" src="js/stemmer.js"></script>
 		<script type="text/javascript" src="js/dictionary.js"></script>
-		
 		<script type="text/javascript" src="js/invertedFileSystem.js"></script>
-		
 		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type = "text/javascript">
+
+	//global variable
 	var skimmer;
 	var canvas;
 	var ctx;
@@ -41,25 +41,25 @@
 	var ratioCanvas = 1;
 	var scaleNow = 0;
 	var scaleOld = 0;
-	var isFlickr = 0;
-	var currentCursor = new Vector2();
-	var simuCursor = new Vector2();
-	var mainDir = new Vector2();
-	var linkFlag = 0;
-	var showImageFlag = 1;
-	var checkImageUrlFlag = 0;
-	var depthOrder = new Array();
-	var depthChangeCount = 0 ;
-	var DEPTHLAYER = 5;
-	var LEAST_IMAGE_WIDTH = 10;
-	var AGENT_REMOVE_LIMIT = 50;
-	var DEPTH_COUNT_LIMIT = 20;
-	var MAX_LINE = 10;
-	var OVERLAP_DETECTION = 100;
+	var isFlickr = 0; 
+	var currentCursor = new Vector2(); //for mouse move
+	var simuCursor = new Vector2();    //for automouse
+	var mainDir = new Vector2();       //automouse main direction
+	var linkFlag = 0;                  //imagelink
+	var showImageFlag = 1;        
+	var checkImageUrlFlag = 0; 
+	var depthOrder = new Array();   //depth of agents
+	var depthChangeCount = 0 ;      
+	var DEPTHLAYER = 5;           
+	var LEAST_IMAGE_WIDTH = 10;      //less than the value would be regarded as invalid
+	var AGENT_REMOVE_LIMIT = 50;     //secondary agents
+	var DEPTH_COUNT_LIMIT = 20;      //for soften
+	var MAX_LINE = 10;               //text box content
+	var OVERLAP_DETECTION = 100;     
 	var autoFlag = 0;
-	var initStep = 10;
-	var mouseCount = 1;
-	var arrow = new Image();
+	var initStep = 10;               //automouse
+	var mouseCount = 1;              
+	var arrow = new Image();         //arrow for automode
 	arrow.src = "data/arrow.png";
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
@@ -67,10 +67,10 @@
 	
 	//for overlaping manipulation
 	
-	var agentOverlapMark = null;
-	var overlapCheckCount = 0;
+	var agentOverlapMark = null;     //detect overlap
+	var overlapCheckCount = 0;       
 	
-	var tAlpha = 0 ;
+	var tAlpha = 0 ;               //tmp
 	// Record the title of the skimmer
 	var titleRecord = "";
 
@@ -346,6 +346,7 @@
 		}
 	}
 	
+	//check whether image url is valid, not use in the code 
 	function checkImageUrl(){
 	
 		for(var i =0 ; i<skimmer.agents.length ; i++){
@@ -357,7 +358,6 @@
 				if(tmp.width>0){k++;}
 				else
 				{
-					//alert(skimmer.agents[i].imageLinkList[k]);
 					skimmer.agents[i].imageLinkList[k]=skimmer.agents[i].imageLinkList[skimmer.agents[i].imageLinkList.length-1];
 					skimmer.agents[i].imageLinkList.pop();
 				}
@@ -366,24 +366,11 @@
 		
 		}
 	}
-
 	
-	function requestImageResource(){
-		ctx.globalAlpha = 0;
-		for(var i=0; i<skimmer.articles.length ; i++){
-				
-				var tmp = new Image();
-				tmp.src = skimmer.articles[j].imageUrl;
-				ctx.drawImage(tmp,0,0);
-		}
-		ctx.globalAlpha = 1;
-	}
-	
-
+	// build up agents image link list
 	function buildAgentLinkList(){
 		
 		for(var i = 0; i < skimmer.agents.length; i++){
-		//console.log(i+" "+skimmer.agents[i].text);
 			for(var j = 0; j < skimmer.articles.length; j++){
 				if(skimmer.articles[j].words.indexOf(skimmer.agents[i].text) > -1 || skimmer.articles[j].titlewords.indexOf(skimmer.agents[i].text)  > -1 ){
 					if(skimmer.articles[j].imageUrl != null){
@@ -396,7 +383,7 @@
 			}		
 		}
 		
-		
+		//build up array to store overlap info
 		agentOverlapMark = new Array(skimmer.agents.length);
 		depthOrder = new Array(skimmer.agents.length);
 		overlapCheckCount = 0;
@@ -407,43 +394,21 @@
 			depthOrder[i][1]=i%DEPTHLAYER;
 			
 			agentOverlapMark[i] = -1;
-		}
-		//alert("skimmer.agents.length  "+skimmer.agents.length)
-		//alert("depthOrder.length "+depthOrder.length);
-		//alert("oj");
-		
-		
+		}	
 	}
 	
-	
-	function mouseDoubleClick(event){
-		//alert("hello");
-		var cursor = new Vector2();
-		cursor.set(event.clientX - skimmer.left - (skimmer.width / 2), event.clientY - skimmer.top - (skimmer.height / 2 ));
-		
-		if(skimmer.agentArticle!=null){
-			var agentArticleBounds = skimmer.agentArticle.getBoundingBox();
-			if(agentArticleBounds.contains(cursor)){
-				skimmer.agentArticle.shiftMode = 3 - skimmer.agentArticle.shiftMode;
-			}
-		}
-		
-	}
-	
-	
+	//mouse click function
 	function mouseClick(event){
-		//alert(event.clickcount);
 		
 		
 		var cursor = new Vector2();
-		//alert(document.documentElement.scrollTop);
 		if(autoFlag == 0){
 			cursor.set(event.clientX - skimmer.left + document.documentElement.scrollLeft - (skimmer.width / 2), event.clientY + document.documentElement.scrollTop - skimmer.top - (skimmer.height / 2 ));
 		}
 		else
 		cursor.set(simuCursor.returnX(),simuCursor.returnY());
-		//alert("yeah");
 		
+		//title link
 		if(event.button == 0 && linkFlag == 2 && autoFlag == 0 )
 		{
 			window.open('http://designgraphics.ncsu.edu/search/label/skimmer');
@@ -453,10 +418,11 @@
 			window.open('http://designgraphics.ncsu.edu');
 		}
 		
-		
+		//triggered if text box appears
 		if(skimmer.agentArticle!=null){
 			var agentArticleBounds = skimmer.agentArticle.getBoundingBox();
 			if(agentArticleBounds.contains(cursor)){
+				//change text box mode
 				if(event.altKey == true){
 						skimmer.agentArticle.shiftMode = 3 - skimmer.agentArticle.shiftMode;
 				}
@@ -464,7 +430,7 @@
 				var curIndex = skimmer.selectedArticles.indexOf(skimmer.selectedArticle);
 				if(curIndex >= 0){
 					if(event.button == 0){
-						//if(agentArticleBounds.containsLink(cursor))
+						//open link
 						if (linkFlag == 1 && autoFlag == 0 )
 						{
 							window.open(skimmer.agentArticle.source);
@@ -484,6 +450,7 @@
 					if(curIndex < 0){
 						curIndex = skimmer.selectedArticles.length - 1;
 					}
+					//turn to next text box
 					skimmer.selectedArticle = skimmer.selectedArticles[curIndex];
 					skimmer.agentArticle.title = skimmer.selectedArticle.title;
 					skimmer.agentArticle.text = skimmer.selectedArticle.summary;
@@ -493,6 +460,7 @@
 				
 				}
 			}
+			//cancel text box
 			else{
 				skimmer.agentArticle.remove = true;
 				skimmer.selectedWords.length = 0;
@@ -500,6 +468,7 @@
 				skimmer.selectedArticleRanking.clear();
 			}
 		}
+		//shift key
 		if(event.button == 0 && event.shiftKey == true && event.ctrlKey == false && event.altKey == false && skimmer.agentArticle == null){
 			
 			skimmer.selectedWords.length = 0;
@@ -675,7 +644,7 @@
 					tmpAgent.desiredAlpha = 1.0;
 					tmpAgent.textColor = skimmer.colorAgentWordText;
 					
-					//color
+					//mark tmpagent to secondary class with limit function
 					tmpAgent.clickPriority = 2;
 					skimmer.agents.push(tmpAgent);
 					skimmer.zoomedAgents.push(tmpAgent);
@@ -683,7 +652,7 @@
 				skimmer.updateAgentColor();
 				
 			}
-			
+			//build new image source list
 			buildAgentLinkList();
 		}
 		else if(event.button == 0 && event.shiftKey == true && event.ctrlKey == true && event.altKey == true && skimmer.agentArticle==null){
@@ -697,26 +666,25 @@
 	}
 	
 	function autoMouse(){
-		//first dire
 		
 		mouseCount++;
 		if(mouseCount > 1000) mouseCount = 0;
 		
-		var tmpX=simuCursor.returnX();
+		//last position of auto curse 
+		var tmpX=simuCursor.returnX(); 
 		var tmpY=simuCursor.returnY();
-		
-		//simuCursor.set(simuCursor.returnX()+Math.random()*initStep*scaleNow/scaleOld-initStep*0.5*scaleNow/scaleOld, simuCursor.returnY()+Math.random()*initStep*scaleNow/scaleOld-initStep*0.5*scaleNow/scaleOld);
 		
 		simuCursor.add(mainDir);
 		//simuCursor.set(simuCursor.returnX()+lastSimuMotion.returnX(), simuCursor.returnY()+lastSimuMotion.returnY());
 		
-		//lastSimuMotion.set(simuCursor.returnX()-tmpX,simuCursor.returnY()-tmpY);
-		//lastSimuMotion.normalizePara(moveRegion);
+		//prevent cursor from exceeding bound
 		if(Math.abs(simuCursor.returnX())>=1.0 / 3 *skimmer.width || Math.abs(simuCursor.returnY())>=1.0 / 3 *skimmer.height )
 			{
 				simuCursor.set(tmpX,tmpY);
 				mainDir.negate();
 			}
+			
+		//move possibility
 		if(mouseCount % 15 == 0) 
 		{
 			if(Math.random() < 0.25)
@@ -727,7 +695,7 @@
 				mainDir.negate();
 		}
 			
-		
+		//create new mouse event
 		var autoEvent = document.createEvent("MouseEvents");
 		//event.initMouseEvent(type, canBubble, cancelable, view, detail, screenX, screenY, clientX, clientY, 
         //ctrlKey, altKey, shiftKey, metaKey, button, relatedTarget);
@@ -748,9 +716,11 @@
 		
 	}
 	
+	//real draw image function
 	function drawAvoidStretch(agent,ctx, img, color,dx, dy, dw, dh){
 		
 		var minLength = img.width>img.height?img.height:img.width;
+		
 		
 		var stretchFactor = 0.5;
 		if (minLength < LEAST_IMAGE_WIDTH)
@@ -761,10 +731,12 @@
 		{
 			ctx.save();
 			ctx.beginPath();
+			//clip function
 			ctx.arc(dx+dw*0.5,dy+dh*0.5,dw*0.5,0,2*Math.PI,true);
 			ctx.closePath();
 			ctx.clip();
 			
+			//cut a square region of image
 			if(img.width>img.height){
 				ctx.drawImage(img,0.5*(img.width-img.height),0,img.height,img.height, dx, dy, dw, dh);
 			}
@@ -791,10 +763,6 @@
 			ctx.closePath();
 			ctx.clip();
 			
-			//ctx.drawImage(img,dx,dy,dw,dh);
-			
-			
-			
 			if(img.width>img.height){
 				ctx.drawImage(img,0.5*(img.width-img.height),0,img.height,img.height,dx+dw*0.5-minLength*0.5 / stretchFactor,dy+dh*0.5-minLength*0.5/ stretchFactor,minLength/ stretchFactor,minLength/ stretchFactor );
 			}
@@ -809,6 +777,8 @@
 			
 			ctx.restore();
 			
+			
+			//create gradient to look good
 			ctx.save();
 			ctx.beginPath();
 			ctx.arc(dx+dw*0.5,dy+dh*0.5,dw*0.5,0,2*Math.PI,true);
@@ -1071,8 +1041,6 @@
 	
 	
 	
-	//var agentOverlapMark 
-	
 	function checkAgentOverlap(){
 		
 		for(var i=0;i<agentOverlapMark.length; i++)
@@ -1087,10 +1055,11 @@
 			
 			for(var j=i+1; j < skimmer.agents.length; j++){
 				
-				
+				//distance detect
 				if(skimmer.agents[i].avgPos.dist(skimmer.agents[j].avgPos) <  skimmer.agents[j].radius+skimmer.agents[i].radius ){
 				
 					var iLink, jLink;
+					//get current image url of agents
 					if(skimmer.agents[i].pictureMode == 0)
 						continue;
 					else if(skimmer.agents[i].pictureMode == 2)
@@ -1108,6 +1077,7 @@
 						if(iLink == jLink && iLink != null && iLink != "" && iLink != " "){
 						//console.log(skimmer.agents[i].text+" "+skimmer.agents[j].text);
 						
+						//mark agents with cluster count
 						if( agentOverlapMark[j] != -1){
 							if(agentOverlapMark[i] == -1)	
 							agentOverlapMark[i] = agentOverlapMark[j];
@@ -1135,12 +1105,11 @@
 		}
 		
 		
-		
 		var cFlag = new Array(clusterCount);
 		for(var i =0;i<cFlag.length; i++)
 			cFlag[i]=0;
 		
-		
+		//random assign alpha
 		if(depthOrder.length != skimmer.agents.length){
 		
 			for(var i = 0; i <skimmer.agents.length ; i++){
@@ -1159,6 +1128,7 @@
 			}
 		
 		else{
+					//let the closest to get alpha 1 and fade others
 					for(var i=depthOrder.length-1; i > -1 ; i--){
 						
 						var tmpIndex = depthOrder[i][0];  
@@ -1206,10 +1176,6 @@
 			scaleNow = skimmer.height;
 			scaleOld = 768;
 		}
-
-		//-----------------------------------------------------------------------------------------------
-		// The code above is too messy to read, The function is to draw the elements on the canvas
-		//-----------------------------------------------------------------------------------------------
 
 		// The color key box of the canvas
 
@@ -1332,7 +1298,7 @@
 					break;
 			}
 		}
-		////////////////////////////////////////////BOTTOM TITLE
+		//BOTTOM TITLE
 		
 		var skimmerTextWidth = ctx.measureText("Skimmer, by Design Graphics Lab").width;
 
@@ -1344,6 +1310,7 @@
 			{
 				
 				ctx.fillStyle = "#333";
+				//open link
 				if(origin.x + skimmer.agentTitle.pos.x - skimmerTextWidth / 6.0 < currentCursor.x )
 					linkFlag = 3;
 				else
@@ -1356,29 +1323,23 @@
 		
 		ctx.fillText("Skimmer, by Design Graphics Lab", origin.x + skimmer.agentTitle.pos.x, skimmer.height - 20 * scaleNow / scaleOld);  //bottom
 		////////////////////////////////////////////
-		
-		/*
-		var showImage = document.getElementsByName("showImage");
-		if(showImage[0].checked == true)
-			showImageFlag = 1;
-		else
-			showImageFlag = 0;
-		*/
+	
 
 		// Draw the circles. //
 		if( skimmer.DRAW_CIRCLES ) {
 
 			if(depthOrder.length != 0 && depthOrder.length == skimmer.agents.length ){
+				
+				
 				if( depthChangeCount > 10000 ) depthChangeCount = 0 ;
 
-
+				//depth change frequency
 				if( ++depthChangeCount%160 == 0 ){
 				//	depthOrder.sort(function(a,b) {return a[1]-b[1]});
 				//}
-				//small -> large
 				
 					for(var i=0;i<depthOrder.length;i++){ 
-					//depthOrder[i][1] = (depthOrder[i][1]+1)%DEPTHLAYER; 
+						//inc depth
 						depthOrder[i][1]++;
 						
 						if(depthOrder[i][1] >= DEPTHLAYER ){
@@ -1401,6 +1362,7 @@
 					
 					if(valueSlider < 80){
 					skimmer.agents[pi].switchDepthCount++;
+					//change alpha to simulate fade 
 					skimmer.agents[pi].localAlpha = Math.cos( skimmer.agents[pi].switchDepthCount *1.0 / DEPTH_COUNT_LIMIT *Math.PI - 0.5*Math.PI ) *(-0.7) + 1;
 			    	}
 			    if(skimmer.agents[pi].switchDepthCount == Math.round(DEPTH_COUNT_LIMIT*0.5)){
@@ -1413,12 +1375,12 @@
 			    		}
 			    	}	
 			    	
-					
+					//render in new order
 			    	depthOrder.sort(function(a,b) {return a[1]-b[1]});
-					//alert("sort");
+					
 			    	
 			    }
-			    
+			    //fade process finished
 			    if(skimmer.agents[pi].switchDepthCount > DEPTH_COUNT_LIMIT){
 			    	skimmer.agents[pi].switchDepthEnable = 0;
 			    	skimmer.agents[pi].localAlpha = 1;
@@ -1427,7 +1389,7 @@
 			    }
 			}
 			
-			//disable depth if clustered
+			//change depth if words are clustered with same image url
 			for(var pi = 0; pi < skimmer.agents.length; pi++){
 				if(agentOverlapMark[pi] == 1){
 					skimmer.agents[pi].localAlpha = 1;
@@ -1442,6 +1404,7 @@
 
 			for(var pi = 0; pi < skimmer.agents.length; pi++){
 				if(depthOrder.length != 0 &&  depthOrder.length == skimmer.agents.length && skimmer.colorType == 0)
+					//render with depth order
 					i = depthOrder[pi][0];
 				else
 					i = pi;
@@ -1457,51 +1420,45 @@
 					var colorUnselected = agent.shapeColor.darker();
 					ctx.fillStyle = colorUnselected.toString();
 				}
-
+				//radius are twice the real radius of agents
 				var radius = parseInt(Math.round( ( skimmer.minRadius + ( agent.occurrences /  skimmer.maxOccurrence )
 								* ( skimmer.minRadius ) ) * 2.0 * scaleNow / scaleOld));
 
 				// updates the radius value
 				tAlpha = ctx.globalAlpha;
 				//ctx.globalAlpha = valueSlider > 60 ? (valueSlider/100.0) : agent.localAlpha*(valueSlider/100.0);
+				
+				//slider control
 				ctx.globalAlpha = agent.localAlpha*(valueSlider/100.0);
 				if(ctx.globalAlpha <0.1) ctx.globalAlpha = 0.1; 
 				if( skimmer.colorType != 0 ) ctx.globalAlpha = 1;
 				skimmer.agents[i].radius = radius / 2;
 				ctx.beginPath();
+				//render agents circle
 				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2)-2, 0, Math.PI * 2, false); 
 				ctx.fill();  
 				ctx.closePath();  
 				ctx.globalAlpha = tAlpha;
 
-				//ctx.save();
-				//ctx.beginPath();
-				//ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius/2),0,Math.PI*2,true);
-				//ctx.closePath();
-				//ctx.clip();
 
-
+				//render image with switch smoothing
 				if (skimmer.agents[i].imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 )	{
 					var imgNews = new Image();
 					tAlpha = ctx.globalAlpha ;
+					//slider control
 					var ttAlpha = ( 100 - valueSlider ) /100.0;
 					
 					try{
 						if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 
 						if(++skimmer.agents[i].imageFrequency%100 == 0 && Math.random() < 0.5 || skimmer.agents[i].switchPicture > 0){
-							/*
-							   if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
-
-							   if(skimmer.agents[i].imageFrequency++%150 == 0 && Math.random() < 0.5 || skimmer.agents[i].switchPicture > 0)
-							   skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
-
-							   imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
-							 */
+							
+							//common state without fading 
 							if(skimmer.agents[i].switchPicture == 0){
-//gogo
-								imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 
+								imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
+								
+								//at least one valid image to use
 								if(skimmer.agents[i].validImageFlag == 1 && imgNews.width > LEAST_IMAGE_WIDTH )
 								{
 									skimmer.agents[i].validImageFlag = 0; 
@@ -1511,11 +1468,13 @@
 
 								ctx.globalAlpha = agent.localAlpha*ttAlpha;
 								
+								//use current url for image
 								if ( imgNews.width > LEAST_IMAGE_WIDTH ){
 									//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									agent.pictureMode = 2;
 								}
+								//use valid image because current url is invalid
 								else if (skimmer.agents[i].validImageFlag == 0){
 									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
@@ -1524,12 +1483,13 @@
 								skimmer.agents[i].switchPicture ++;
 							}
 							
+							//smoothing 
 							else if(skimmer.agents[i].switchPicture < 21 ){
 
 								//ctx.fillStyle = "#000";
 								//ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2), 0, Math.PI * 2, false); 
 
-
+								//blending two pictures with interpolation of alpha
 								var inc = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 								var fflag = 0;
 								ctx.globalAlpha =( 1 - skimmer.agents[i].switchPicture/ 20.0 )*agent.localAlpha*ttAlpha;
@@ -1568,6 +1528,8 @@
 								skimmer.agents[i].switchPicture ++;
 								//ctx.globalAlpha = 1 ;
 								ctx.globalAlpha = agent.localAlpha*ttAlpha;
+								
+								//no use 
 								if ( fflag == 2 ){
 									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									//drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
@@ -1579,10 +1541,14 @@
 
 									agent.pictureMode = 2;
 								}
+								//~no use
 								newImg=null;
 							}
+							
+							//end fading
 							else{
 								skimmer.agents[i].switchPicture = 0 ;	
+								//url update
 								skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 								imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 
@@ -1604,7 +1570,6 @@
 
 						else{
 
-							//skimmer.agents[i].imageIndex = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 							imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
 							ctx.globalAlpha = agent.localAlpha*ttAlpha;
 							if ( imgNews.width > LEAST_IMAGE_WIDTH ){
@@ -1633,6 +1598,7 @@
 						
 
 					}
+					//wrong image url
 					catch(e){
 						skimmer.agents[i].imageLinkValidation = 0;
 						console.log(imgNews.src);
@@ -1663,10 +1629,6 @@
 				ctx.closePath();
 				ctx.clip();
 				
-				//ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x * scaleNow / scaleOld),
-				//		Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y* scaleNow / scaleOld),
-				//		Math.round(agentBounds.extents.x * 2* scaleNow / scaleOld),
-				//		Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
 				tAlpha = ctx.globalAlpha;
 				ctx.globalAlpha *=( valueSlider <= 50 )? (valueSlider / 50.0 ): ((100 - valueSlider) / 50.0); 
 				ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x),
@@ -1688,15 +1650,8 @@
 			ctx.fillStyle = agent.textColor.toString();
 			ctx.textBaseline = 'middle';
 			ctx.textAlign = 'center';
-			/*
-			if(skimmer.zoomedAgents.indexOf(agent) > -1){
-				ctx.font = 'bold' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
-			}
-			else{
-				ctx.font = 'bold ' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
-			}
-			*/
 			
+			//different font for different class of agents
 			if(agent.clickPriority == 1){
 				ctx.font = 'bold ' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
 			}
@@ -1711,8 +1666,7 @@
 				ctx.fillStyle = colorUnselected.toString();
 			}		
 
-			//back ground color
-
+			//back ground color of text for agents with image
 			if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 && agent.imageLinkValidation == 1 && skimmer.selectedWords.indexOf(agent) < 0 )	{
 
 				ctx.save();
@@ -1743,12 +1697,12 @@
 			tAlpha = ctx.globalAlpha ; 
 			ctx.globalAlpha = valueSlider > 50 ? 1: valueSlider / 50.0;
 			if (skimmer.colorType != 0) ctx.globalAlpha = 1;
+			//render text
 			if(metrics.width < agent.radius*2)
 			ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
 			else{
 			ctx.fillText(agent.text.slice(0,Math.round(agent.text.length*(agent.radius*2.0/metrics.width))).toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
-			//console.log(metrics.width+" "+agent.radius);
-			//console.log(agent.text.length*(agent.radius*2.0/metrics.width)+" "+agent.text);
+		
 			}
 			ctx.globalAlpha = tAlpha;
 			
@@ -1770,11 +1724,13 @@
 
 		}
 
+		//draw text box
 		ctx.save();
 		ctx.globalAlpha = 1;
 			
 		if(skimmer.agentArticle != null){
-			// Clip the title to fit within the assigned width
+			
+			//clip link string to fit the width of text box
 			var displayedTitle = "";
 			ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
 
@@ -1789,7 +1745,7 @@
 			if(droppedChars){
 				displayedTitle += "...";
 			}
-
+			//clip link string to fit the width of text box
 			ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
 			var displayedSource = "";
 
@@ -1821,6 +1777,7 @@
 				else
 				dealString = skimmer.agentArticle.text;
 				
+				//cut the content to lines and display
 				var dealWords = dealString.split(" ");
 				var dealedLines = new Array();
 				var j = 0;
@@ -1840,6 +1797,7 @@
 						if(ctx.measureText(dealedLines[j]).width > textWidth){
 							textWidth = ctx.measureText(dealedLines[j]).width;
 						}
+						//single words like url 
 						if(ctx.measureText(dealWords[i]).width > (skimmer.agentArticle.width * 0.9 ) )
 						{
 							dealWords[i] = dealWords[i].substring(0, parseInt(dealWords.length*skimmer.agentArticle.width * 0.9 / ctx.measureText(dealWords[i]).width ));
@@ -1864,10 +1822,8 @@
 				var sourceWidth = ctx.measureText(skimmer.agentArticle.source).width;
 				var sourceHeight = 20*scaleNow/scaleOld+10;
 
-			//	if(skimmer.agentArticle.shiftMode == 1)
-			//		skimmer.agentArticle.height = requiredTextHeight;
-			//	else
-					skimmer.agentArticle.height = requiredTextHeight + titleHeight + sourceHeight;
+			
+				skimmer.agentArticle.height = requiredTextHeight + titleHeight + sourceHeight;
 				
 				
 				var titleOffsetY = parseInt(Math.round(20 * 1.75));
@@ -1887,7 +1843,7 @@
 				ctx.lineWidth = "1";
 				ctx.fillStyle = 'rgba(140,140,140,0.9)';
 				ctx.strokeStyle = 'rgba(200,200,200,0.9)';
-
+				//render outline box
 				if(skimmer.agentArticle.shiftMode == 2){
 					ctx.fillRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
 					ctx.strokeRect(titleOrigin.x, titleOrigin.y, skimmer.agentArticle.width, titleHeight);
@@ -1908,9 +1864,10 @@
 				ctx.fillStyle = 'rgba(50,50,50,0.9)';
 				var lineOrigin = textOrigin.y + 10* scaleNow / scaleOld;
 				for(var i = 0; i < dealedLines.length; i++){
+					//no more then max number of lines 
 					if(i >= MAX_LINE)
 					break;
-					//ctx.fillText(dealedLines[i],textOrigin.x + (skimmer.agentArticle.width / 2.0 - textWidth / 2.0+5), lineOrigin);
+					//render content
 					ctx.fillText(dealedLines[i],textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), lineOrigin);
 		
 					lineOrigin += 15* scaleNow / scaleOld;
@@ -1921,29 +1878,28 @@
 				ctx.textAlign = "left";
 				ctx.textBaseline = "middle";
 				ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
+				//render title
 				ctx.fillText( displayedTitle, textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), titleOrigin.y+0.5*titleHeight );
 				
 				ctx.font = 'bold '+Math.round(16* scaleNow / scaleOld)+'px Arial';
 				
 				if( sourceOrigin.x < currentCursor.x && currentCursor.x < sourceOrigin.x + skimmer.agentArticle.width )
 				{
-					//alert("oh");
 					if	( sourceOrigin.y < currentCursor.y && currentCursor.y < sourceOrigin.y + sourceHeight )
 					{
-						//alert("oh");
 						ctx.fillStyle = "#33f";
 						linkFlag = 1;
 					}
 					else{linkFlag = 0;}
 				}	
 				else{linkFlag = 0;}
-				
+					//render link
 					ctx.fillText( displayedSource, textOrigin.x + Math.round(skimmer.agentArticle.width * 0.05), sourceOrigin.y+0.5*sourceHeight );
 				
 				}
 				
 				if(skimmer.agentArticle.shiftMode == 1)
-				skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 , skimmer.agentArticle.height / 2 );					
+					skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 , skimmer.agentArticle.height / 2 );					
 				else
 					skimmer.agentArticle.bounds.extents.set(skimmer.agentArticle.width / 2 , skimmer.agentArticle.height / 2 );
 			}
@@ -1956,6 +1912,7 @@
 		}
 		ctx.restore();
 		
+		//for secondary agents, deal with when it will disappear 
 		for(var i = 0; i < skimmer.agents.length; i++){
 	
 			if(skimmer.agentArticle != null) break;
@@ -1975,16 +1932,13 @@
 			autoMouse();
 			ctx.fillStyle = 'rgba(255,0,0,0.7)';
 			ctx.beginPath();
-			//ctx.arc(Math.round(origin.x+simuCursor.returnX()),Math.round(origin.y+simuCursor.returnY()), 7.0 * scaleNow / scaleOld ,0 ,Math.PI*2,false );	
-			//ctx.arc(Math.round(origin.x),Math.round(origin.y),100,0,2*Math.PI,true);
+			
 			ctx.drawImage(arrow,Math.round(origin.x+simuCursor.returnX()),Math.round(origin.y+simuCursor.returnY()),40* scaleNow / scaleOld ,40* scaleNow / scaleOld );
 			ctx.fill();
 			ctx.closePath();
-			//console.log(simuCursor.returnX()+" "+simuCursor.returnY()+" "+mainDir.returnX()+" "+mainDir.returnY());
-			
-			//alert(origin.x+" "+origin.y);
 		}
 		
+		//overlap frequency
 		if(overlapCheckCount >= 10000) overlapCheckCount = 600;
 		
 		if( ++overlapCheckCount % 210 == 0 && overlapCheckCount > 600 && skimmer.colorType == 0){ checkAgentOverlap();}
