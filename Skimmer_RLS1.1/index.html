@@ -1158,6 +1158,74 @@
 		
 	}
 	
+	function drawText(ctx,agent,origin){
+			
+			
+			var alpha = parseFloat( (  agent.TICKS_TILL_FADE - agent.curTicksTillFade ) / agent.TICKS_TILL_FADE ) ;
+			if( alpha > 1.0 ) { alpha = 1.0; }
+			if( alpha < 0.0 ) { alpha = 0.0; }
+			ctx.fillStyle = agent.textColor.toString();
+			ctx.textBaseline = 'middle';
+			ctx.textAlign = 'center';
+			
+			//different font for different class of agents
+			if(agent.clickPriority == 1){
+				ctx.font = 'bold ' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
+			}
+			else{
+				ctx.font = 'italic bold ' + Math.round(16 * scaleNow / scaleOld) + 'px Arial';
+			}
+			
+			metrics = ctx.measureText(agent.text);
+			agent.bounds.extents.set( metrics.width / 2.0 +5 , 10 );
+			if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 )){
+				var colorUnselected = agent.textColor.darker().darker();
+				ctx.fillStyle = colorUnselected.toString();
+			}		
+
+			//back ground color of text for agents with image
+			if (agent.imageLinkList[0] !=null && showImageFlag == 1 && agent.imageLinkValidation == 1 && skimmer.selectedWords.indexOf(agent) < 0 )	{
+
+				ctx.save();
+				ctx.beginPath();
+				ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(agent.radius)-1,0,Math.PI*2,true);
+				ctx.closePath();
+				ctx.clip();
+
+				ctx.fillStyle = 'rgba(50,50,50,0.8)';
+				var agentBounds = agent.getBoundingBox();		
+				
+				tAlpha = ctx.globalAlpha;
+				ctx.globalAlpha *=( valueSlider <= 50 )? (valueSlider / 50.0 ): ((100 - valueSlider) / 50.0); 
+
+				ctx.fillRect(Math.round(origin.x + agent.avgPos.x - agentBounds.extents.x),
+						Math.round(origin.y + agent.avgPos.y - agentBounds.extents.y * scaleNow / scaleOld),
+						Math.round(agentBounds.extents.x * 2),
+						Math.round(agentBounds.extents.y * 2* scaleNow / scaleOld));
+				ctx.globalAlpha = tAlpha;
+				ctx.restore();	
+
+			}
+
+			
+			
+			ctx.fillStyle='rgba(250,250,250,0.8)';
+			
+			tAlpha = ctx.globalAlpha ; 
+			ctx.globalAlpha = ( agent.pictureMode == 0 )? (valueSlider > 50 ? valueSlider / 100.0 : 0.5) : valueSlider / 100.0;
+			
+			//render text
+			if(metrics.width < agent.radius*2)
+			ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
+			else{
+			ctx.fillText(agent.text.slice(0,Math.round(agent.text.length*(agent.radius*2.0/metrics.width))).toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
+		
+			}
+			ctx.globalAlpha = tAlpha;
+			
+		
+	}
+	
 	
 	
 	
@@ -1494,9 +1562,9 @@
 					try{
 						if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 
-						if(++skimmer.agents[i].imageFrequency%150 == 0 && Math.random() < 0.5 || skimmer.agents[i].switchPicture > 0){
+						if(++skimmer.agents[i].imageFrequency%400 == 0 && Math.random() < 0.5 || skimmer.agents[i].switchPicture > 0){
 							
-							//common state without fading 
+							//common state without fading
 							if(skimmer.agents[i].switchPicture == 0){
 
 								imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
@@ -1653,6 +1721,10 @@
 
 				}
 				//ctx.restore();
+				drawText(ctx,agent,origin);
+				
+				
+				
 			}
 		}
 
@@ -1684,8 +1756,10 @@
 			}
 		}
 
-		// Draw all of the text and set the agent's bounding box. //
 		
+		
+		// Draw all of the text and set the agent's bounding box. //
+		/*
 		for(var pi = 0; pi < skimmer.agents.length; pi++){
 				if(depthOrder.length != 0 &&  depthOrder.length == skimmer.agents.length)
 					//render with depth order
@@ -1757,7 +1831,7 @@
 			ctx.globalAlpha = tAlpha;
 			
 		}
-
+		*/
 
 		// Draw the title agent if it exists. //
 		if( skimmer.agentTitle != null ) {
