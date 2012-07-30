@@ -2171,10 +2171,13 @@
 		searchContent.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
 
 		
+		/*
 		chooseEngine = document.getElementById("chooseEngine");
 		chooseEngine.style.width = tableSel.width+"px";	
 		chooseEngine.style.height = Math.round(tableSel.height * heightRatioText)+"px";
 		chooseEngine.style.fontSize = Math.round(tableSel.height * heightRatioFont) + "px";
+		*/
+		
 		
 		/*
 		advancedSearching = document.getElementById("advancedSearching");
@@ -2274,6 +2277,8 @@
 		var selectVal = selectObj.options[selectIndex].value;
 		
 		
+		var startSearchingFlag = 1;
+		
 		// Reset the title record
 		titleRecord = "";
 		
@@ -2327,60 +2332,63 @@
 				sourceAddress = "http://catalog.lib.ncsu.edu/?service=search&N=206469&output=rss";
 				break;
 			default:
+				startSearchingFlag = 0;
 				break;
 		}
 		
 		
-		//------------------------------------------- Get the content from the Google Feed Api ----------------------------------------
-		
-		// Reset the feeding flag
-		feedFinished = 0;
-		
-		// Set the URL for the google feed API
-		var feed = new google.feeds.Feed(sourceAddress);
-		// Set the number of entries to be read from the RSS online
-		//feed.setNumEntries(numEntries);
-		feed.setNumEntries(100);
-
-		// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
-		feed.load(function(result) {
-			if (!result.error) {
-				feedResult = result;
-
-				numEntries = feedResult.feed.entries.length;
-				if (numEntries > 0) {
-					skimmer.UpdateSkimmer(feedResult, numEntries);
-					
-					// Set the title of the feed data
-					if (titleRecord != "") {
-						skimmer.agentTitle.text = titleRecord;
-					}
-					
-					skimmer.addNewArticles();
-					skimmer.extractArticleMinMax();
-					skimmer.checkForAdjacencies();
-					skimmer.updateAgents();
-					skimmer.extractAgentMinMax();
-					buildAgentLinkList();
-					
-					var selectObj = document.getElementById("selectColor");
-					var selectIndex=selectObj.selectedIndex;
-					var selectVal = selectObj.options[selectIndex].value;
-
-					skimmer.colorType = selectVal;
-					skimmer.updateAgentColor();
-				}
-				else {
-					alert("More searching results are needed for visualization.");
-				}
-			}
+		if (startSearchingFlag == 1) {
+			//------------------------------------------- Get the content from the Google Feed Api ----------------------------------------
 			
-			feedFinished = 1;
+			// Reset the feeding flag
+			feedFinished = 0;
+			
+			// Set the URL for the google feed API
+			var feed = new google.feeds.Feed(sourceAddress);
+			// Set the number of entries to be read from the RSS online
+			//feed.setNumEntries(numEntries);
+			feed.setNumEntries(100);
 
-		});
+			// downloads the feed specified in the constructor from Google's servers and calls the given callback when the download completes
+			feed.load(function(result) {
+				if (!result.error) {
+					feedResult = result;
 
-		google.setOnLoadCallback(initialize);
+					numEntries = feedResult.feed.entries.length;
+					if (numEntries > 0) {
+						skimmer.UpdateSkimmer(feedResult, numEntries);
+						
+						// Set the title of the feed data
+						if (titleRecord != "") {
+							skimmer.agentTitle.text = titleRecord;
+						}
+						
+						skimmer.addNewArticles();
+						skimmer.extractArticleMinMax();
+						skimmer.checkForAdjacencies();
+						skimmer.updateAgents();
+						skimmer.extractAgentMinMax();
+						buildAgentLinkList();
+						
+						var selectObj = document.getElementById("selectColor");
+						var selectIndex=selectObj.selectedIndex;
+						var selectVal = selectObj.options[selectIndex].value;
+
+						skimmer.colorType = selectVal;
+						skimmer.updateAgentColor();
+					}
+					else {
+						alert("More searching results are needed for visualization.");
+					}
+				}
 				
+				feedFinished = 1;
+
+			});
+
+			google.setOnLoadCallback(initialize);
+					
+		}
 	
 	}
 	
@@ -2394,7 +2402,8 @@
 	function AdvancedSearching() {
 
 		// Choose the searching engine from the list
-		var selectObj = document.getElementById("chooseEngine");
+		//var selectObj = document.getElementById("chooseEngine");
+		var selectObj = document.getElementById("chooseSource");
 		var selectIndex=selectObj.selectedIndex;
 		var selectVal = selectObj.options[selectIndex].value;
 
@@ -2403,19 +2412,19 @@
 		var inputVal = inputObj.value;
 		
 		switch(selectVal) {
-			case 'ncsu_twitter_search':
+			case 'Advanced_ncsu_twitter_search':
 				isFlickr = 0;
 				sourceAddress = "http://search.twitter.com/search.rss?q=" + inputVal + "%23ncsu";
 				break;
-			case "google_news":
+			case "Advanced_google_news":
 				isFlickr = 0;
 				sourceAddress = "http://news.google.com/news?hl=en&gl=us&q=" + inputVal + "&num=100&um=1&ie=UTF-8&output=rss";
 				break;
-			case "flickr_tags":
+			case "Advanced_flickr_tags":
 				isFlickr = 1;
 				sourceAddress = "http://api.flickr.com/services/feeds/photos_public.gne?tags=" + inputVal + "&lang=en-us&format=rss_200";
 				break;
-			case "lib_search":
+			case "Advanced_lib_search":
 				isFlickr = 0;
 				sourceAddress = "http://catalog.lib.ncsu.edu/?Nty=1&Ntk=Keyword&service=search&N=0&output=rss&Ntt=" + inputVal;
 				break;
@@ -2749,15 +2758,21 @@
 	function clickAdvancedRadioBtn() {
 		var advanceRadioBtn = document.getElementsByName("advanceRadioBtn");
 		if (advanceRadioBtn[1].checked == true) {
-			advancedModeTbl = document.getElementById("advancedMode");
+			var advancedModeTbl = document.getElementById("advancedMode");
 			advancedModeTbl.hidden = true;
+			
+			//var selectOptGroupAdvanced = document.getElementsByName("chooseSource");
+			//selectOptGroupAdvanced.hidden = true;
 			
 			advancedFlag = 1;
 		}
 		else {
-			advancedModeTbl = document.getElementById("advancedMode");
+			var advancedModeTbl = document.getElementById("advancedMode");
 			advancedModeTbl.hidden = false;
 			
+			//var selectOptGroupAdvanced = document.getElementsByName("selectOptGroupAdvanced");
+			//selectOptGroupAdvanced.hidden = false;
+
 			advancedFlag = 0;
 		}
 	}
@@ -2831,16 +2846,29 @@
 								<tr>
 									<td>
 										<select id="chooseSource" name="chooseSource" onclick="resetSourceSelect()" onchange="onChangeSourceSelect()">
-											<option value = "ncsu_events">NCSU Events</option>
-											<option value = "ncsu_lib_news">NCSU Library News</option>
-											<option value = "ncsu_twitter_search">Twitter #NCSU</option>
-											<option value = "ncsu_twitter_account">Twitter @NCSU</option>
-											<option value = "ncsu_facebook">NCSU Facebook</option>
-											<option value = "google_news">Google News NCSU</option>
-											<option value = "flickr_tags">Flickr NCSU Tag</option>
-											<option value = "lib_3_m_new">Library New in Last 3 Months</option>
-											<option value = "lib_1_m_new">Library New in Last Month</option>
-											<option value = "lib_1_w_new">Library New in Last Week</option>
+
+											<optgroup label="Basic">
+												<!-- Basic mode source options -->
+												<option value = "ncsu_events">NCSU Events</option>
+												<option value = "ncsu_lib_news">NCSU Library News</option>
+												<option value = "ncsu_twitter_search">Twitter #NCSU</option>
+												<option value = "ncsu_twitter_account">Twitter @NCSU</option>
+												<option value = "ncsu_facebook">NCSU Facebook</option>
+												<option value = "google_news">Google News NCSU</option>
+												<option value = "flickr_tags">Flickr NCSU Tag</option>
+												<option value = "lib_3_m_new">Library New in Last 3 Months</option>
+												<option value = "lib_1_m_new">Library New in Last Month</option>
+												<option value = "lib_1_w_new">Library New in Last Week</option>
+											</optgroup>
+
+											<optgroup id="selectOptGroupAdvanced" name="selectOptGroupAdvanced" label="Advanced">
+												<!-- Advanced searching source options-->
+												<option value = "Advanced_ncsu_twitter_search">NCSU Twitter Search</option>
+												<option value = "Advanced_google_news">Google News Search</option>
+												<option value = "Advanced_flickr_tags">Flickr Image Search</option>
+												<option value = "Advanced_lib_search">NCSU Library Search</option>
+											</optgroup>
+
 										</select>
 									</td>
 								</tr>
@@ -2910,13 +2938,15 @@
 							<table id = "advancedMode" border = "0" cellpadding = "0">
 					
 								<!-- These are used as the Advanced interactive mode -->
-
+								<!--
 								<tr>
 									<td>
 										<font color = "white" face = "Arial">Search Engine</font>
 									</td>
 								</tr>
+								-->
 								<!-- This selection box select the source of the search engines from a given list of xml feeds -->
+								<!--
 								<tr>
 									<td>
 										<select id="chooseEngine" name="chooseEngine">
@@ -2927,6 +2957,7 @@
 										</select>
 									</td>
 								</tr>
+								-->
 								<tr>
 									<td>
 										<br/>
