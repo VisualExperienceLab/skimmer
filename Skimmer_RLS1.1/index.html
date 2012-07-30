@@ -2761,8 +2761,8 @@
 			var advancedModeTbl = document.getElementById("advancedMode");
 			advancedModeTbl.hidden = true;
 			
-			//var selectOptGroupAdvanced = document.getElementsByName("chooseSource");
-			//selectOptGroupAdvanced.hidden = true;
+			var selectObj = document.getElementsByName("chooseSource");
+			selectObj[0].lastElementChild.hidden = true;
 			
 			advancedFlag = 1;
 		}
@@ -2770,8 +2770,8 @@
 			var advancedModeTbl = document.getElementById("advancedMode");
 			advancedModeTbl.hidden = false;
 			
-			//var selectOptGroupAdvanced = document.getElementsByName("selectOptGroupAdvanced");
-			//selectOptGroupAdvanced.hidden = false;
+			var selectObj = document.getElementsByName("chooseSource");
+			selectObj[0].lastElementChild.hidden = false;
 
 			advancedFlag = 0;
 		}
