@@ -1181,8 +1181,8 @@
 
 		// Set the starting point and the size of the color key box
 		var OffSet = 30;
-		var ColorKeyStartX = skimmer.width - 180 * scaleNow / scaleOld - OffSet * scaleNow / scaleOld;
-		var ColorKeyStartY = skimmer.height - 180 * scaleNow / scaleOld - OffSet * scaleNow / scaleOld;
+		var ColorKeyStartX = skimmer.width - 200 * scaleNow / scaleOld - OffSet * scaleNow / scaleOld;
+		var ColorKeyStartY = skimmer.height - 200 * scaleNow / scaleOld - OffSet * scaleNow / scaleOld;
 		var ColorKeyWidth  = 180 * scaleNow / scaleOld;
 		var ColorKeyHeight = 180 * scaleNow / scaleOld;
 
@@ -1214,10 +1214,13 @@
 				case "1":
 					// grammar
 					// Draw the box and the border
+					// The box is removed
+					/*
 					ctx.fillStyle = 'rgba(200, 200, 200, 0.5)';
 					ctx.fillRect(ColorKeyStartX, ColorKeyStartY, ColorKeyWidth, ColorKeyHeight);
 					ctx.fillStyle = 'rgba(150, 150, 150, 0.6)';
 					ctx.fillRect(ColorKeyStartX + Border, ColorKeyStartY + Border, ColorKeyWidth - 2 * Border, ColorKeyHeight - 2 * Border);
+					*/
 
 					// ADJECTIVE
 					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
@@ -1258,10 +1261,13 @@
 				case "3":
 					// emotioin
 					// Draw the box and the border
+					// The box is removed
+					/*
 					ctx.fillStyle = 'rgba(200, 200, 200, 0.3)';
 					ctx.fillRect(ColorKeyStartX, ColorKeyStartY, ColorKeyWidth, ColorKeyHeight);
 					ctx.fillStyle = 'rgba(150, 150, 150, 0.6)';
 					ctx.fillRect(ColorKeyStartX + Border, ColorKeyStartY + Border, ColorKeyWidth - 2 * Border, ColorKeyHeight - 2 * Border);
+					*/
 
 
 					// Set the boundings of the gradient area
@@ -1273,8 +1279,15 @@
 
 					// Draw the gradient color key
 					var colorkey_gradient = ctx.createLinearGradient(GradientX, GradientY, GradientX, GradientY + GradientHeight);
-					colorkey_gradient.addColorStop(0, 'rgba(255, 255, 0, 0.5)');
-					colorkey_gradient.addColorStop(1, 'rgba(0, 0, 255, 0.5)');
+					colorkey_gradient.addColorStop(0, 'rgba(255, 255, 0, 1)');
+					colorkey_gradient.addColorStop(1, 'rgba(0, 0, 255, 1)');
+					ctx.fillStyle = colorkey_gradient;
+					ctx.fillRect(GradientX, GradientY, GradientWidth, GradientHeight);
+
+					// Draw the intensive
+					colorkey_gradient = ctx.createLinearGradient(GradientX, GradientY, GradientX + GradientWidth, GradientY);
+					colorkey_gradient.addColorStop(0, 'rgba(50, 50, 50, 1)');
+					colorkey_gradient.addColorStop(1, 'rgba(50, 50, 50, 0)');
 					ctx.fillStyle = colorkey_gradient;
 					ctx.fillRect(GradientX, GradientY, GradientWidth, GradientHeight);
 
@@ -1282,15 +1295,30 @@
 					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
 					ctx.textAlign = "center";
 					ctx.textBaseline = "top";
-					ctx.fillStyle = 'rgba(100, 100, 0, 1.0)';
+					ctx.fillStyle = 'rgba(255, 255, 0, 1.0)';
 					ctx.fillText("HAPPY", ColorKeyStartX + ColorKeyWidth / 2, ColorKeyStartY + 16 * scaleNow / scaleOld);
 
 					// SAD
 					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
 					ctx.textAlign = "center";
 					ctx.textBaseline = "top";
-					ctx.fillStyle = 'rgba(0, 0, 100, 1.0)';
+					ctx.fillStyle = 'rgba(0, 0, 255, 1.0)';
 					ctx.fillText("SAD", ColorKeyStartX + ColorKeyWidth / 2 , ColorKeyStartY + ColorKeyHeight * 13 / 16);
+
+					
+					// LOW
+					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
+					ctx.textAlign = "center";
+					ctx.textBaseline = "top";
+					ctx.fillStyle = 'rgba(50, 50, 50, 1.0)';
+					ctx.fillText("LOW", ColorKeyStartX, ColorKeyStartY + ColorKeyHeight / 2);
+
+					// HIGH
+					ctx.font = 'bold '+Math.round(16 * scaleNow / scaleOld)+'px Arial';
+					ctx.textAlign = "center";
+					ctx.textBaseline = "top";
+					ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
+					ctx.fillText("HIGH", ColorKeyStartX + ColorKeyWidth, ColorKeyStartY + ColorKeyHeight / 2);
 
 					break;
 
