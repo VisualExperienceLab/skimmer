@@ -2410,11 +2410,15 @@
 		// Choose the search keyword of the advanced searching mode
 		var inputObj = document.getElementById("searchContent");
 		var inputVal = inputObj.value;
-		
+
 		switch(selectVal) {
-			case 'Advanced_ncsu_twitter_search':
+			case 'Advanced_twitter_keyword_search':
 				isFlickr = 0;
-				sourceAddress = "http://search.twitter.com/search.rss?q=" + inputVal + "%23ncsu";
+				sourceAddress = "http://search.twitter.com/search.rss?q=" + inputVal;
+				break;
+			case 'Advanced_twitter_hash_search':
+				isFlickr = 0;
+				sourceAddress = "http://search.twitter.com/search.rss?q=%23" + inputVal;
 				break;
 			case "Advanced_google_news":
 				isFlickr = 0;
@@ -2758,18 +2762,22 @@
 	function clickAdvancedRadioBtn() {
 		var advanceRadioBtn = document.getElementsByName("advanceRadioBtn");
 		if (advanceRadioBtn[1].checked == true) {
+			// Hide the advanced control panel
 			var advancedModeTbl = document.getElementById("advancedMode");
 			advancedModeTbl.hidden = true;
 			
+			// Hide the advanced options in the selection box
 			var selectObj = document.getElementsByName("chooseSource");
 			selectObj[0].lastElementChild.hidden = true;
 			
 			advancedFlag = 1;
 		}
 		else {
+			// Show the advanced control panel
 			var advancedModeTbl = document.getElementById("advancedMode");
 			advancedModeTbl.hidden = false;
 			
+			// Show the advanced options in the selection box
 			var selectObj = document.getElementsByName("chooseSource");
 			selectObj[0].lastElementChild.hidden = false;
 
@@ -2863,7 +2871,8 @@
 
 											<optgroup id="selectOptGroupAdvanced" name="selectOptGroupAdvanced" label="Advanced">
 												<!-- Advanced searching source options-->
-												<option value = "Advanced_ncsu_twitter_search">NCSU Twitter Search</option>
+												<option value = "Advanced_twitter_keyword_search">Twitter Keyword Search</option>
+												<option value = "Advanced_twitter_hash_search">Twitter Hash Search</option>
 												<option value = "Advanced_google_news">Google News Search</option>
 												<option value = "Advanced_flickr_tags">Flickr Image Search</option>
 												<option value = "Advanced_lib_search">NCSU Library Search</option>
