@@ -2184,6 +2184,14 @@ Skimmer.prototype.updateAgentColor = function(){
 			
 		}
 	}
+	// Gray scale
+	else if(this.colorType == 4){
+		for(var i = 0; i < this.agents.length; i++){
+			// Set the random color of the circles
+			var grayValue = 50 + parseInt(Math.random() * 100);
+			this.agents[i].shapeColor.set(grayValue, grayValue, grayValue);
+		}
+	}
 	else{
 		for(var i = 0; i < this.agents.length; i++){
 			var agent = this.agents[i];
