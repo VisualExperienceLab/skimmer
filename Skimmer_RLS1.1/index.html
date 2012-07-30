@@ -43,7 +43,9 @@
 	var isFlickr = 0; 
 	var currentCursor = new Vector2(); //for mouse move
 	var simuCursor = new Vector2();    //for automouse
-	var mainDir = new Vector2();       //automouse main direction
+	var desDir = new Vector2();       //automouse main direction
+	
+	var reachFlag = 1;
 	var linkFlag = 0;                  //imagelink
 	var showImageFlag = 1;        
 	var checkImageUrlFlag = 0; 
@@ -52,12 +54,12 @@
 	var DEPTHLAYER = 5;           
 	var IMAGE_SWITCH_LIMIT = 50;
 	var LEAST_IMAGE_WIDTH = 20;      //less than the value would be regarded as invalid
-	var AGENT_REMOVE_LIMIT = 50;     //secondary agents
+	var AGENT_REMOVE_LIMIT = 200;     //secondary agents
 	var DEPTH_COUNT_LIMIT = 20;      //for soften
 	var MAX_LINE = 10;               //text box content
 	var OVERLAP_DETECTION = 100;     
 	var autoFlag = 0;
-	var initStep = 10;               //automouse
+	var initStep = 5;               //automouse
 	var mouseCount = 1;              
 	var arrow = new Image();         //arrow for automode
 	arrow.src = "data/arrow.png";
@@ -423,7 +425,7 @@
 			var agentArticleBounds = skimmer.agentArticle.getBoundingBox();
 			if(agentArticleBounds.contains(cursor)){
 				//change text box mode
-				if(event.altKey == true){
+				if(event.altKey == true && event.ctrlKey == false ){
 						skimmer.agentArticle.shiftMode = 3 - skimmer.agentArticle.shiftMode;
 				}
 				else{
@@ -542,7 +544,7 @@
 					//if( isFlickr == 1 )
 					//skimmer.agentArticle = new AgentArticle(skimmer.width / 3 * scaleNow / scaleOld, skimmer.height / 3 * scaleNow / scaleOld, skimmer.selectedArticle.title, skimmer.selectedArticle.summary, skimmer.selectedArticle.source,convertUrl(skimmer.selectedArticle.imageUrl));
 					//else
-					skimmer.agentArticle = new AgentArticle(skimmer.width / 3 * scaleNow / scaleOld, skimmer.height / 3 * scaleNow / scaleOld, skimmer.selectedArticle.title, skimmer.selectedArticle.summary, skimmer.selectedArticle.source,skimmer.selectedArticle.imageUrl);
+					skimmer.agentArticle = new AgentArticle(skimmer.width / 3, skimmer.height / 3, skimmer.selectedArticle.title, skimmer.selectedArticle.summary, skimmer.selectedArticle.source,skimmer.selectedArticle.imageUrl);
 					//fix color
 					//alert(skimmer.width / 3 * scaleNow / scaleOld+"  "+skimmer.height / 3 * scaleNow / scaleOld)
 					skimmer.agentArticle.pos.setVect(cursor);
@@ -667,42 +669,45 @@
 	
 	function autoMouse(){
 		
-		mouseCount++;
-		if(mouseCount > 1000) mouseCount = 0;
+		
+		var tmpV = new Vector2();
+		
+		tmpV.setVect(simuCursor);
+		tmpV.sub(desDir);
+		tmpV.negate();
+		tmpV.normalizePara(initStep * scaleNow / scaleOld);
 		
 		//last position of auto curse 
-		var tmpX=simuCursor.returnX(); 
-		var tmpY=simuCursor.returnY();
+		//var tmpX=simuCursor.returnX(); 
+		//var tmpY=simuCursor.returnY();
 		
-		simuCursor.add(mainDir);
+		simuCursor.add(tmpV);
 		//simuCursor.set(simuCursor.returnX()+lastSimuMotion.returnX(), simuCursor.returnY()+lastSimuMotion.returnY());
 		
 		//prevent cursor from exceeding bound
-		if(Math.abs(simuCursor.returnX())>=1.0 / 3 *skimmer.width || Math.abs(simuCursor.returnY())>=1.0 / 3 *skimmer.height )
-			{
-				simuCursor.set(tmpX,tmpY);
-				mainDir.negate();
-			}
+		//if(Math.abs(simuCursor.returnX())>=1.0 / 3 *skimmer.width || Math.abs(simuCursor.returnY())>=1.0 / 3 *skimmer.height )
+
+				//simuCursor.set(tmpX,tmpY);
+		
 			
 		//move possibility
-		if(mouseCount % 15 == 0) 
-		{
-			if(Math.random() < 0.25)
-				mainDir.rotateLeft();
-			else if(Math.random() < 0.33)
-				mainDir.rotateRight();
-			else if(Math.random() < 0.5)
-				mainDir.negate();
-		}
-			
+		
+		
+		
+		if (  simuCursor.dist(desDir) <  1.5* initStep * scaleNow / scaleOld){	
 		//create new mouse event
+		var ind = Math.round(Math.random()*skimmer.agents.length);
+		
+		desDir.setVect(skimmer.agents[ind].avgPos);
+		
+			
 		var autoEvent = document.createEvent("MouseEvents");
 		//event.initMouseEvent(type, canBubble, cancelable, view, detail, screenX, screenY, clientX, clientY, 
         //ctrlKey, altKey, shiftKey, metaKey, button, relatedTarget);
-  		if(Math.random() < 0.9){;}
+  		if(Math.random() < 0.5){;}
   		
-  		else if(Math.random() < 0.8){
-  			autoEvent.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+  		else if(Math.random() < 0.2){
+  			autoEvent.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, true, true, true, false, 0, null);
 			mouseClick(autoEvent);
 		}
 		else if(Math.random() < 0.5){
@@ -712,6 +717,7 @@
 		else{
 			autoEvent.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, true, false, 0, null);
 			mouseClick(autoEvent);
+		}
 		}
 		
 	}
@@ -1963,7 +1969,7 @@
 			ctx.fillStyle = 'rgba(255,0,0,0.7)';
 			ctx.beginPath();
 			
-			ctx.drawImage(arrow,Math.round(origin.x+simuCursor.returnX()),Math.round(origin.y+simuCursor.returnY()),40* scaleNow / scaleOld ,40* scaleNow / scaleOld );
+			ctx.drawImage(arrow,Math.round(origin.x+simuCursor.returnX()),Math.round(origin.y+simuCursor.returnY()),20* scaleNow / scaleOld ,20* scaleNow / scaleOld );
 			ctx.fill();
 			ctx.closePath();
 		}
@@ -2227,7 +2233,8 @@
 		if(autoFlag == 1){
 		
 			simuCursor.set(0,0);
-			mainDir.normalizePara(initStep*scaleNow/scaleOld);	
+			desDir.set(0,0);
+			reachFlag = 0;
 		}
 		
 	}
@@ -2569,9 +2576,9 @@
 					buildAgentLinkList();
 					
 					simuCursor.set(0,0);
+					reachFlag = 0;
 		
-					mainDir.set(Math.random()-0.5,Math.random()-0.5);
-					mainDir.normalizePara(initStep*scaleNow/scaleOld);	
+					desDir.set(0,0);
 					
 				
 
@@ -2749,9 +2756,8 @@
 		if (advanceRadioBtn[0].checked == true) {
 			// The automated mode
 			autoFlag = 0;
-			
-			mainDir.set(Math.random()-0.5,Math.random()-0.5);
-			mainDir.normalizePara(initStep*scaleNow/scaleOld);
+			reachFlag = 0;
+			desDir.set(0,0);
 			
 			
 			autoModeDriver();
