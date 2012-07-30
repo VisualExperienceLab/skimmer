@@ -53,7 +53,7 @@
 	var depthChangeCount = 0 ;      
 	var DEPTHLAYER = 5;           
 	var IMAGE_SWITCH_LIMIT = 50;
-	var LEAST_IMAGE_WIDTH = 20;      //less than the value would be regarded as invalid
+	var LEAST_IMAGE_WIDTH = 25;      //less than the value would be regarded as invalid
 	var AGENT_REMOVE_LIMIT = 200;     //secondary agents
 	var DEPTH_COUNT_LIMIT = 20;      //for soften
 	var MAX_LINE = 10;               //text box content
@@ -1365,8 +1365,14 @@
 		// Draw the circles. //
 		if( skimmer.DRAW_CIRCLES ) {
 
+		
+		
+				
+		
+		
 			if(depthOrder.length != 0 && depthOrder.length == skimmer.agents.length ){
 				
+				depthOrder.sort(function(a,b) {return a[1]-b[1]});
 				
 				if( depthChangeCount > 10000 ) depthChangeCount = 0 ;
 
@@ -1377,6 +1383,7 @@
 				
 					for(var i=0;i<depthOrder.length;i++){ 
 						//inc depth
+						if(false)
 						depthOrder[i][1]++;
 						
 						if(depthOrder[i][1] >= DEPTHLAYER ){
@@ -1413,7 +1420,7 @@
 			    	}	
 			    	
 					//render in new order
-			    	depthOrder.sort(function(a,b) {return a[1]-b[1]});
+			    	
 					
 			    	
 			    }
@@ -1678,7 +1685,14 @@
 		}
 
 		// Draw all of the text and set the agent's bounding box. //
-		for(var i = 0; i < skimmer.agents.length; i++){
+		
+		for(var pi = 0; pi < skimmer.agents.length; pi++){
+				if(depthOrder.length != 0 &&  depthOrder.length == skimmer.agents.length)
+					//render with depth order
+					i = depthOrder[pi][0];
+				else
+					i = pi;
+		
 			var agent = skimmer.agents[i];
 			var alpha = parseFloat( (  agent.TICKS_TILL_FADE - agent.curTicksTillFade ) / agent.TICKS_TILL_FADE ) ;
 			if( alpha > 1.0 ) { alpha = 1.0; }
@@ -1731,7 +1745,7 @@
 			ctx.fillStyle='rgba(250,250,250,0.8)';
 			
 			tAlpha = ctx.globalAlpha ; 
-			ctx.globalAlpha = valueSlider > 50 ? 1: valueSlider / 50.0;
+			ctx.globalAlpha = ( agent.pictureMode == 0 )? (valueSlider > 50 ? valueSlider / 100.0 : 0.5) : valueSlider / 100.0;
 			
 			//render text
 			if(metrics.width < agent.radius*2)
