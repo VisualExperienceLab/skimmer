@@ -37,7 +37,6 @@
 	// Default RSS source address
 	var sourceAddress = "http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&location=&type=N&binary=Y&keywords=";
 	//sourceAddress = "http://api.flickr.com/services/feeds/photos_public.gne?tags=ncsu&lang=en-us&format=rss_200";
-	//var ratioCanvas = 18.0/20;
 	var ratioCanvas = 1;
 	var scaleNow = 0;
 	var scaleOld = 0;
@@ -51,7 +50,8 @@
 	var depthOrder = new Array();   //depth of agents
 	var depthChangeCount = 0 ;      
 	var DEPTHLAYER = 5;           
-	var LEAST_IMAGE_WIDTH = 10;      //less than the value would be regarded as invalid
+	var IMAGE_SWITCH_LIMIT = 50;
+	var LEAST_IMAGE_WIDTH = 20;      //less than the value would be regarded as invalid
 	var AGENT_REMOVE_LIMIT = 50;     //secondary agents
 	var DEPTH_COUNT_LIMIT = 20;      //for soften
 	var MAX_LINE = 10;               //text box content
@@ -723,10 +723,10 @@
 		
 		
 		var stretchFactor = 0.5;
-		if (minLength < LEAST_IMAGE_WIDTH)
+		if (minLength <= LEAST_IMAGE_WIDTH)
 		{
 		}
-		else if ( minLength * 1.0 / dw > stretchFactor )   
+		else if ( minLength * 1.0 / stretchFactor >  dw *0.75 )   
 		//center
 		{
 			ctx.save();
@@ -1363,11 +1363,11 @@
 				
 				if(skimmer.agents[pi].switchDepthEnable == 1){
 					
-					if(valueSlider < 80){
+					
 					skimmer.agents[pi].switchDepthCount++;
 					//change alpha to simulate fade 
 					skimmer.agents[pi].localAlpha = Math.cos( skimmer.agents[pi].switchDepthCount *1.0 / DEPTH_COUNT_LIMIT *Math.PI - 0.5*Math.PI ) *(-0.7) + 1;
-			    	}
+			    	
 			    if(skimmer.agents[pi].switchDepthCount == Math.round(DEPTH_COUNT_LIMIT*0.5)){
 			    
 			    	for(var ki=0;ki<depthOrder.length;ki++){
@@ -1406,7 +1406,7 @@
 
 
 			for(var pi = 0; pi < skimmer.agents.length; pi++){
-				if(depthOrder.length != 0 &&  depthOrder.length == skimmer.agents.length && skimmer.colorType == 0)
+				if(depthOrder.length != 0 &&  depthOrder.length == skimmer.agents.length)
 					//render with depth order
 					i = depthOrder[pi][0];
 				else
@@ -1434,7 +1434,6 @@
 				//slider control
 				ctx.globalAlpha = agent.localAlpha*(valueSlider/100.0);
 				if(ctx.globalAlpha <0.1) ctx.globalAlpha = 0.1; 
-				if( skimmer.colorType != 0 ) ctx.globalAlpha = 1;
 				skimmer.agents[i].radius = radius / 2;
 				ctx.beginPath();
 				//render agents circle
@@ -1445,7 +1444,7 @@
 
 
 				//render image with switch smoothing
-				if (skimmer.agents[i].imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 )	{
+				if (skimmer.agents[i].imageLinkList[0] !=null && showImageFlag == 1 )	{
 					var imgNews = new Image();
 					tAlpha = ctx.globalAlpha ;
 					//slider control
@@ -1454,7 +1453,7 @@
 					try{
 						if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 
-						if(++skimmer.agents[i].imageFrequency%100 == 0 && Math.random() < 0.5 || skimmer.agents[i].switchPicture > 0){
+						if(++skimmer.agents[i].imageFrequency%150 == 0 && Math.random() < 0.5 || skimmer.agents[i].switchPicture > 0){
 							
 							//common state without fading 
 							if(skimmer.agents[i].switchPicture == 0){
@@ -1487,7 +1486,7 @@
 							}
 							
 							//smoothing 
-							else if(skimmer.agents[i].switchPicture < 21 ){
+							else if(skimmer.agents[i].switchPicture < IMAGE_SWITCH_LIMIT ){
 
 								//ctx.fillStyle = "#000";
 								//ctx.arc(Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y),Math.round(radius / 2), 0, Math.PI * 2, false); 
@@ -1495,7 +1494,7 @@
 								//blending two pictures with interpolation of alpha
 								var inc = (skimmer.agents[i].imageIndex+1)%skimmer.agents[i].imageLinkList.length;
 								var fflag = 0;
-								ctx.globalAlpha =( 1 - skimmer.agents[i].switchPicture/ 20.0 )*agent.localAlpha*ttAlpha;
+								ctx.globalAlpha =( 1 - skimmer.agents[i].switchPicture * 1.0/ IMAGE_SWITCH_LIMIT )*agent.localAlpha*ttAlpha;
 								
 								imgNews.src = skimmer.agents[i].imageLinkList[skimmer.agents[i].imageIndex];
                                 
@@ -1511,7 +1510,7 @@
 									fflag++;
 								}
 
-								ctx.globalAlpha = (skimmer.agents[i].switchPicture/ 20.0)*agent.localAlpha*ttAlpha;
+								ctx.globalAlpha = (skimmer.agents[i].switchPicture/ IMAGE_SWITCH_LIMIT)*agent.localAlpha*ttAlpha;
 								var newImg = new Image();
 								newImg.src = skimmer.agents[i].imageLinkList[inc];
 
@@ -1670,7 +1669,7 @@
 			}		
 
 			//back ground color of text for agents with image
-			if (agent.imageLinkList[0] !=null && skimmer.colorType == 0 && showImageFlag == 1 && agent.imageLinkValidation == 1 && skimmer.selectedWords.indexOf(agent) < 0 )	{
+			if (agent.imageLinkList[0] !=null && showImageFlag == 1 && agent.imageLinkValidation == 1 && skimmer.selectedWords.indexOf(agent) < 0 )	{
 
 				ctx.save();
 				ctx.beginPath();
@@ -1699,7 +1698,7 @@
 			
 			tAlpha = ctx.globalAlpha ; 
 			ctx.globalAlpha = valueSlider > 50 ? 1: valueSlider / 50.0;
-			if (skimmer.colorType != 0) ctx.globalAlpha = 1;
+			
 			//render text
 			if(metrics.width < agent.radius*2)
 			ctx.fillText(agent.text.toLowerCase(), Math.round(origin.x + agent.avgPos.x), Math.round(origin.y + agent.avgPos.y));
@@ -1944,7 +1943,7 @@
 		//overlap frequency
 		if(overlapCheckCount >= 10000) overlapCheckCount = 600;
 		
-		if( ++overlapCheckCount % 210 == 0 && overlapCheckCount > 600 && skimmer.colorType == 0){ checkAgentOverlap();}
+		if( ++overlapCheckCount % 210 == 0 && overlapCheckCount > 600 ){ checkAgentOverlap();}
 	
 		skimmer.update(0.05, 1024.0, 768.0, scaleNow , scaleOld);
 
