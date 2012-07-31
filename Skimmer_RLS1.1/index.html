@@ -53,7 +53,7 @@
 	var depthChangeCount = 0 ;      
 	var DEPTHLAYER = 5;           
 	var IMAGE_SWITCH_LIMIT = 50;
-	var LEAST_IMAGE_WIDTH = 25;      //less than the value would be regarded as invalid
+	var LEAST_IMAGE_WIDTH = 30;      //less than the value would be regarded as invalid
 	var AGENT_REMOVE_LIMIT = 200;     //secondary agents
 	var DEPTH_COUNT_LIMIT = 20;      //for soften
 	var MAX_LINE = 10;               //text box content
@@ -1562,7 +1562,7 @@
 					try{
 						if(skimmer.agents[i].imageFrequency>1000) skimmer.agents[i].imageFrequency=1;
 
-						if(++skimmer.agents[i].imageFrequency%400 == 0 && Math.random() < 0.5 || skimmer.agents[i].switchPicture > 0){
+						if(++skimmer.agents[i].imageFrequency%400 == 0 && Math.random() < 0.8 || skimmer.agents[i].switchPicture > 0){
 							
 							//common state without fading
 							if(skimmer.agents[i].switchPicture == 0){
@@ -1584,6 +1584,7 @@
 									//ctx.drawImage(imgNews,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									drawAvoidStretch(agent,ctx,imgNews,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
 									agent.pictureMode = 2;
+									
 								}
 								//use valid image because current url is invalid
 								else if (skimmer.agents[i].validImageFlag == 0){
@@ -1640,19 +1641,7 @@
 								//ctx.globalAlpha = 1 ;
 								ctx.globalAlpha = agent.localAlpha*ttAlpha;
 								
-								//no use 
-								if ( fflag == 2 ){
-									//ctx.drawImage(skimmer.agents[i].validImage, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-									//drawAvoidStretch(agent,ctx,skimmer.agents[i].validImage,agent.shapeColor, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-									agent.pictureMode = 1;
-								}
-								else if (newImg.src == imgNews.src){
-									//ctx.drawImage(newImg, Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-									//drawAvoidStretch(agent,ctx,newImg,agent.shapeColor,Math.round(origin.x + agent.avgPos.x-radius / 2 ), Math.round(origin.y + agent.avgPos.y-radius / 2),radius,radius);
-
-									agent.pictureMode = 2;
-								}
-								//~no use
+								
 								newImg=null;
 							}
 							
