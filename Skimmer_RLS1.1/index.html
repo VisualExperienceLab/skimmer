@@ -44,6 +44,7 @@
 	var currentCursor = new Vector2(); //for mouse move
 	var simuCursor = new Vector2();    //for automouse
 	var desDir = new Vector2();       //automouse main direction
+	var mouseCount = 0;
 	var ind = 0;
 	
 	var reachFlag = 1;
@@ -52,10 +53,10 @@
 	var checkImageUrlFlag = 0; 
 	var depthOrder = new Array();   //depth of agents
 	var depthChangeCount = 0 ;      
-	var DEPTHLAYER = 800;           
+	var DEPTHLAYER = 2000;           
 	var IMAGE_SWITCH_LIMIT = 50;
 	var LEAST_IMAGE_WIDTH = 30;      //less than the value would be regarded as invalid
-	var AGENT_REMOVE_LIMIT = 200;     //secondary agents
+	var AGENT_REMOVE_LIMIT = 1000;     //secondary agents
 	var DEPTH_COUNT_LIMIT = 50;      //for soften
 	var DEPTH_FREQUENCY = 100;
 	var MAX_LINE = 10;               //text box content
@@ -72,7 +73,6 @@
 	//for overlaping manipulation
 	
 	var agentOverlapMark = null;     //detect overlap
-	var overlapCheckCount = 0;       
 	
 	var tAlpha = 0 ;               //tmp
 	// Record the title of the skimmer
@@ -418,11 +418,24 @@
 		//title link
 		if(event.button == 0 && linkFlag == 2 && autoFlag == 0 )
 		{
-			window.open('http://designgraphics.ncsu.edu/search/label/skimmer');
+		
+			tmpAgent = new AgentWord();
+					
+					tmpAgent.stem = "dgl";
+					tmpAgent.text = "http://designgraphics.ncsu.edu/search/label/skimmer";
+					tmpAgent.occurrences = skimmer.maxOccurrence;
+					tmpAgent.pos.set(0 - 3.0 + Math.random() * 6.0, 0 - 3.0 + Math.random() * 6.0);
+					tmpAgent.avgPos.setVect(tmpAgent.pos);
+					tmpAgent.desiredAlpha = 1.0;
+					tmpAgent.shapeColor = "rgba(255,0,0,1)";
+					tmpAgent.clickPriority = 2;
+					skimmer.agents.push(tmpAgent);
+			//window.open('http://designgraphics.ncsu.edu/search/label/skimmer');
+			
 		}
 		else if(event.button == 0 && linkFlag == 3 && autoFlag == 0 )
 		{
-			window.open('http://designgraphics.ncsu.edu');
+			//window.open('http://designgraphics.ncsu.edu');
 		}
 		
 		//triggered if text box appears
@@ -674,6 +687,8 @@
 	
 	function autoMouse(){
 		
+		mouseCount ++;
+		if(mouseCount > 10000) mouseCount = 900;
 		if(ind >= skimmer.agents.length){ ind = 0;}
 		desDir.setVect(skimmer.agents[ind].avgPos);
 		var tmpV = new Vector2();
@@ -721,7 +736,7 @@
 			autoEvent.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, true, false, false, false, 0, null);
 			mouseClick(autoEvent);
 		}
-		else{
+		else if(mouseCount > 800){
 			autoEvent.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, true, false, 0, null);
 			mouseClick(autoEvent);
 		}
@@ -1453,10 +1468,8 @@
 				
 				depthOrder.sort(function(a,b) {return a[1]-b[1]});
 				
-				if( depthChangeCount > 10000 ) depthChangeCount = 0 ;
 
 				//depth change frequency
-				if( true||++depthChangeCount%DEPTH_FREQUENCY == 0 ){
 				//	depthOrder.sort(function(a,b) {return a[1]-b[1]});
 				//}
 				
@@ -1473,11 +1486,12 @@
 						depthOrder[i][1]--;
 						
 						//skimmer.agents[depthOrder[i][0]].localAlpha = depthOrder[i][1] *0.5 / DEPTHLAYER + 0.5;
-					skimmer.agents[depthOrder[i][0]].localAlpha = Math.sin( depthOrder[i][1] *1.0 / DEPTHLAYER *0.5*Math.PI ) * 0.6+0.2 ;
-						
-						if(agentOverlapMark[depthOrder[i][0]] == 1){
-							skimmer.agents[depthOrder[i][0]].localAlpha = 1;
-						}
+					//skimmer.agents[depthOrder[i][0]].localAlpha = Math.sin( depthOrder[i][1] *1.0 / DEPTHLAYER *0.5*Math.PI ) * 0.6+0.2 ;
+					skimmer.agents[depthOrder[i][0]].localAlpha = 1.0 / ( 2 - depthOrder[i][1] *1.0 / DEPTHLAYER ) * 0.8;
+					
+						//if(agentOverlapMark[depthOrder[i][0]] == 1){
+						//	skimmer.agents[depthOrder[i][0]].localAlpha = 1;
+						//}
 						
 						//if(depthOrder[i][1] >= DEPTHLAYER ){
 						
@@ -1485,7 +1499,7 @@
 						
 						//}
 					}
-				}
+				
 			}
 			else{/*alert(depthOrder.length);*/}
 			/*
@@ -1566,7 +1580,7 @@
 				
 				//slider control
 				ctx.globalAlpha = agent.localAlpha*(valueSlider/100.0);
-				if(ctx.globalAlpha <0.1) ctx.globalAlpha = 0.1; 
+				if(ctx.globalAlpha <0.2) ctx.globalAlpha = 0.2; 
 				skimmer.agents[i].radius = radius / 2;
 				ctx.beginPath();
 				//render agents circle
@@ -2075,10 +2089,7 @@
 			ctx.closePath();
 		}
 		
-		//overlap frequency
-		if(overlapCheckCount >= 10000) overlapCheckCount = 600;
 		
-		if( ++overlapCheckCount % 80 == 0 && overlapCheckCount > 600 ){ checkAgentOverlap();}
 	
 		skimmer.update(0.05, 1024.0, 768.0, scaleNow , scaleOld);
 
@@ -2343,7 +2354,7 @@
 			
 			ind = 0;
 			desDir.set(skimmer.agents[ind]);
-			
+			mouseCount = 0;
 			reachFlag = 0;
 		}
 		
@@ -2707,6 +2718,7 @@
 		
 					ind = 0;
 					desDir.set(skimmer.agents[ind]);
+					mouseCount = 0;
 					
 				
 
@@ -2904,6 +2916,7 @@
 			reachFlag = 0;
 			ind = 0;
 			desDir.set(skimmer.agents[ind]);
+			mouseCount = 0;
 			
 			
 			autoModeDriver();
