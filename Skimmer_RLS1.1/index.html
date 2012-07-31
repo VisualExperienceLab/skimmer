@@ -1269,6 +1269,7 @@
 			// Show the color key according to the color mapping scheme
 			switch (skimmer.colorType) {
 				case "0":
+				case 0:
 					// random
 					// There is no color key for a random color mapping scheme
 					/*
@@ -1286,6 +1287,7 @@
 					 */
 					break;
 				case "1":
+				case 1:
 					// grammar
 					// Draw the box and the border
 					// The box is removed
@@ -1333,6 +1335,7 @@
 
 					break;
 				case "3":
+				case 3:
 					// emotioin
 					// Draw the box and the border
 					// The box is removed
@@ -2324,7 +2327,7 @@
 		var selectIndex=selectObj.selectedIndex;
 		var selectVal = selectObj.options[selectIndex].value;
 
-		skimmer.colorType = selectVal;
+		skimmer.colorType = parseInt(selectVal);
 		skimmer.updateAgentColor();
 	}
 	
@@ -2684,6 +2687,9 @@
 								break;
 							case 'emotion':
 								colorscheme = 3;
+								break;
+							case 'gray':
+								colorscheme = 4;
 								break;
 							default: 
 								colorscheme = 0;
