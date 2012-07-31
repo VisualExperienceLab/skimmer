@@ -137,6 +137,9 @@
 
 				// Hide the progress bar when feeding is done
 			}
+			else {
+				alert(result.error.message);
+			}
 
 			feedFinished = 1;
 
@@ -2117,6 +2120,9 @@
 				buildAgentLinkList();
 
 			}
+			else {
+				alert(result.error.message);
+			}
 
 			//feedFinished = 1;
 
@@ -2468,7 +2474,10 @@
 						alert("More searching results are needed for visualization.");
 					}
 				}
-				
+				else {
+					alert(result.error.message);
+				}
+
 				feedFinished = 1;
 
 			});
@@ -2561,6 +2570,10 @@
 					alert("More searching results are needed for visualization.");
 				}
 			}
+			else {
+				alert(result.error.message);
+			}
+
 
 			feedFinished = 1;
 
@@ -2759,6 +2772,9 @@
 				else {
 					alert("More searching results are needed for visualization.");
 				}
+			}
+			else {
+				alert(result.error.message);
 			}
 
 			feedFinished = 1;
