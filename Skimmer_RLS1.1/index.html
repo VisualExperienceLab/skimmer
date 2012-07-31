@@ -60,7 +60,7 @@
 	var DEPTH_COUNT_LIMIT = 50;      //for soften
 	var DEPTH_FREQUENCY = 100;
 	var MAX_LINE = 10;               //text box content
-	var OVERLAP_DETECTION = 100;     
+	var OVERLAP_DETECTION = 100;
 	var autoFlag = 0;
 	var initStep = 5;               //automouse
 	var mouseCount = 1;              
@@ -421,12 +421,12 @@
 		
 			tmpAgent = new AgentWord();
 					
-					tmpAgent.stem = "dgl";
+					tmpAgent.stem = "skimmer";
 					tmpAgent.text = "http://designgraphics.ncsu.edu/search/label/skimmer";
 					tmpAgent.occurrences = skimmer.maxOccurrence;
 					tmpAgent.pos.set(0 - 3.0 + Math.random() * 6.0, 0 - 3.0 + Math.random() * 6.0);
 					tmpAgent.avgPos.setVect(tmpAgent.pos);
-					tmpAgent.desiredAlpha = 1.0;
+					tmpAgent.desiredAlpha = 0.8;
 					tmpAgent.shapeColor = "rgba(255,0,0,1)";
 					tmpAgent.clickPriority = 2;
 					skimmer.agents.push(tmpAgent);
@@ -435,6 +435,18 @@
 		}
 		else if(event.button == 0 && linkFlag == 3 && autoFlag == 0 )
 		{
+					tmpAgent = new AgentWord();
+					
+					tmpAgent.stem = "dgl";
+					tmpAgent.text = "http://designgraphics.ncsu.edu";
+					tmpAgent.occurrences = skimmer.maxOccurrence;
+					tmpAgent.pos.set(0 - 3.0 + Math.random() * 6.0, 0 - 3.0 + Math.random() * 6.0);
+					tmpAgent.avgPos.setVect(tmpAgent.pos);
+					tmpAgent.desiredAlpha = 0.8;
+					tmpAgent.shapeColor = "rgba(255,0,0,1)";
+					tmpAgent.clickPriority = 2;
+					skimmer.agents.push(tmpAgent);
+		
 			//window.open('http://designgraphics.ncsu.edu');
 		}
 		
