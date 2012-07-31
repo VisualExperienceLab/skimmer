@@ -699,7 +699,8 @@
 		
 		if (  simuCursor.dist(desDir) <  1.5* initStep * scaleNow / scaleOld){	
 		//create new mouse event
-		ind = Math.floor(Math.random()*(skimmer.agents.length-1));
+		ind = parseInt(Math.random()*(skimmer.agents.length-2));
+		//ind = Math.floor(Math.random()*(skimmer.agents.length-1));
 		
 		desDir.setVect(skimmer.agents[ind].avgPos);
 		
