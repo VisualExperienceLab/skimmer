@@ -1452,6 +1452,7 @@
 					for(var i=0;i<depthOrder.length;i++){ 
 						//inc depth
 						
+						if( agentOverlapMark[depthOrder[i][0]] == -1)
 						depthOrder[i][1]++;
 						
 						if(depthOrder[i][1] >= DEPTHLAYER ){
