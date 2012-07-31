@@ -2587,7 +2587,7 @@
 	// variables setting the function intervals
 	var autoIntervalID;
 	
-	var timeInterval = 30000;		// the time interval is set 0 minute 30 seconds
+	var timeInterval = 60000;		// the time interval is set 0 minute 30 seconds
 	
 	var sourceSelectOrder = 0;
 	
@@ -2760,7 +2760,7 @@
 			sourceXmlDoc = loadXmlFile("data/sourceconfig.xml");
 			sourceNodes = sourceXmlDoc.getElementsByTagName("source");
 
-			autoIntervalID = setTimeout(autoModeFunc, timeInterval);
+			autoIntervalID = setTimeout(autoModeFunc, 30000);
 			//autoIntervalID = setInterval(autoModeFunc, timeInterval);
 			autoFlag = 1;
 
