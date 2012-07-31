@@ -2,24 +2,24 @@
 <sourceconfig>
 	<source>
 		<feed>http://feeds.feedburner.com/NCSULibrariesPESNews?format=xml</feed>
-		<interval>20</interval>
+		<interval>60</interval>
 		<color>random</color>
 	</source>
 	<source>
 		<feed>http://calendar.activedatax.com/ncstate/RSSSyndicator.aspx?category=&amp;location=&amp;type=N&amp;binary=Y&amp;keywords=</feed>
 		<color>grammar</color>
-		<interval>20</interval>
+		<interval>60</interval>
 	</source>
 	<source>
 		<feed>http://search.twitter.com/search.rss?q=%23ncsu</feed>
 		<color>emotion</color>
-		<interval>25</interval>
+		<interval>60</interval>
 	</source>
 	<source>
 		<website>ncsu_twitter</website>
 		<keyword>ncsu</keyword>
 		<color>gray</color>
-		<interval>55</interval>
+		<interval>60</interval>
 	</source>
 	<source>
 		<website>google_news</website>
