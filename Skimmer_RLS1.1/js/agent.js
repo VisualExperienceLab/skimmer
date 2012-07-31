@@ -87,6 +87,9 @@ function Agent(){
 	this.localAlpha = 1;
 	this.shiftMode = 1;
 	
+	//direction of depth
+	this.depthDir = 1;
+	
 
 }
 
