@@ -2585,7 +2585,7 @@
 	// variables setting the function intervals
 	var autoIntervalID;
 	
-	var timeInterval = 30000;		// the time interval is set 0 minute 30 seconds
+	var timeInterval = 60000;		// the time interval is set 0 minute 30 seconds
 	
 	var sourceSelectOrder = 0;
 	
@@ -2757,8 +2757,9 @@
 			sourceXmlDoc = loadXmlFile("data/sourceconfig.xml");
 			sourceNodes = sourceXmlDoc.getElementsByTagName("source");
 
-			autoIntervalID = setTimeout(autoModeFunc, timeInterval);
-			//autoIntervalID = setInterval(autoModeFunc, timeInterval);
+			// When automated mode is on, the current screen will be kept on for 30 seconds
+			autoIntervalID = setTimeout(autoModeFunc, 30000);
+			//autoIntervalID = setTimeout(autoModeFunc, timeInterval);
 			autoFlag = 1;
 
 			//autoMode = document.getElementById("autoMode");
