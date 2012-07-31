@@ -670,7 +670,7 @@
 	}
 	
 	function autoMouse(){
-		
+		if(ind >= skimmer.agents.length){ ind = 0;}
 		desDir.setVect(skimmer.agents[ind].avgPos);
 		var tmpV = new Vector2();
 		
