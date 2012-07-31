@@ -1038,6 +1038,7 @@
 
 		
 		
+		ctx.font = 'bold italic '+Math.round(30 * scaleNow / scaleOld)+'px Arial';
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
 		ctx.fillText("Skimmer, by Design Graphics Lab", canvas.width / 2, canvas.height - 20 *scaleNow / scaleOld);  //bottom
@@ -1422,7 +1423,7 @@
 		}	
 		else{linkFlag = 0;}
 		
-		ctx.font = 'bold '+Math.round(30 * scaleNow / scaleOld)+'px Arial';
+		ctx.font = 'bold italic '+Math.round(30 * scaleNow / scaleOld)+'px Arial';
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
 		
