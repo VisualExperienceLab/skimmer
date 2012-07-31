@@ -44,6 +44,7 @@
 	var currentCursor = new Vector2(); //for mouse move
 	var simuCursor = new Vector2();    //for automouse
 	var desDir = new Vector2();       //automouse main direction
+	var ind = 0;
 	
 	var reachFlag = 1;
 	var linkFlag = 0;                  //imagelink
@@ -669,7 +670,7 @@
 	
 	function autoMouse(){
 		
-		
+		desDir.setVect(skimmer.agents[ind].avgPos);
 		var tmpV = new Vector2();
 		
 		tmpV.setVect(simuCursor);
@@ -696,7 +697,7 @@
 		
 		if (  simuCursor.dist(desDir) <  1.5* initStep * scaleNow / scaleOld){	
 		//create new mouse event
-		var ind = Math.round(Math.random()*skimmer.agents.length);
+		ind = Math.round(Math.random()*skimmer.agents.length);
 		
 		desDir.setVect(skimmer.agents[ind].avgPos);
 		
@@ -2314,7 +2315,10 @@
 		if(autoFlag == 1){
 		
 			simuCursor.set(0,0);
-			desDir.set(0,0);
+			
+			ind = 0;
+			desDir.set(skimmer.agents[ind]);
+			
 			reachFlag = 0;
 		}
 		
@@ -2669,7 +2673,8 @@
 					simuCursor.set(0,0);
 					reachFlag = 0;
 		
-					desDir.set(0,0);
+					ind = 0;
+					desDir.set(skimmer.agents[ind]);
 					
 				
 
@@ -2862,7 +2867,8 @@
 			// The automated mode
 			autoFlag = 0;
 			reachFlag = 0;
-			desDir.set(0,0);
+			ind = 0;
+			desDir.set(skimmer.agents[ind]);
 			
 			
 			autoModeDriver();
