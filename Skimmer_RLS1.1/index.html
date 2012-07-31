@@ -394,7 +394,7 @@
 		for(var i = 0; i < skimmer.agents.length; i++){
 			depthOrder[i]=new Array();
 			depthOrder[i][0]=i
-			depthOrder[i][1]=Math.round(DEPTHLAYER*Math.random());
+			depthOrder[i][1]=Math.floor(DEPTHLAYER*Math.random());
 			skimmer.agents[i].depthDir = 1;
 			
 			agentOverlapMark[i] = -1;
@@ -698,7 +698,7 @@
 		
 		if (  simuCursor.dist(desDir) <  1.5* initStep * scaleNow / scaleOld){	
 		//create new mouse event
-		ind = Math.round(Math.random()*skimmer.agents.length);
+		ind = Math.floor(Math.random()*skimmer.agents.length);
 		
 		desDir.setVect(skimmer.agents[ind].avgPos);
 		
