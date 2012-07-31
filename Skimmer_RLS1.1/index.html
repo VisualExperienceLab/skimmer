@@ -52,7 +52,7 @@
 	var checkImageUrlFlag = 0; 
 	var depthOrder = new Array();   //depth of agents
 	var depthChangeCount = 0 ;      
-	var DEPTHLAYER = 200;           
+	var DEPTHLAYER = 800;           
 	var IMAGE_SWITCH_LIMIT = 50;
 	var LEAST_IMAGE_WIDTH = 30;      //less than the value would be regarded as invalid
 	var AGENT_REMOVE_LIMIT = 200;     //secondary agents
@@ -1468,7 +1468,7 @@
 						depthOrder[i][1]--;
 						
 						//skimmer.agents[depthOrder[i][0]].localAlpha = depthOrder[i][1] *0.5 / DEPTHLAYER + 0.5;
-						skimmer.agents[depthOrder[i][0]].localAlpha = Math.sin( depthOrder[i][1] *1.0 / DEPTHLAYER *0.5*Math.PI ) * 0.5+0.5 ;
+						skimmer.agents[depthOrder[i][0]].localAlpha = Math.sin( depthOrder[i][1] *1.0 / DEPTHLAYER *0.5*Math.PI ) * 0.7+0.3 ;
 						
 						if(agentOverlapMark[depthOrder[i][0]] == 1){
 							skimmer.agents[depthOrder[i][0]].localAlpha = 1;
