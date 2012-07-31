@@ -57,7 +57,7 @@
 	var LEAST_IMAGE_WIDTH = 30;      //less than the value would be regarded as invalid
 	var AGENT_REMOVE_LIMIT = 200;     //secondary agents
 	var DEPTH_COUNT_LIMIT = 50;      //for soften
-	var DEPTH_FREQUENCY = 100;
+	var DEPTH_FREQUENCY = 120;
 	var MAX_LINE = 10;               //text box content
 	var OVERLAP_DETECTION = 100;     
 	var autoFlag = 0;
@@ -394,7 +394,7 @@
 		for(var i = 0; i < skimmer.agents.length; i++){
 			depthOrder[i]=new Array();
 			depthOrder[i][0]=i
-			depthOrder[i][1]=Math.round(DEPTHLAYER*Math.random());
+			depthOrder[i][1]=Math.floor(DEPTHLAYER*Math.random());
 			
 			agentOverlapMark[i] = -1;
 		}	
@@ -697,7 +697,7 @@
 		
 		if (  simuCursor.dist(desDir) <  1.5* initStep * scaleNow / scaleOld){	
 		//create new mouse event
-		ind = Math.round(Math.random()*skimmer.agents.length);
+		ind = Math.floor(Math.random()*skimmer.agents.length);
 		
 		desDir.setVect(skimmer.agents[ind].avgPos);
 		
