@@ -66,6 +66,9 @@
 	var mouseCount = 1;              
 	var arrow = new Image();         //arrow for automode
 	arrow.src = "data/arrow.png";
+	
+	var logo1Exist = 0;
+	var logo2Exist = 0;
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
 	//var dglImg = new Image();
@@ -380,6 +383,9 @@
 	// build up agents image link list
 	function buildAgentLinkList(){
 		
+		logo1Exist = 0;
+		logo2Exist = 0;
+		
 		for(var i = 0; i < skimmer.agents.length; i++){
 			for(var j = 0; j < skimmer.articles.length; j++){
 				if(skimmer.articles[j].words.indexOf(skimmer.agents[i].text) > -1 || skimmer.articles[j].titlewords.indexOf(skimmer.agents[i].text)  > -1 ){
@@ -419,7 +425,7 @@
 		cursor.set(simuCursor.returnX(),simuCursor.returnY());
 		
 		//title link
-		if(event.button == 0 && linkFlag == 2 && autoFlag == 0 )
+		if(event.button == 0 && linkFlag == 2 && autoFlag == 0 && logo1Exist == 0 )
 		{
 		
 			tmpAgent = new AgentWord();
@@ -434,10 +440,12 @@
 					tmpAgent.clickPriority = 2;
 					tmpAgent.imageLinkList[0]="data/skimmer.png"
 					skimmer.agents.push(tmpAgent);
+			
+				logo1Exist = 1;
 			//window.open('http://designgraphics.ncsu.edu/search/label/skimmer');
 			
 		}
-		else if(event.button == 0 && linkFlag == 3 && autoFlag == 0 )
+		else if(event.button == 0 && linkFlag == 3 && autoFlag == 0 &&  logo2Exist == 0)
 		{
 					tmpAgent = new AgentWord();
 					
@@ -452,6 +460,7 @@
 					tmpAgent.imageLinkList[0]="data/dgl.png"
 					skimmer.agents.push(tmpAgent);
 		
+			logo2Exist = 1;
 			//window.open('http://designgraphics.ncsu.edu');
 		}
 		
@@ -543,7 +552,6 @@
 					skimmer.selectedArticle=skimmer.selectedArticles[0];
 					
 					return;
-					
 					
 					}
 					if(agent.imageLinkList[0] == "data/dgl.png" && agent.text == "Design Graphics Lab"){
@@ -778,7 +786,7 @@
 		
 		
 		
-		if (  simuCursor.dist(desDir) <  1.5* initStep * scaleNow / scaleOld){	
+		if (  simuCursor.dist(desDir) <  2* initStep * scaleNow / scaleOld){	
 		//create new mouse event
 		ind = parseInt(Math.random()*(skimmer.agents.length-2));
 		//ind = Math.floor(Math.random()*(skimmer.agents.length-1));
@@ -2141,7 +2149,16 @@
 		
 			if(skimmer.agents[i].clickPriority == 2 && skimmer.agents[i].removeCount > AGENT_REMOVE_LIMIT && Math.random() < 0.1 ){
 				var curIndex = skimmer.agents.indexOf(skimmer.agents[i]);
+				
+				if(skimmer.agents[curIndex].imageLinkList[0] == "data/dgl.png")
+				logo2Exist = 0;
+				if(skimmer.agents[curIndex].imageLinkList[0] == "data/skimmer.png")
+				logo1Exist = 0;
+				
 				skimmer.agents[curIndex].remove = true;
+				
+				
+				
 			}
 			else if(skimmer.agents[i].clickPriority == 2){
 				skimmer.agents[i].removeCount++;
@@ -2200,7 +2217,7 @@
 				skimmer.updateAgentsAdd();
 				skimmer.extractAgentMinMax();
 				buildAgentLinkList();
-
+				
 			}
 			else {
 				alert(result.error.message);
