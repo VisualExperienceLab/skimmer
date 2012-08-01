@@ -3,6 +3,35 @@
 	<source>
 		<feed>http://feeds.feedburner.com/NCSULibrariesPESNews?format=xml</feed>
 		<interval>60</interval>
+		<color>gray</color>
+	</source>
+	<source>
+		<website>google_news</website>
+		<keyword>olympics</keyword>
+		<color>gray</color>
+		<interval>60</interval>
+	</source>
+	<source>
+		<website>google_news</website>
+		<keyword>olympic</keyword>
+		<color>emotion</color>
+		<interval>60</interval>
+	</source>
+	<source>
+		<website>google_news</website>
+		<keyword>happy new year</keyword>
+		<color>grammar</color>
+		<interval>60</interval>
+	</source>
+	<source>
+		<website>google_news</website>
+		<keyword>java</keyword>
+		<color>grammar</color>
+		<interval>60</interval>
+	</source>
+	<source>
+		<feed>http://feeds.feedburner.com/NCSULibrariesPESNews?format=xml</feed>
+		<interval>60</interval>
 		<color>random</color>
 	</source>
 	<source>

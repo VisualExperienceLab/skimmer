@@ -2532,6 +2532,13 @@
 		var inputObj = document.getElementById("searchContent");
 		var inputVal = inputObj.value;
 
+		
+		// This is used to make sure that the type and format of the input value is legal
+		var tmp = document.createElement("DIV");
+		tmp.innerHTML = inputVal;
+		inputVal = tmp.textContent||tmp.innerText;
+		
+		
 		switch(selectVal) {
 			case 'Advanced_twitter_keyword_search':
 				isFlickr = 0;
@@ -2797,10 +2804,31 @@
 				}
 				else {
 					alert("More searching results are needed for visualization.");
+
+					// circulate the source address
+					if (sourceSelectOrder >= sourceNodes.length - 1) {
+						sourceSelectOrder = 0
+					}
+					else {
+						sourceSelectOrder = sourceSelectOrder + 1;
+					}
+
+					autoModeFunc();
 				}
 			}
 			else {
 				alert(result.error.message);
+				
+				
+				// circulate the source address
+				if (sourceSelectOrder >= sourceNodes.length - 1) {
+					sourceSelectOrder = 0
+				}
+				else {
+					sourceSelectOrder = sourceSelectOrder + 1;
+				}
+
+				autoModeFunc();
 			}
 
 			feedFinished = 1;
