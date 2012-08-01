@@ -68,7 +68,10 @@
 	arrow.src = "data/arrow.png";
 	// Define the inverted file system
 	//var IFS = new InvertedFileSystem();
-	
+	//var dglImg = new Image();
+	//dglImg.src = "data/dgl.png";
+	//var skimmerImg = new Image();
+	//skimmerImg.src = "data/skimmer.png";	
 	
 	//for overlaping manipulation
 	
@@ -422,13 +425,14 @@
 			tmpAgent = new AgentWord();
 					
 					tmpAgent.stem = "skimmer";
-					tmpAgent.text = "http://designgraphics.ncsu.edu/search/label/skimmer";
+					tmpAgent.text = "Skimmer";
 					tmpAgent.occurrences = skimmer.maxOccurrence;
 					tmpAgent.pos.set(0 - 3.0 + Math.random() * 6.0, 0 - 3.0 + Math.random() * 6.0);
 					tmpAgent.avgPos.setVect(tmpAgent.pos);
-					tmpAgent.desiredAlpha = 0.8;
-					tmpAgent.shapeColor = "rgba(255,0,0,1)";
+					tmpAgent.desiredAlpha = 0.5;
+					tmpAgent.shapeColor = new Color(255,0,0,0.5);
 					tmpAgent.clickPriority = 2;
+					tmpAgent.imageLinkList[0]="data/skimmer.png"
 					skimmer.agents.push(tmpAgent);
 			//window.open('http://designgraphics.ncsu.edu/search/label/skimmer');
 			
@@ -438,13 +442,14 @@
 					tmpAgent = new AgentWord();
 					
 					tmpAgent.stem = "dgl";
-					tmpAgent.text = "http://designgraphics.ncsu.edu";
+					tmpAgent.text = "Design Graphics Lab";
 					tmpAgent.occurrences = skimmer.maxOccurrence;
 					tmpAgent.pos.set(0 - 3.0 + Math.random() * 6.0, 0 - 3.0 + Math.random() * 6.0);
 					tmpAgent.avgPos.setVect(tmpAgent.pos);
-					tmpAgent.desiredAlpha = 0.8;
-					tmpAgent.shapeColor = "rgba(255,0,0,1)";
+					tmpAgent.desiredAlpha = 0.5;
+					tmpAgent.shapeColor = new Color(255,0,0,0.5);
 					tmpAgent.clickPriority = 2;
+					tmpAgent.imageLinkList[0]="data/dgl.png"
 					skimmer.agents.push(tmpAgent);
 		
 			//window.open('http://designgraphics.ncsu.edu');
@@ -518,6 +523,52 @@
 
 				dist = tmp = tmpVect.length();
 				if(dist < agent.radius){
+				
+					if(agent.imageLinkList[0] == "data/skimmer.png" && agent.text == "Skimmer"){
+					
+					var tTitle = "skimmer title";
+					var tSummary="skimmer summary";
+					var tSource ="http://designgraphics.ncsu.edu/search/label/skimmer";
+					skimmer.agentArticle = new AgentArticle(skimmer.width / 3, skimmer.height / 3, tTitle, tSummary,tSource,null);
+					skimmer.agentArticle.pos.setVect(cursor);
+					skimmer.selectedWords.length = 0;
+					
+					
+					var tArticle = new Article();
+					tArticle.title=tTitle;
+					tArticle.summary=tSummary;
+					tArticle.source=tSource;
+					tArticle.imageUrl=null;
+					skimmer.selectedArticles.push(tArticle);
+					skimmer.selectedArticle=skimmer.selectedArticles[0];
+					
+					return;
+					
+					
+					}
+					if(agent.imageLinkList[0] == "data/dgl.png" && agent.text == "Design Graphics Lab"){
+					
+					var tTitle = "dgl title";
+					var tSummary="dgl summary";
+					var tSource = "http://designgraphics.ncsu.edu";
+					skimmer.agentArticle = new AgentArticle(skimmer.width / 3, skimmer.height / 3, tTitle, tSummary,tSource,null);
+					skimmer.agentArticle.pos.setVect(cursor);
+					skimmer.selectedWords.length = 0;
+					
+					var tArticle = new Article();
+					tArticle.title=tTitle;
+					tArticle.summary=tSummary;
+					tArticle.source=tSource;
+					tArticle.imageUrl=null;
+					skimmer.selectedArticles.push(tArticle);
+					skimmer.selectedArticle=skimmer.selectedArticles[0];
+					
+					return;
+					
+					
+					
+					}
+					
 					skimmer.selectedWords.push(agent);
 				}
 			}
@@ -1582,6 +1633,7 @@
 				ctx.fillStyle = agent.shapeColor.toString();
 				if(skimmer.selectedWords.length != 0 && (skimmer.selectedWords.indexOf(agent) < 0 )){
 					var colorUnselected = agent.shapeColor.darker();
+					
 					ctx.fillStyle = colorUnselected.toString();
 				}
 				//radius are twice the real radius of agents
@@ -1894,6 +1946,7 @@
 		ctx.globalAlpha = 1;
 			
 		if(skimmer.agentArticle != null){
+		
 			
 			//clip link string to fit the width of text box
 			var displayedTitle = "";
@@ -1937,11 +1990,15 @@
 
 				//deal with text
 				var dealString = "";
-				if(skimmer.agentArticle.shiftMode == 1)
+				if(skimmer.agentArticle.shiftMode == 1){
 				dealString = skimmer.agentArticle.title;
-				else
-				dealString = skimmer.agentArticle.text;
 				
+				}
+				else{
+				dealString = skimmer.agentArticle.text;
+
+				
+				}
 				//cut the content to lines and display
 				var dealWords = dealString.split(" ");
 				var dealedLines = new Array();
