@@ -30,19 +30,108 @@ Vector2.prototype = {
 Box = function(){
 	this.center = new Vector2();
 	this.extents = new Vector2();
+	this.isCircle = 0;
+	this.radius = 0;
 };
 
 Box.prototype = {
-	set: function(center,extents) { this.center = center; this.extents = extents; },
-	setBox: function(b) {this.center = b.center; this.extents = b.extents;},
+	set: function(center,extents,isCircle,radius) { this.center = center; this.extents = extents; this.isCircle = isCircle; this.radius = radius;},
+	setBox: function(b) {this.center = b.center; this.extents = b.extents;this.isCircle = b.isCircle; this.radius = b.radius;},
+	setCircle: function(isCircle,radius){this.isCircle = isCircle; this.radius = radius; },
 	intersects: function(box) {
-		var retVar = false;
-		tmpVect = new Vector2();
-		tmpVect.setVect(box.center);
-		tmpVect.sub(this.center);
-		retVar = ( Math.abs( tmpVect.x ) <= ( this.extents.x + box.extents.x ) )
+		
+		if(this.isCircle == 0 && box.isCircle == 0){
+			var retVar = false;
+			tmpVect = new Vector2();
+			tmpVect.setVect(box.center);
+			tmpVect.sub(this.center);
+			retVar = ( Math.abs( tmpVect.x ) <= ( this.extents.x + box.extents.x ) )
 				&& ( Math.abs( tmpVect.y ) <= ( this.extents.y + box.extents.y ) );
-		return retVar;
+			return retVar;
+		}
+		
+		if(this.isCircle == 1 && box.isCircle == 1){
+			var retVar = false;
+			tmpVect = new Vector2();
+			tmpVect.setVect(box.center);
+			tmpVect.sub(this.center);
+			retVar = tmpVect.length() < (box,radius + this.radius) ; 
+			return retVar;
+		}
+		
+		if(this.isCircle == 1 && box.isCircle == 0){
+			
+			tmpVect = new Vector2();
+			tmpVect.setVect(box.center);
+			tmpVect.add(box.extents);
+			tmpVect.sub(this.center);
+			
+			if ( tmpVect.length() < this.radius ) return true;
+			
+			tmpVect.setVect(box.center);
+			tmpVect.sub(box.extents);
+			tmpVect.sub(this.center);
+			
+			if ( tmpVect.length() < this.radius ) return true;
+			
+			tmpVect.setVect(box.center);
+			tmpVect.x += box.extents.x;
+			tmpVect.y -= box.extents.y;
+			tmpVect.sub(this.center);
+
+			if ( tmpVect.length() < this.radius ) return true;
+
+			tmpVect.setVect(box.center);
+			tmpVect.x += box.extents.x;
+			tmpVect.y -= box.extents.y;
+			tmpVect.sub(this.center);
+
+			
+			if ( tmpVect.length() < this.radius ) return true;
+			
+			return false;
+			 
+			
+		}
+		
+		if(this.isCircle == 0 && box.isCircle == 1){
+			
+			tmpVect = new Vector2();
+			tmpVect.setVect(this.center);
+			tmpVect.add(this.extents);
+			tmpVect.sub(box.center);
+			
+			if ( tmpVect.length() < box.radius ) return true;
+			
+			tmpVect.setVect(this.center);
+			tmpVect.sub(this.extents);
+			tmpVect.sub(box.center);
+			
+			if ( tmpVect.length() < box.radius ) return true;
+			
+			tmpVect.setVect(this.center);
+			tmpVect.x += this.extents.x;
+			tmpVect.y -= this.extents.y;
+			tmpVect.sub(box.center);
+
+			if ( tmpVect.length() < box.radius ) return true;
+
+			tmpVect.setVect(this.center);
+			tmpVect.x += this.extents.x;
+			tmpVect.y -= this.extents.y;
+			tmpVect.sub(box.center);
+
+			
+			if ( tmpVect.length() < box.radius ) return true;
+			
+			return false;
+			 
+		}
+		
+		
+		
+		
+		
 	},
 	contains: function(point){
 		var retVar = false;
